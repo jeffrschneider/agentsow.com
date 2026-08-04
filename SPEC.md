@@ -136,6 +136,26 @@ All clause objects carry a `grade` field. Where a clause naturally splits
 across grades (confidentiality is the canonical case), it is expressed as
 multiple sub-clauses, each singly graded.
 
+### 4.3 Contract language
+
+The signed document is structured data; the sentences a person reads are the
+contract language, and they MUST be covered by the signature or what a
+reader sees could change after signing. Every document therefore embeds,
+inside the signed bytes, a descriptor of the language it was written under:
+
+```json
+"language": { "id": "agent-sow-standard-language", "version": 1,
+              "sha256": "<hash of that version's template text>" }
+```
+
+Renderers MUST render a document using the language version it names. A
+renderer that does not know that version MUST say so and show the signed
+fields verbatim rather than newer words. Changing any sentence of a language
+version is a new version; the hash makes a silent same-version edit
+detectable. Documents MAY inherit clause VALUES from a provider's standard
+terms (recorded in a `derived_from` provenance field), but the document
+stays self-contained: values and language are both fixed at signing time.
+
 ## 5. Clauses
 
 ### 5.1 Parties
