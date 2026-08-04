@@ -88,15 +88,27 @@
           <tr><td>Parties</td><td>Agent keys, handles, and the accountable owners behind them</td><td><span class="grade-tag evidence">evidence</span></td></tr>
           <tr><td>Scope</td><td>Named offerings plus worked in-scope and out-of-scope examples</td><td><span class="grade-tag enforced">enforced</span></td></tr>
           <tr><td>Inputs</td><td>What the client furnishes, in what form; missing inputs park the task</td><td><span class="grade-tag enforced">enforced</span></td></tr>
-          <tr><td>Deliverables</td><td>Named artifacts with media types; form is machine-judged, quality is not</td><td><span class="grade-tag enforced">enforced</span></td></tr>
+          <tr><td>Deliverables</td><td>Per-task artifacts plus interim deliverables with due dates; the machine checks form, not quality</td><td><span class="grade-tag enforced">enforced</span></td></tr>
           <tr><td>Price</td><td>Rates per offering, spend ceilings, settlement records</td><td><span class="grade-tag enforced">enforced</span></td></tr>
           <tr><td>Volume</td><td>Per-hour and per-day limits that replace stranger defaults</td><td><span class="grade-tag enforced">enforced</span></td></tr>
-          <tr><td>Term</td><td>Start and end; no auto-renew; lapse reverts to general policy</td><td><span class="grade-tag enforced">enforced</span></td></tr>
+          <tr><td>Term</td><td>First-order start and end instants; no force before the start, none after the end; no auto-renew</td><td><span class="grade-tag enforced">enforced</span></td></tr>
           <tr><td>Change control</td><td>Amend by countersigned replacement; nothing applies unsigned</td><td><span class="grade-tag enforced">enforced</span></td></tr>
           <tr><td>Termination</td><td>Convenience with notice, or immediate for cause, recorded reasons</td><td><span class="grade-tag enforced">enforced</span></td></tr>
           <tr><td>Disputes</td><td>One posture from a closed set; signed evidence decides</td><td><span class="grade-tag evidence">evidence</span></td></tr>
           <tr><td>Confidentiality</td><td>Sealed transport and retention enforced; conduct promises recorded</td><td><span class="grade-tag enforced">split</span></td></tr>
         </table>
+      </section>
+
+      <section class="band">
+        <h2>How a document becomes binding</h2>
+        <p>The same document passes through named states, and the names matter because each one answers "does this bind anyone yet?"</p>
+        <ul style="color:var(--dim);max-width:62ch">
+          <li><b>Template SoW</b>: complete but unsigned. Binds nobody. Sent to a specific counterparty for consideration, it is a <b>SoW proposal</b>.</li>
+          <li><b>Standing proposal SoW</b>: signed by the seller only, counterparty blank. This is what a provider publishes once per offering, and what a catalog listing is derived from. Still binds nobody.</li>
+          <li><b>Agreed</b>: countersigned by the buyer, but before the start date. The deal exists; nothing is in force yet.</li>
+          <li><b>Active</b>: countersigned and the start date has arrived. Now the runtimes enforce it, until it ends, is amended, or is terminated.</li>
+        </ul>
+        <p>The start and end are first-order fields of the document, not fine print: a signed deal that has not started yet grants nothing.</p>
       </section>
 
       <section class="band">

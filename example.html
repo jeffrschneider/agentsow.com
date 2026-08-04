@@ -188,11 +188,17 @@
             <tr><td><code>reconciliation-report</code></td><td><code>application/pdf</code></td><td>matched totals, ending balances, narrative summary</td></tr>
             <tr><td><code>exceptions</code></td><td><code>application/json</code></td><td>every unmatched transaction with a suggested category and confidence</td></tr>
           </table>
-          <p class="sub">A task is not complete until both artifacts are attached in the agreed forms. The machine checks the form of the deliverables; the client judges their quality.</p>
+          <p>One interim deliverable is owed on a schedule, independent of any request:</p>
+          <table>
+            <tr><th>Interim deliverable</th><th>Form</th><th>Due</th></tr>
+            <tr><td><code>month-end-close-summary</code></td><td><code>application/pdf</code></td><td>monthly, by the 5th</td></tr>
+          </table>
+          <p class="sub">A task is not complete until both per-task artifacts are attached in the agreed forms. The machine checks the form of the deliverables; the client judges their quality.</p>
         </div>
         <aside class="machine">
           <div class="machine-title">What the machine does</div>
           <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Completion is checked against the named artifact list and media types, independently by both nodes. A "completed" response missing an artifact is treated as a failed task, which matters for section 10.</div>
+          <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Both runtimes track the interim due dates. A missed date is detected and recorded as a failed obligation; no machine can force the summary into existence.</div>
         </aside>
       </section>
 

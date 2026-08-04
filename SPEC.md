@@ -46,6 +46,16 @@ The key words MUST, MUST NOT, SHOULD, SHOULD NOT, and MAY are to be
 interpreted as described in RFC 2119.
 
 - **Engagement**: one instance of an Agent SoW between two parties.
+- **Template SoW**: a complete document with no signatures. It carries no
+  force. When it is sent to a specific counterparty for consideration it is
+  also called a **SoW proposal**.
+- **Standing proposal SoW**: a template signed by the selling party only,
+  with the counterparty left blank, published so that a qualified
+  counterparty can countersign it. The normal source of catalog listings
+  (§12).
+- **Agreed**: countersigned by both owners but before the start instant.
+- **Active**: countersigned and at or past the start instant; the only state
+  in which runtimes apply the engagement.
 - **Provider**: the party whose agent performs the work (the seller).
 - **Client**: the party whose agent requests the work (the buyer).
 - **Owner**: the accountable principal behind an agent, typically a person or
@@ -106,13 +116,14 @@ integer `version` starting at 1.
   "sow": "v1",
   "id": "sow_k7m2q4x9w3e6r8t1",
   "version": 1,
+  "starts_at": "2026-08-04T00:00:00Z",  // §5.7: first-order, not a clause field
+  "ends_at": "2027-02-01T00:00:00Z",    // §5.7
   "parties": { ... },        // §5.1
   "scope": { ... },          // §5.2
   "inputs": [ ... ],         // §5.3
   "deliverables": [ ... ],   // §5.4
   "price": { ... },          // §5.5
   "volume": { ... },         // §5.6
-  "term": { ... },           // §5.7
   "change_control": { ... }, // §5.8
   "termination": { ... },    // §5.9
   "disputes": { ... },       // §5.10
@@ -192,20 +203,36 @@ copy, crawl, or retain them beyond task execution.
 
 ### 5.4 Deliverables
 
-Named artifacts the provider attaches to a completed task, with media types.
+Two kinds. **Per-task deliverables** are named artifacts the provider
+attaches to each completed task. **Interim deliverables** are engagement-level
+obligations with dates: things the provider owes on a schedule, whether or
+not the client asked that day. Each interim deliverable carries either a
+single `due` instant or a `recurrence`.
 
 ```json
-"deliverables": [
-  { "name": "reconciliation-report", "media_type": "application/pdf" },
-  { "name": "exceptions", "media_type": "application/json" }
-],
-"grade": "enforced"
+"deliverables": {
+  "per_task": [
+    { "name": "reconciliation-report", "media_type": "application/pdf" },
+    { "name": "exceptions", "media_type": "application/json" }
+  ],
+  "interim": [
+    { "name": "month-end-close-summary", "media_type": "application/pdf",
+      "recurrence": { "every": "month", "due_by_day": 5 } },
+    { "name": "chart-of-accounts-review", "media_type": "application/pdf",
+      "due": "2026-11-01T00:00:00Z" }
+  ],
+  "grade": "enforced"
+}
 ```
 
-Grade: `enforced`, with a sharp boundary: **form is machine-judged, quality
-is not**. A task response claiming completion without every named artifact in
-its declared media type MUST be treated as a failed task by both runtimes.
-Whether the report is any good is a matter for §5.10 and for reputation.
+Grade: `enforced` for form, with a sharp boundary: **form is machine-judged,
+quality is not**. A task response claiming completion without every named
+per-task artifact in its declared media type MUST be treated as a failed task
+by both runtimes. Due dates on interim deliverables are `evidence`: both
+runtimes MUST detect and record a missed due instant, and a miss counts as a
+failed obligation for §5.9 and §5.10, but no runtime can force the work into
+existence. Whether any deliverable is good is a matter for §5.10 and for
+reputation.
 
 ### 5.5 Price and metering
 
@@ -244,14 +271,20 @@ survive restarts.
 
 ### 5.7 Term and renewal
 
-Start and end instants. Engagements MUST NOT renew automatically. After the
-end instant, the engagement's grants and limits stop applying and the client
-reverts to whatever the provider's general admission policy says.
+The start and end of an engagement are **first-order document fields**,
+`starts_at` and `ends_at` (§4.2), not fields buried inside a clause. They
+answer the activation question directly: a countersigned document has no
+force before `starts_at`. Between countersigning and the start instant the
+engagement is `agreed`, and neither runtime applies its grants or limits
+until the start instant arrives.
 
-```json
-"term": { "from": "2026-08-04T00:00:00Z", "until": "2027-02-01T00:00:00Z",
-          "grade": "enforced" }
-```
+Engagements MUST NOT renew automatically. After `ends_at` the engagement
+lapses: its grants and limits stop applying and the client reverts to
+whatever the provider's general admission policy says. Renewal is an
+amendment under §5.8, which may set a new `ends_at`.
+
+Grade: `enforced`. Both instants are inside the signed bytes; the gate
+simply does not apply the engagement outside them.
 
 ### 5.8 Change control
 
@@ -336,22 +369,31 @@ timestamp:
 ]
 ```
 
-A document is **active** only when both roles have valid signatures over the
-same canonical bytes. Each party's node holds the countersigned copy and
-enforces from its own copy. There is no central contract store to trust or to
-lose.
+A document is **agreed** when both roles have valid signatures over the same
+canonical bytes, and **active** once `starts_at` arrives. Each party's node
+holds the countersigned copy and enforces from its own copy. There is no
+central contract store to trust or to lose.
 
 ## 7. Lifecycle
 
+The document states, by signature count and time:
+
 ```
-proposed  →  active  →  amended (new version, both signatures)  →  ...
-                     →  lapsed (term expired)
-                     →  terminated (by either owner, §5.9)
+template SoW          no signatures; no force. Sent to a specific
+                      counterparty for consideration, it is a SoW proposal.
+standing proposal SoW seller's signature only, counterparty blank;
+                      published, waiting for a qualified countersign (§12)
+agreed                both signatures, before starts_at; no force yet
+active                both signatures, starts_at reached; the runtimes
+                      enforce it
+  → amended           replaced by a higher version with both signatures
+  → lapsed            ends_at passed
+  → terminated        ended by either owner (§5.9)
 ```
 
-A `proposed` document has one signature and no force. Runtimes MUST treat
-lapse and termination identically at the gate: the counterparty reverts to
-general admission policy. Nothing breaks and nothing lingers.
+A document with one signature, whoever signed it, has no force. Runtimes
+MUST treat lapse and termination identically at the gate: the counterparty
+reverts to general admission policy. Nothing breaks and nothing lingers.
 
 ## 8. Enforcement obligations and the asymmetry
 
@@ -399,9 +441,8 @@ word on safety cannot be signed away.
   MUST reject a lower version than the highest countersigned version they
   hold.
 - **Ceremony fatigue**: implementations SHOULD keep a zero-ceremony path.
-  Casual traffic must never require an engagement; the SoW is a shape you
-  graduate into when money and commitments appear, not a toll on saying
-  hello.
+  Casual traffic must never require an engagement; an SoW is for money and
+  commitments, not a toll on saying hello.
 - **Legal standing**: a signed document naming parties, work, and payment may
   constitute a contract in some jurisdictions regardless of what this
   specification calls it. Deployments SHOULD make their intended legal
@@ -417,3 +458,41 @@ examples. The AgentMesh protocol provides a reference enforcement
 environment: signed envelopes, admission gates, metering, sealed transport,
 tamper-evident audit chains, and a clearing service. Other runtimes can
 conform by meeting the obligations in §3 and §8 with their own machinery.
+
+## 12. Standing proposals and derived listings
+
+### 12.1 The standing proposal
+
+A **standing proposal SoW** is a template the selling owner has signed with
+the counterparty left blank: every clause complete, the deal open. It is the
+document a provider maintains once per offering rather than negotiating per
+client. Countersigning a standing proposal produces an `agreed` engagement
+with the countersigning party filled in as the client; it takes force at
+`starts_at` (§5.7).
+
+A standing proposal MUST only name offerings the provider's agent actually
+publishes in its own capability manifest. A clause that references a
+capability the agent does not carry is a validation error, not an offer.
+
+### 12.2 Listings are projections
+
+Where a catalog, marketplace, or directory lists an offering that can be
+engaged or carries a price, the listing MUST be derived from a standing
+proposal, not authored independently. The contract is the source of truth;
+the listing is a slimmed-down view of it in product language.
+
+- Structured claims in the listing (price, inputs, deliverables, scope,
+  volume, term length, dispute posture) MUST be pulled from the standing
+  proposal's clauses.
+- The listing SHOULD carry the identifier and version of the standing
+  proposal it was derived from, so a reader can fetch the full document the
+  ad summarizes.
+- Marketing prose MAY summarize and translate, and MUST NOT introduce a
+  claim no clause backs.
+- The scope clause's `in_scope` examples double as the listing's
+  representative queries: the text that finds the offering in search is the
+  same text that defines what the engagement covers.
+
+Free, informal offerings are exempt: a listing with no price and no engage
+action MAY be derived from the agent's manifest alone, or from an implicit
+minimal template. The mandate binds where money or commitments appear.
