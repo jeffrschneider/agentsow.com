@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent SoW Specification v0.1.0-draft</title>
+  <meta name="description" content="The Agent SoW specification: a signed, machine-graded statement of work between two parties whose agents do recurring work together.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="rail">
+    <a class="brand" href="index.html"><span class="dot"></span>agent sow</a>
+    <div class="grp">Read</div>
+    <nav>
+      <a href="index.html">Overview</a>
+      <a class="on" href="spec.html">The specification</a>
+      <a href="example.html">Worked example</a>
+    </nav>
+    <div class="grp">Sections</div>
+    <nav>
+      <a href="#motivation">1 Motivation</a>
+      <a href="#terms">2 Terminology</a>
+      <a href="#gradient">3 The gradient</a>
+      <a href="#document">4 Document model</a>
+      <a href="#clauses">5 Clauses</a>
+      <a href="#signatures">6 Signatures</a>
+      <a href="#lifecycle">7 Lifecycle</a>
+      <a href="#asymmetry">8 The asymmetry</a>
+      <a href="#precedence">9 Precedence</a>
+      <a href="#security">10 Security</a>
+      <a href="#related">11 Related work</a>
+    </nav>
+    <div class="grp">Family</div>
+    <nav>
+      <a href="https://agentmesh.ai">agentmesh.ai</a>
+      <a href="https://dev.agentmesh.ai">dev.agentmesh.ai</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="wrap">
+      <article class="spec">
+
+        <h1>Agent SoW Specification</h1>
+        <div class="meta">Version 0.1.0-draft &middot; Working Draft &middot; 2026-08-04</div>
+
+        <p>An <b>Agent SoW</b> (statement of work) is a signed document between two parties that governs recurring work performed by software agents. It states who the parties are, what work is in scope, what each side furnishes and delivers, at what price and volume, for how long, and what happens when things change, end, or go wrong.</p>
+        <p>The defining feature of this specification is not the clause list, which any consulting contract has. It is the <b>enforcement gradient</b>: every clause in an Agent SoW is labeled with what a machine can actually do about it. A clause is <i>enforced</i> (violations are refused mechanically), <i>evidence</i> (a signed, tamper-evident record exists), or <i>recorded</i> (a promise whose breach is punished by reputation, not code). A document that claims more enforcement than its runtime delivers is not conformant.</p>
+        <p>This specification is transport-neutral. It was developed alongside the AgentMesh protocol and borrows its task lifecycle from the A2A Task model, but nothing here requires a particular network, message bus, or vendor.</p>
+
+        <h2 id="motivation">1. Motivation</h2>
+        <p>Access control between agents today is modeled on the request/response firewall: identity checks, rate limits, size caps, applied uniformly to every message as if every message came from a stranger. That model protects a node. It says nothing about a relationship.</p>
+        <p>Real agent-to-agent work looks like consulting engagements, not packet filtering: the same two parties, repeatedly, over months, exchanging work under standing expectations. Human professionals govern that shape with a statement of work. Agents can do better than humans in one respect: a large subset of SoW clauses can be enforced by the runtime itself, refused at the door rather than litigated after the fact.</p>
+        <p>The Agent SoW exists to make that subset explicit, and to be honest about the remainder.</p>
+
+        <h2 id="terms">2. Conformance language and terminology</h2>
+        <p>The key words MUST, MUST NOT, SHOULD, SHOULD NOT, and MAY are to be interpreted as described in RFC 2119.</p>
+        <ul>
+          <li><b>Engagement</b>: one instance of an Agent SoW between two parties.</li>
+          <li><b>Provider</b>: the party whose agent performs the work (the seller).</li>
+          <li><b>Client</b>: the party whose agent requests the work (the buyer).</li>
+          <li><b>Owner</b>: the accountable principal behind an agent, typically a person or organization. Owners sign; agents work.</li>
+          <li><b>Agent</b>: a software actor identified by a public key, acting for an owner.</li>
+          <li><b>Node</b>: the runtime that hosts an agent and enforces the engagement's enforceable clauses on that agent's behalf.</li>
+          <li><b>Task</b>: one unit of work under an engagement, with a lifecycle of at least <code>submitted</code>, <code>working</code>, <code>input_required</code>, <code>completed</code>, <code>failed</code>, <code>canceled</code>.</li>
+          <li><b>Artifact</b>: a named deliverable attached to a completed task, distinct from conversational messages.</li>
+          <li><b>Clearing</b>: a settlement function trusted by both parties to move value and, where supported, to reverse it.</li>
+        </ul>
+
+        <h2 id="gradient">3. The enforcement gradient</h2>
+        <p>Every clause in an engagement carries exactly one grade:</p>
+        <table>
+          <tr><th>Grade</th><th>Meaning</th><th>Test</th></tr>
+          <tr><td><span class="grade-tag enforced">enforced</span></td><td>A conforming runtime refuses violations mechanically, before or during the work.</td><td>Violation produces a typed refusal, not a grievance.</td></tr>
+          <tr><td><span class="grade-tag evidence">evidence</span></td><td>A signed, tamper-evident record of the relevant facts exists and is exportable.</td><td>A dispute is read from records, not reconstructed from memory.</td></tr>
+          <tr><td><span class="grade-tag recorded">recorded</span></td><td>A promise stated in the signed document that no runtime can verify.</td><td>Breach is establishable only outside the system, and punishable by reputation.</td></tr>
+        </table>
+        <p>Rules:</p>
+        <ol>
+          <li>A clause MUST NOT be graded <code>enforced</code> unless both runtimes involved actually implement the refusal behavior. Grading is a claim about the deployment, not an aspiration.</li>
+          <li>Publishers of engagement documents MUST render the grade wherever the clause is rendered. Hiding the gradient defeats the specification's purpose.</li>
+          <li>A runtime that cannot enforce a clause it receives as <code>enforced</code> MUST refuse the engagement proposal rather than silently downgrade it.</li>
+        </ol>
+        <p>The gradient exists because the alternative, uniform pretend-enforcement, is how every "smart contract for AI agents" pitch fails. Buyers deserve to know which protections are code, which are receipts, and which are promises.</p>
+
+        <h2 id="document">4. Document model</h2>
+        <h3>4.1 Encoding and identity</h3>
+        <p>An engagement is a JSON document. The canonical form is JCS (RFC 8785) canonical JSON. The document identifier is:</p>
+        <pre><code>sow_&lt;base32(sha256(canonical bytes of version 1, minus signatures))[0..16]&gt;</code></pre>
+        <p>The identifier is stable across amendments; each amendment increments an integer <code>version</code> starting at 1.</p>
+        <h3>4.2 Top-level shape</h3>
+        <pre><code>{
+  "sow": "v1",
+  "id": "sow_k7m2q4x9w3e6r8t1",
+  "version": 1,
+  "parties": { ... },        // 5.1
+  "scope": { ... },          // 5.2
+  "inputs": [ ... ],         // 5.3
+  "deliverables": [ ... ],   // 5.4
+  "price": { ... },          // 5.5
+  "volume": { ... },         // 5.6
+  "term": { ... },           // 5.7
+  "change_control": { ... }, // 5.8
+  "termination": { ... },    // 5.9
+  "disputes": { ... },       // 5.10
+  "confidentiality": { ... },// 5.11
+  "signatures": [ ... ]      // 6
+}</code></pre>
+        <p>All clause objects carry a <code>grade</code> field. Where a clause naturally splits across grades (confidentiality is the canonical case), it is expressed as multiple sub-clauses, each singly graded.</p>
+
+        <h2 id="clauses">5. Clauses</h2>
+
+        <h3>5.1 Parties</h3>
+        <p>Identifies both sides: for each, the agent's public key, an optional human-readable handle, the owner's identity, and the party's role (<code>provider</code> or <code>client</code>).</p>
+        <pre><code>"parties": {
+  "provider": { "agent": "&lt;public key&gt;", "handle": "Granite.books@stonework.example",
+                "owner": "Stonework Analytics" },
+  "client":   { "agent": "&lt;public key&gt;", "handle": "Petrel.mari@harborandline.example",
+                "owner": "Harbor &amp; Line Outfitters" },
+  "grade": "evidence"
+}</code></pre>
+        <p>Grade: <span class="grade-tag evidence">evidence</span>. Identity verification is the transport's job; the engagement records who was verified. A runtime SHOULD refuse to apply an engagement to traffic whose transport identity does not match the named agent key, and SHOULD NOT follow a handle whose underlying key has changed without owner confirmation.</p>
+
+        <h3>5.2 Scope</h3>
+        <p>The work covered, as a list of the provider's published offering identifiers, plus worked examples. Examples are normative interpretive aids: a request is in scope if it is materially similar to an <code>in_scope</code> example and covered by a listed offering.</p>
+        <pre><code>"scope": {
+  "offerings": ["reconcile-statement", "flag-exceptions"],
+  "examples": {
+    "in_scope": ["Reconcile the July statement against our ledger export."],
+    "out_of_scope": ["Prepare our quarterly tax filing."]
+  },
+  "grade": "enforced"
+}</code></pre>
+        <p>Grade: <span class="grade-tag enforced">enforced</span>. A conforming provider node MUST refuse, with a typed refusal, any request under the engagement that names an offering not listed. Requests are matched on offering, not on prose; the examples guide humans and agents drafting requests, and dispute readers after the fact.</p>
+
+        <h3>5.3 Inputs</h3>
+        <p>What the client furnishes, in what form, and when (<code>per_task</code> or <code>standing</code>).</p>
+        <pre><code>"inputs": [
+  { "name": "bank-statement", "media_type": "text/csv", "when": "per_task" },
+  { "name": "receipts", "kind": "shared_resource", "access": "read", "when": "standing" }
+],
+"grade": "enforced"</code></pre>
+        <p>Grade: <span class="grade-tag enforced">enforced</span>. A task arriving without a required <code>per_task</code> input MUST NOT fail and MUST NOT be silently attempted; it moves to <code>input_required</code> and the client is told what is missing. Standing shared resources are pointers governed by the engagement's confidentiality clause; a provider MUST NOT copy, crawl, or retain them beyond task execution.</p>
+
+        <h3>5.4 Deliverables</h3>
+        <p>Named artifacts the provider attaches to a completed task, with media types.</p>
+        <pre><code>"deliverables": [
+  { "name": "reconciliation-report", "media_type": "application/pdf" },
+  { "name": "exceptions", "media_type": "application/json" }
+],
+"grade": "enforced"</code></pre>
+        <p>Grade: <span class="grade-tag enforced">enforced</span>, with a sharp boundary: <b>form is machine-judged, quality is not</b>. A task response claiming completion without every named artifact in its declared media type MUST be treated as a failed task by both runtimes. Whether the report is any good is a matter for 5.10 and for reputation.</p>
+
+        <h3>5.5 Price and metering</h3>
+        <p>Rates per offering, the settlement currency, and an optional spend ceiling per period. Every completed task MUST be rated at the engagement's price and produce a settlement record both parties hold.</p>
+        <pre><code>"price": {
+  "currency": "XCR",
+  "rates": [
+    { "offering": "reconcile-statement", "per_task": 2500000 },
+    { "offering": "flag-exceptions", "per_task": 400000 }
+  ],
+  "ceiling": { "amount": 40000000, "period": "month" },
+  "grade": "enforced"
+}</code></pre>
+        <p>Grade: <span class="grade-tag enforced">enforced</span> for rating and ceilings (work beyond the ceiling is refused with a quote); <span class="grade-tag evidence">evidence</span> for settlement records.</p>
+
+        <h3>5.6 Volume</h3>
+        <p>How much work the client may submit, expressed in at most two windows, <code>per_hour</code> and <code>per_day</code>. Engagement volume limits replace the provider node's general per-stranger limits for this client only. Excess traffic MUST be refused with a retry time, not held.</p>
+        <pre><code>"volume": { "per_hour": 2, "per_day": 8, "grade": "enforced" }</code></pre>
+        <p>Grade: <span class="grade-tag enforced">enforced</span>, at the provider's admission gate, with counters that survive restarts.</p>
+
+        <h3>5.7 Term and renewal</h3>
+        <p>Start and end instants. Engagements MUST NOT renew automatically. After the end instant, the engagement's grants and limits stop applying and the client reverts to whatever the provider's general admission policy says.</p>
+        <pre><code>"term": { "from": "2026-08-04T00:00:00Z", "until": "2027-02-01T00:00:00Z",
+          "grade": "enforced" }</code></pre>
+
+        <h3>5.8 Change control</h3>
+        <p>Either owner MAY propose an amendment: a full replacement document with <code>version</code> incremented. The amendment takes effect only when the counterparty owner countersigns. Unsigned proposals lapse after the stated review window. All prior versions remain on record.</p>
+        <pre><code>"change_control": { "review_window_days": 7, "grade": "enforced" }</code></pre>
+        <p>Grade: <span class="grade-tag enforced">enforced</span> by the signing rule itself: a runtime MUST NOT apply a version its own owner has not signed.</p>
+
+        <h3>5.9 Termination</h3>
+        <p>Either owner may terminate: for convenience with the stated notice (in-flight tasks complete and are paid), or immediately for cause (in-flight tasks are canceled with a recorded reason). Termination takes effect at the next message.</p>
+        <pre><code>"termination": { "convenience_notice_hours": 24, "grade": "enforced" }</code></pre>
+
+        <h3>5.10 Disputes</h3>
+        <p>Exactly one posture, chosen from a closed set:</p>
+        <ul>
+          <li><code>none</code>: settlements are final; disagreement ends the engagement at most.</li>
+          <li><code>refund_on_failed_task</code>: a task that fails, including failure by the deliverable-form rule of 5.4, is refunded in full through clearing. The machine's completion check decides; no quality argument is required.</li>
+          <li><code>escalate_to_owners</code>: the owners read the signed record together and settle it as people.</li>
+        </ul>
+        <pre><code>"disputes": { "posture": "refund_on_failed_task", "grade": "evidence" }</code></pre>
+        <p>Grade: <span class="grade-tag evidence">evidence</span> for the record (signed task history, exportable audit trail, settlement receipts); the refund action itself is <span class="grade-tag enforced">enforced</span> only where clearing supports reversal (see 8.2). Quality judgment is out of scope for this document and belongs to reputation systems, which read the same evidence.</p>
+
+        <h3>5.11 Confidentiality and retention</h3>
+        <p>The canonical split clause. Sub-clauses are graded separately and MUST NOT be merged:</p>
+        <pre><code>"confidentiality": {
+  "transport": { "sealed": true, "grade": "enforced" },
+  "retention": { "max_days": 30, "grade": "enforced" },
+  "promises":  { "no_training": true, "no_third_party_sharing": true,
+                 "no_human_reading": true, "grade": "recorded" }
+}</code></pre>
+        <p>Sealed transport and retention windows are runtime-checkable. What a party does with data inside its own walls is not; those promises are <span class="grade-tag recorded">recorded</span>, and a conforming renderer MUST NOT present them as enforced.</p>
+
+        <h2 id="signatures">6. Signatures</h2>
+        <p>Owners sign, not agents: an engagement binds principals to obligations that outlive any one process.</p>
+        <p>The signed bytes are the ASCII prefix <code>agent-sow-v1</code> followed by one newline, followed by the JCS canonical JSON of the document with the <code>signatures</code> array removed. Each signature record carries the signer's key, role, and timestamp:</p>
+        <pre><code>"signatures": [
+  { "role": "provider", "key": "&lt;owner public key&gt;",
+    "signed_at": "2026-08-04T14:02:11Z", "sig": "&lt;base64&gt;" },
+  { "role": "client", "key": "&lt;owner public key&gt;",
+    "signed_at": "2026-08-04T16:47:36Z", "sig": "&lt;base64&gt;" }
+]</code></pre>
+        <p>A document is <b>active</b> only when both roles have valid signatures over the same canonical bytes. Each party's node holds the countersigned copy and enforces from its own copy. There is no central contract store to trust or to lose.</p>
+
+        <h2 id="lifecycle">7. Lifecycle</h2>
+        <pre><code>proposed  →  active  →  amended (new version, both signatures)  →  ...
+                     →  lapsed (term expired)
+                     →  terminated (by either owner, 5.9)</code></pre>
+        <p>A <code>proposed</code> document has one signature and no force. Runtimes MUST treat lapse and termination identically at the gate: the counterparty reverts to general admission policy. Nothing breaks and nothing lingers.</p>
+
+        <h2 id="asymmetry">8. Enforcement obligations and the asymmetry</h2>
+        <h3>8.1 Who enforces what</h3>
+        <p>Clauses that protect the provider (scope, volume, price ceilings) are enforced at the provider's own node, which is also the party they protect. This is trustworthy: a node guarding its own interests has every incentive to enforce honestly.</p>
+        <h3>8.2 The buyer-side gap</h3>
+        <p>Clauses that protect the client (deliverable form, refunds) are checked by software the provider runs. A provider checking its own homework is trust, not enforcement. Therefore:</p>
+        <ol>
+          <li>The client's node MUST independently verify deliverable form on receipt and record the verdict in its own evidence chain.</li>
+          <li>The <code>refund_on_failed_task</code> posture MUST NOT be graded <code>enforced</code> unless settlement runs through a clearing function that will execute a reversal on presentation of the signed failure evidence, without the provider's cooperation.</li>
+          <li>Where no such clearing exists, conforming documents grade the refund clause <code>evidence</code>, and renderers show it that way. This is the honest state of most deployments today.</li>
+        </ol>
+        <blockquote>This section exists so the specification cannot be used to launder trust as enforcement. The asymmetry is real; naming it is the fix available now, and neutral clearing is the fix available next.</blockquote>
+
+        <h2 id="precedence">9. Precedence</h2>
+        <p>Where an engagement and a node's general policy both speak, for traffic from the engagement's counterparty, during the term, <b>the engagement wins on everything it addresses</b> (scope, volume, price), and the node's general policy governs everything it does not. One exception: a node-local explicit block of the counterparty's key always wins, because the local owner's last word on safety cannot be signed away.</p>
+
+        <h2 id="security">10. Security considerations</h2>
+        <ul>
+          <li><b>Key change</b>: an engagement names agent keys. A handle re-homed to a new key MUST NOT inherit the engagement without both owners' confirmation.</li>
+          <li><b>Replay and staleness</b>: signatures cover a versioned document; runtimes MUST reject a lower version than the highest countersigned version they hold.</li>
+          <li><b>Ceremony fatigue</b>: implementations SHOULD keep a zero-ceremony path. Casual traffic must never require an engagement; the SoW is a shape you graduate into when money and commitments appear, not a toll on saying hello.</li>
+          <li><b>Legal standing</b>: a signed document naming parties, work, and payment may constitute a contract in some jurisdictions regardless of what this specification calls it. Deployments SHOULD make their intended legal status explicit to their users. This specification takes no position.</li>
+        </ul>
+
+        <h2 id="related">11. Relationship to other work</h2>
+        <p>The task lifecycle and artifact model align with the A2A protocol's Task and AgentCard: <code>input_required</code> is A2A's mid-task discovery of missing inputs, turned into an up-front declared clause; declared media types per skill become declared media types per deliverable; skill examples become scope examples. The AgentMesh protocol provides a reference enforcement environment: signed envelopes, admission gates, metering, sealed transport, tamper-evident audit chains, and a clearing service. Other runtimes can conform by meeting the obligations in section 3 and section 8 with their own machinery.</p>
+
+      </article>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent SoW: statements of work for software agents</title>
+  <meta name="description" content="A signed, machine-graded statement of work between two parties whose agents do recurring work together. Every clause is labeled enforced, evidence, or recorded.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="rail">
+    <a class="brand" href="index.html"><span class="dot"></span>agent sow</a>
+    <div class="grp">Read</div>
+    <nav>
+      <a class="on" href="index.html">Overview</a>
+      <a href="spec.html">The specification</a>
+      <a href="example.html">Worked example</a>
+    </nav>
+    <div class="grp">Family</div>
+    <nav>
+      <a href="https://agentmesh.ai">agentmesh.ai</a>
+      <a href="https://dev.agentmesh.ai">dev.agentmesh.ai</a>
+    </nav>
+    <div class="foot">
+      v0.1.0-draft<br>
+      a working draft, developed<br>alongside AgentMesh
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="wrap">
+
+      <section class="hero">
+        <span class="eyebrow"><span class="tag">agent-sow-v1</span> // a contract shape for recurring agent work</span>
+        <h1>Agents do recurring work. Firewalls only know strangers.</h1>
+        <p class="lede">An Agent SoW is a signed statement of work between two parties whose software agents work together: scope, inputs, deliverables, price, volume, term. The defining rule is honesty about enforcement. Every clause is graded by what a machine can actually do about it.</p>
+        <div class="cta">
+          <a class="btn btn-signal" href="spec.html">Read the spec</a>
+          <a class="btn btn-ghost" href="example.html">See a signed example</a>
+        </div>
+
+        <div class="figure">
+          <div class="bar"><span class="lamp"></span> sow_k7m2q4x9w3e6r8t1 &middot; v1 &middot; active <span class="grow">both owners signed</span></div>
+          <pre><span class="k">scope</span>       reconcile-statement, flag-exceptions      <span class="g">[ENFORCED]</span> <span class="x">refused at the gate</span>
+<span class="k">deliverables</span> report.pdf + exceptions.json             <span class="g">[ENFORCED]</span> <span class="x">form checked, not quality</span>
+<span class="k">price</span>       2,500,000 XCR per task, $40/mo ceiling    <span class="g">[ENFORCED]</span> <span class="x">refuse with a quote</span>
+<span class="k">volume</span>      2 per hour, 8 per day                     <span class="g">[ENFORCED]</span> <span class="x">counters survive restarts</span>
+<span class="k">disputes</span>    refund on failed task                     <span class="b">[EVIDENCE]</span> <span class="x">signed history decides</span>
+<span class="k">promises</span>    no training, no sharing                   <span class="a">[RECORDED]</span> <span class="x">reputation punishes breach</span></pre>
+          <div class="cap"><b>The machine margin.</b> A clause that claims more enforcement than the runtime delivers is not conformant.</div>
+        </div>
+      </section>
+
+      <section class="band">
+        <h2>The enforcement gradient</h2>
+        <p>Every "smart contract for AI agents" pitch fails the same way: it pretends everything is enforceable. An Agent SoW carries exactly one grade on every clause, and renderers must show it. Buyers deserve to know which protections are code, which are receipts, and which are promises.</p>
+        <div class="cards">
+          <div class="card enforced">
+            <span class="grade-tag enforced">Enforced</span>
+            <h3>Violations are refused</h3>
+            <p>The runtime refuses out-of-scope requests, over-limit traffic, and malformed deliverables mechanically, with a typed refusal, before the work runs. A grade a deployment must earn, not claim.</p>
+          </div>
+          <div class="card evidence">
+            <span class="grade-tag evidence">Evidence</span>
+            <h3>Records are signed</h3>
+            <p>Signed task history, tamper-evident audit chains, settlement receipts held by both sides. A dispute is read from records, not reconstructed from memory.</p>
+          </div>
+          <div class="card recorded">
+            <span class="grade-tag recorded">Recorded</span>
+            <h3>Promises are named</h3>
+            <p>No training on client data. No sharing with third parties. No machine can verify these. They are signed, timestamped, and citable, and reputation exists to punish their breach.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="band">
+        <h2>Eleven clauses, one document</h2>
+        <p>The clause list is the familiar consulting SoW, made precise enough for runtimes to act on. Owners sign; agents work; each party's own node enforces from its own countersigned copy. There is no central contract store to trust or to lose.</p>
+        <table class="clauses">
+          <tr><th>Clause</th><th>What it pins down</th><th>Grade</th></tr>
+          <tr><td>Parties</td><td>Agent keys, handles, and the accountable owners behind them</td><td><span class="grade-tag evidence">evidence</span></td></tr>
+          <tr><td>Scope</td><td>Named offerings plus worked in-scope and out-of-scope examples</td><td><span class="grade-tag enforced">enforced</span></td></tr>
+          <tr><td>Inputs</td><td>What the client furnishes, in what form; missing inputs park the task</td><td><span class="grade-tag enforced">enforced</span></td></tr>
+          <tr><td>Deliverables</td><td>Named artifacts with media types; form is machine-judged, quality is not</td><td><span class="grade-tag enforced">enforced</span></td></tr>
+          <tr><td>Price</td><td>Rates per offering, spend ceilings, settlement records</td><td><span class="grade-tag enforced">enforced</span></td></tr>
+          <tr><td>Volume</td><td>Per-hour and per-day limits that replace stranger defaults</td><td><span class="grade-tag enforced">enforced</span></td></tr>
+          <tr><td>Term</td><td>Start and end; no auto-renew; lapse reverts to general policy</td><td><span class="grade-tag enforced">enforced</span></td></tr>
+          <tr><td>Change control</td><td>Amend by countersigned replacement; nothing applies unsigned</td><td><span class="grade-tag enforced">enforced</span></td></tr>
+          <tr><td>Termination</td><td>Convenience with notice, or immediate for cause, recorded reasons</td><td><span class="grade-tag enforced">enforced</span></td></tr>
+          <tr><td>Disputes</td><td>One posture from a closed set; signed evidence decides</td><td><span class="grade-tag evidence">evidence</span></td></tr>
+          <tr><td>Confidentiality</td><td>Sealed transport and retention enforced; conduct promises recorded</td><td><span class="grade-tag enforced">split</span></td></tr>
+        </table>
+      </section>
+
+      <section class="band">
+        <h2>The asymmetry, named</h2>
+        <p>Clauses that protect the provider run at the provider's own gate. Trustworthy: a node guarding its own interests enforces honestly. Clauses that protect the client are checked by software the provider runs, and a provider checking its own homework is trust wearing an enforcement costume.</p>
+        <p>So the spec refuses to launder it. The client's node independently verifies deliverable form on receipt. And <b>refund-on-failed-task may only be graded enforced where a neutral clearing function will execute the reversal on signed evidence, without the provider's cooperation</b>. Where no such clearing exists, the clause is graded evidence, and shown that way. That is the honest state of most deployments today, and section 8 of the spec is written so nobody can pretend otherwise.</p>
+      </section>
+
+      <section class="band">
+        <h2>A shape you graduate into</h2>
+        <p>Casual traffic never requires paperwork. Two agents saying hello are governed by ordinary admission policy: identity checks, stranger limits, hold queues. The SoW is for the moment a relationship turns into commitments, money, standing access to data, promised deliverables. Then the scattered controls consolidate into one document both owners signed, and the interesting constraints become per-relationship instead of per-packet.</p>
+        <div class="cta" style="margin-top:26px">
+          <a class="btn btn-signal" href="spec.html">Specification v0.1.0-draft</a>
+          <a class="btn btn-ghost" href="example.html">The Granite and Petrel engagement</a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>

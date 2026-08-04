@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worked example: the Granite and Petrel engagement</title>
+  <meta name="description" content="A complete example Agent SoW: a bookkeeping reconciliation engagement between two agents, with every clause graded by what the machine can do about it.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+  <style>
+    .doc-head{ padding:54px 0 24px; border-bottom:1px solid var(--line); }
+    .doc-head h1{ font-size:clamp(2rem,4.4vw,3rem); margin:14px 0 10px; }
+    .doc-meta{ display:flex; flex-wrap:wrap; gap:6px 24px; font-family:var(--wire); font-size:.76rem; color:var(--dim); }
+    .doc-meta b{ color:var(--paper); font-weight:500; }
+    .pill{ border:1px solid var(--enforced); color:var(--enforced); border-radius:999px; padding:0 9px; }
+
+    .clause{ display:grid; grid-template-columns:minmax(0,1fr) 290px; gap:0 40px; padding:30px 0; border-bottom:1px solid var(--line); }
+    .clause h2{ font-size:1.25rem; margin:0 0 12px; }
+    .clause h2 .num{ font-family:var(--wire); font-size:.8rem; font-weight:500; color:var(--faint); margin-right:10px; }
+    .clause p{ color:var(--dim); max-width:60ch; margin:0 0 10px; }
+    .clause p b{ color:var(--paper); }
+    .clause .sub{ font-size:.88rem; color:var(--faint); }
+    .clause table{ border-collapse:collapse; width:100%; max-width:620px; margin:8px 0 12px; font-size:.9rem; }
+    .clause th{ font-family:var(--wire); font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); font-weight:500; text-align:left; padding:7px 14px 7px 0; border-bottom:1px solid var(--line); }
+    .clause td{ padding:8px 14px 8px 0; border-bottom:1px solid var(--line); color:var(--dim); vertical-align:top; }
+    .clause td code, .clause li code{ font-family:var(--wire); font-size:.8rem; color:var(--paper); background:var(--panel-2); padding:1px 5px; border-radius:4px; }
+    .clause ul{ margin:4px 0 12px 20px; color:var(--dim); max-width:58ch; }
+    .clause li{ margin-bottom:6px; }
+
+    .machine{ font-family:var(--wire); font-size:.76rem; line-height:1.6; color:var(--dim); padding-top:4px; }
+    .machine-title{ font-size:.6rem; letter-spacing:.18em; text-transform:uppercase; color:var(--faint); margin-bottom:10px; }
+    .note{ border-left:2px solid var(--line); padding:8px 0 8px 13px; margin-bottom:13px; }
+    .note.enforced{ border-left-color:var(--enforced); }
+    .note.evidence{ border-left-color:var(--evidence); }
+    .note.recorded{ border-left-color:var(--recorded); }
+    .note .grade-tag{ display:inline-block; margin-bottom:6px; }
+    .note code{ color:var(--paper); background:var(--panel-2); padding:0 4px; border-radius:3px; font-family:inherit; }
+
+    .parties{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:4px 0 6px; }
+    .party{ background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:15px 17px; }
+    .party .role{ font-family:var(--wire); font-size:.58rem; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); margin-bottom:5px; }
+    .party .name{ font-family:var(--disp); font-size:1.1rem; font-weight:700; color:var(--paper); }
+    .party .org{ font-size:.84rem; color:var(--dim); margin-bottom:8px; }
+    .party .key{ font-family:var(--wire); font-size:.64rem; color:var(--faint); word-break:break-all; line-height:1.5; }
+    .party .key b{ color:var(--dim); font-weight:500; }
+
+    .enum{ list-style:none; margin:8px 0 12px; padding:0; max-width:60ch; }
+    .enum li{ padding:10px 14px; border:1px solid var(--line); border-radius:8px; margin-bottom:8px; color:var(--faint); font-size:.9rem; background:var(--panel); }
+    .enum li.chosen{ border-color:var(--enforced); color:var(--dim); }
+    .enum li .opt{ font-family:var(--wire); font-size:.74rem; font-weight:600; display:block; margin-bottom:2px; color:var(--dim); }
+    .enum li.chosen .opt{ color:var(--enforced); }
+    .enum li.chosen .opt::after{ content:"  ← selected"; color:var(--paper); font-weight:400; }
+
+    .example-box{ border:1px solid var(--line); background:var(--panel); border-radius:8px; padding:11px 15px; margin-bottom:9px; max-width:60ch; font-size:.9rem; color:var(--dim); }
+    .example-box .verdict{ font-family:var(--wire); font-size:.6rem; font-weight:700; letter-spacing:.12em; display:block; margin-bottom:3px; }
+    .example-box .verdict.in{ color:var(--enforced); }
+    .example-box .verdict.out{ color:var(--recorded); }
+
+    .signatures{ margin-top:40px; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:24px 26px; }
+    .signatures h2{ font-size:1.25rem; margin:0 0 6px; }
+    .signatures .sub{ font-size:.88rem; color:var(--dim); max-width:66ch; margin:0 0 18px; }
+    .sig-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .sig{ border-top:2px solid var(--paper); padding-top:11px; font-family:var(--wire); font-size:.66rem; color:var(--faint); word-break:break-all; line-height:1.55; }
+    .sig .who{ font-family:var(--body); font-size:.95rem; color:var(--paper); font-weight:600; margin-bottom:4px; }
+    .sig-canonical{ margin-top:18px; padding-top:13px; border-top:1px dashed var(--line); font-family:var(--wire); font-size:.66rem; color:var(--faint); word-break:break-all; }
+    .sig-canonical b{ color:var(--dim); }
+
+    .foot-note{ margin-top:36px; font-size:.9rem; color:var(--faint); max-width:70ch; }
+
+    @media (max-width:900px){
+      .clause{ grid-template-columns:1fr; }
+      .parties,.sig-grid{ grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="rail">
+    <a class="brand" href="index.html"><span class="dot"></span>agent sow</a>
+    <div class="grp">Read</div>
+    <nav>
+      <a href="index.html">Overview</a>
+      <a href="spec.html">The specification</a>
+      <a class="on" href="example.html">Worked example</a>
+    </nav>
+    <div class="grp">Family</div>
+    <nav>
+      <a href="https://agentmesh.ai">agentmesh.ai</a>
+      <a href="https://dev.agentmesh.ai">dev.agentmesh.ai</a>
+    </nav>
+    <div class="foot">
+      An illustrative document.<br>Parties, keys, and signatures<br>are invented.
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="wrap">
+
+      <header class="doc-head">
+        <span class="eyebrow"><span class="tag">worked example</span> // a bookkeeping engagement, complete and countersigned</span>
+        <h1>Statement of Work</h1>
+        <div class="doc-meta">
+          <span>document <b>sow_k7m2q4x9w3e6r8t1</b></span>
+          <span>version <b>1</b> (no amendments)</span>
+          <span>status <b class="pill">active</b></span>
+          <span>effective <b>2026-08-04</b> through <b>2027-02-01</b></span>
+        </div>
+      </header>
+
+      <!-- 1 Parties -->
+      <section class="clause">
+        <div>
+          <h2><span class="num">1</span>Parties</h2>
+          <div class="parties">
+            <div class="party">
+              <div class="role">Provider (the seller)</div>
+              <div class="name">Granite</div>
+              <div class="org">operated by Stonework Analytics, for owner D. Okafor</div>
+              <div class="key">handle <b>Granite.books@stonework.example</b><br>agent key <b>UCGRN4T7Q2KZXWM5A3EHB6YJDPLF2VUSNOI7R4CQXT5WKEAZM2B6GJDL</b></div>
+            </div>
+            <div class="party">
+              <div class="role">Client (the buyer)</div>
+              <div class="name">Petrel</div>
+              <div class="org">owned by Marisol Vega, Harbor &amp; Line Outfitters</div>
+              <div class="key">handle <b>Petrel.mari@harborandline.example</b><br>agent key <b>UAPTRL6K3JMQZW7XE2B5CVHY4DNSGF3OAU6IR5TQLXW2MKEAZJ7B4CDN</b></div>
+            </div>
+          </div>
+          <p class="sub">The agents do the work. The owners agree to the terms, and the owners' signatures in section 12 are what make this document binding on both nodes.</p>
+        </div>
+        <aside class="machine">
+          <div class="machine-title">Machine margin</div>
+          <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Identity is verified at the transport layer on every message. A handle whose key changes is refused until the owner confirms it, so this document cannot silently follow a handle to a different agent.</div>
+        </aside>
+      </section>
+
+      <!-- 2 Scope -->
+      <section class="clause">
+        <div>
+          <h2><span class="num">2</span>Scope of work</h2>
+          <p>Granite performs monthly bookkeeping reconciliation for Harbor &amp; Line Outfitters. This engagement covers exactly two offerings from Granite's published manifest:</p>
+          <ul>
+            <li><code>reconcile-statement</code>: match a bank statement against the ledger and produce a reconciliation report.</li>
+            <li><code>flag-exceptions</code>: list transactions that could not be matched, with a suggested category for each.</li>
+          </ul>
+          <p>Worked examples, so scope questions get answered by comparison rather than interpretation:</p>
+          <div class="example-box"><span class="verdict in">IN SCOPE</span>"Reconcile the July 2026 statement from First Coastal Bank against our ledger export."</div>
+          <div class="example-box"><span class="verdict in">IN SCOPE</span>"Which of these 14 unmatched card transactions look like the Stripe payout split?"</div>
+          <div class="example-box"><span class="verdict out">OUT OF SCOPE</span>"Prepare our quarterly tax filing." (Tax preparation is not an offering under this engagement.)</div>
+        </div>
+        <aside class="machine">
+          <div class="machine-title">Machine margin</div>
+          <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Requests naming any other offering are refused at the admission gate before Granite's model is ever invoked. An out-of-scope request costs the provider nothing.</div>
+        </aside>
+      </section>
+
+      <!-- 3 Inputs -->
+      <section class="clause">
+        <div>
+          <h2><span class="num">3</span>Inputs the client provides</h2>
+          <p>Each reconciliation task requires, from Petrel:</p>
+          <table>
+            <tr><th>Input</th><th>Form</th><th>When</th></tr>
+            <tr><td>Bank statement export</td><td><code>text/csv</code>, one calendar month</td><td>with each request</td></tr>
+            <tr><td>Ledger export</td><td><code>text/csv</code></td><td>with each request</td></tr>
+            <tr><td>Receipts folder</td><td>shared resource, <code>read</code> access</td><td>standing, for the term</td></tr>
+            <tr><td>Chart of accounts</td><td><code>application/json</code></td><td>once, at engagement start</td></tr>
+          </table>
+          <p class="sub">A request arriving without its per-task inputs does not fail and does not burn tokens guessing. It parks, and Petrel is asked to furnish what is missing.</p>
+        </div>
+        <aside class="machine">
+          <div class="machine-title">Machine margin</div>
+          <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Missing inputs move the task to <code>input_required</code>. The shared receipts folder is a pointer under this document's terms; it is never copied or crawled, only read during a task.</div>
+        </aside>
+      </section>
+
+      <!-- 4 Deliverables -->
+      <section class="clause">
+        <div>
+          <h2><span class="num">4</span>Deliverables</h2>
+          <p>Each completed reconciliation task delivers exactly two named artifacts:</p>
+          <table>
+            <tr><th>Artifact</th><th>Form</th><th>Contents</th></tr>
+            <tr><td><code>reconciliation-report</code></td><td><code>application/pdf</code></td><td>matched totals, ending balances, narrative summary</td></tr>
+            <tr><td><code>exceptions</code></td><td><code>application/json</code></td><td>every unmatched transaction with a suggested category and confidence</td></tr>
+          </table>
+          <p class="sub">A task is not complete until both artifacts are attached in the agreed forms. Quality is judged by the client; form is judged by the machine.</p>
+        </div>
+        <aside class="machine">
+          <div class="machine-title">Machine margin</div>
+          <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Completion is checked against the named artifact list and media types, independently by both nodes. A "completed" response missing an artifact is treated as a failed task, which matters for section 10.</div>
+        </aside>
+      </section>
+
+      <!-- 5 Price -->
+      <section class="clause">
+        <div>
+          <h2><span class="num">5</span>Price and metering</h2>
+          <p>Work is priced per task against Granite's published rate card:</p>
+          <table>
+            <tr><th>Offering</th><th>Rate</th><th>USD equivalent</th></tr>
+            <tr><td><code>reconcile-statement</code></td><td>2,500,000 XCR per task</td><td>$2.50</td></tr>
+            <tr><td><code>flag-exceptions</code></td><td>400,000 XCR per task</td><td>$0.40</td></tr>
+          </table>
+          <p>Petrel's spend under this engagement is capped at <b>40,000,000 XCR ($40.00) per calendar month</b>. Settlement runs through clearing; each rated task produces a receipt both parties hold.</p>
+        </div>
+        <aside class="machine">
+          <div class="machine-title">Machine margin</div>
+          <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Every task is metered and rated at these amounts; the monthly ceiling refuses further work with a quote once reached.</div>
+          <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Clearing settles both legs and issues signed receipts. Neither party can misremember what was charged.</div>
+        </aside>
+      </section>
+
+      <!-- 6 Volume -->
+      <section class="clause">
+        <div>
+          <h2><span class="num">6</span>Volume</h2>
+          <p>Petrel may submit up to <b>2 tasks per hour</b> and <b>8 tasks per day</b> under this engagement. These limits replace, for Petrel only, the general limits Granite applies to unknown senders. Traffic beyond them is refused politely with a retry time, not held.</p>
+        </div>
+        <aside class="machine">
+          <div class="machine-title">Machine margin</div>
+          <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Counted at Granite's own admission gate, per sender, with counters that survive restarts. The engagement's numbers override the node's stranger defaults.</div>
+        </aside>
+      </section>
+
+      <!-- 7 Term -->
+      <section class="clause">
+        <div>
+          <h2><span class="num">7</span>Term and renewal</h2>
+          <p>This engagement runs from <b>2026-08-04</b> through <b>2027-02-01</b>. It does not renew automatically. When it lapses, nothing breaks and nothing lingers: Petrel simply reverts to whatever Granite's general admission rules say about registered strangers.</p>
+          <p class="sub">Renewal is an amendment under section 8, proposed by either owner before or after the end date.</p>
+        </div>
+        <aside class="machine">
+          <div class="machine-title">Machine margin</div>
+          <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>The expiry date is inside the signed document. After it passes, the engagement's grants and limits simply stop applying at the gate.</div>
+        </aside>
+      </section>
+
+      <!-- 8 Change control -->
+      <section class="clause">
+        <div>
+          <h2><span class="num">8</span>Change control</h2>
+          <p>Either owner may propose an amendment: a new version of this document with changed clauses. The proposal takes effect only when the other owner countersigns it. Until then, the current version governs. Proposals not countersigned within <b>7 days</b> lapse.</p>
+          <p class="sub">Amendments bump the version number; every prior version stays on record.</p>
+        </div>
+        <aside class="machine">
+          <div class="machine-title">Machine margin</div>
+          <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Propose-and-adopt: nothing changes on a node until its own side signs. A runtime never applies a version its owner has not signed.</div>
+        </aside>
+      </section>
+
+      <!-- 9 Termination -->
+      <section class="clause">
+        <div>
+          <h2><span class="num">9</span>Termination</h2>
+          <ul>
+            <li><b>For convenience</b>, with 24 hours' notice. Tasks already in flight run to completion and are paid.</li>
+            <li><b>Immediately</b>, on a failed obligation (unpaid settlement, repeated malformed deliverables, misuse of the shared receipts folder). In-flight tasks are canceled with the cancellation reason recorded.</li>
+          </ul>
+        </div>
+        <aside class="machine">
+          <div class="machine-title">Machine margin</div>
+          <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Termination takes effect at the next message: the engagement's grants stop applying and the sender is back at stranger defaults. Cancellation reasons come from a fixed vocabulary.</div>
+        </aside>
+      </section>
+
+      <!-- 10 Disputes -->
+      <section class="clause">
+        <div>
+          <h2><span class="num">10</span>Disputes</h2>
+          <p>The parties chose one of the three dispute postures the specification defines:</p>
+          <ul class="enum">
+            <li><span class="opt">none</span>Payments are final; disagreements end the engagement at most.</li>
+            <li class="chosen"><span class="opt">refund_on_failed_task</span>A task that fails, or completes without its named deliverables in the agreed forms, is refunded in full through clearing. No argument about quality is required: the machine's completion check decides.</li>
+            <li><span class="opt">escalate_to_owners</span>The owners read the signed task history together and settle it as people.</li>
+          </ul>
+          <p class="sub">Anything richer than this, judgment about quality rather than form, belongs to reputation, which reads the same evidence.</p>
+        </div>
+        <aside class="machine">
+          <div class="machine-title">Machine margin</div>
+          <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Every envelope is signed, task history is intact, and each agent keeps a tamper-evident audit chain with an offline-verifiable export. A dispute is read, not remembered.</div>
+          <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Per spec 8.2: the refund is graded enforced only where clearing executes reversals on signed evidence without the provider's cooperation. This deployment's clearing does not yet, so the honest grade is evidence.</div>
+        </aside>
+      </section>
+
+      <!-- 11 Confidentiality -->
+      <section class="clause">
+        <div>
+          <h2><span class="num">11</span>Confidentiality and retention</h2>
+          <p>Two kinds of protection apply, and this document is honest about the difference.</p>
+          <p><b>The runtime enforces:</b> all traffic under this engagement is sealed between the two agents; intermediaries carry bytes they cannot read. Both parties retain task content for at most <b>30 days</b> after task completion; retention beyond the default must be declared, and here neither party declares it.</p>
+          <p><b>The provider promises:</b> client data is not used to train models, is not shared with any third party, and is not read by any person except during a dispute under section 10. These promises cannot be checked by the machine. They are recorded in the signed document, and a broken recorded promise is what reputation exists to punish.</p>
+        </div>
+        <aside class="machine">
+          <div class="machine-title">Machine margin</div>
+          <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Pairwise sealing is on for this pair; ephemerality is the default, so 30-day retention is the declared exception, not the loophole.</div>
+          <div class="note recorded"><span class="grade-tag recorded">Recorded</span><br>no-training, no-third-party-sharing, no-human-reading. Signed, timestamped, and citable, but enforced by consequence, not by code.</div>
+        </aside>
+      </section>
+
+      <!-- 12 Signatures -->
+      <div class="signatures">
+        <h2><span class="num" style="font-family:var(--wire);font-size:.8rem;font-weight:500;color:var(--faint);margin-right:10px">12</span>Signatures</h2>
+        <p class="sub">The owners sign the canonical form of this document with their account keys. Each agent's node holds the countersigned copy and enforces from it; there is no central contract server to trust or to lose.</p>
+        <div class="sig-grid">
+          <div class="sig">
+            <div class="who">D. Okafor, for Stonework Analytics (provider)</div>
+            signed 2026-08-04T14:02:11Z<br>
+            key UAOKF5W2QMZJ7X3TENB4CVHY6DSLGP2RAU5IRQT4LXW3MKEAZJ6B7CDM<br>
+            sig kQ7vX2mZhJ4tYw9cRbN8fL3aG6pDsE1uVoI5nK0jTqHxAyPzW8eM4rSdUgB2hF7lC9vJ3mX6bZkQ0wNtR5yA==
+          </div>
+          <div class="sig">
+            <div class="who">Marisol Vega, for Harbor &amp; Line Outfitters (client)</div>
+            signed 2026-08-04T16:47:36Z<br>
+            key UBVGA3E6TKZQ2W7XJMB5CNHY4DPSLF3OAU6IR5TQLXW2MKEAZJ7B4CDR<br>
+            sig Xw3nT8kJqZ5vY2mRbC9fL4aG7pDsE0uVoI6nK1jHxAyPzW9eM5rSdUgB3hF8lC0vJ4mX7bZkQ1wNtR6yAdQ==
+          </div>
+        </div>
+        <div class="sig-canonical">
+          signed bytes: <b>agent-sow-v1</b> + newline + JCS canonical JSON of this document minus signatures<br>
+          canonical sha-256: 8f4c1a9e2b7d6035e8a1f4c29b3d75e60a8f2c41d9b7e3506a2c8f14e9b3d726
+        </div>
+      </div>
+
+      <p class="foot-note">This page is an illustrative example of the Agent SoW shape: a statement of work between two agents where every clause is labeled with what the runtime can actually do about it. Enforced clauses are refused mechanically when violated. Evidence clauses leave signed records. Recorded clauses are promises whose breach reputation punishes. The parties, keys, amounts, and signatures above are invented.</p>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>
