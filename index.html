@@ -24,6 +24,7 @@
     </nav>
     <div class="grp">Family</div>
     <nav>
+      <a href="https://agentcatalog.com">agentcatalog.com</a>
       <a href="https://agentmesh.ai">agentmesh.ai</a>
       <a href="https://dev.agentmesh.ai">dev.agentmesh.ai</a>
     </nav>
@@ -37,9 +38,9 @@
     <div class="wrap">
 
       <section class="hero">
-        <span class="eyebrow"><span class="tag">agent-sow-v1</span> // a contract shape for recurring agent work</span>
-        <h1>Agents do recurring work. Firewalls only know strangers.</h1>
-        <p class="lede">An Agent SoW is a signed statement of work between two parties whose software agents work together: scope, inputs, deliverables, price, volume, term. The defining rule is honesty about enforcement. Every clause is graded by what a machine can actually do about it.</p>
+        <span class="eyebrow"><span class="tag">agent-sow-v1</span> // an agreement format for agents that work together</span>
+        <h1>A statement of work, written for software agents</h1>
+        <p class="lede">A statement of work (SoW) is the agreement businesses sign when they hire a consulting firm. It lists the work, what each side provides, the deliverables, the price, and the end date. An Agent SoW is the same agreement between two software agents that do recurring work for each other, with one addition: every clause is labeled with what the runtime can actually do to back it up.</p>
         <div class="cta">
           <a class="btn btn-signal" href="spec.html">Read the spec</a>
           <a class="btn btn-ghost" href="example.html">See a signed example</a>
@@ -53,13 +54,13 @@
 <span class="k">volume</span>      2 per hour, 8 per day                     <span class="g">[ENFORCED]</span> <span class="x">counters survive restarts</span>
 <span class="k">disputes</span>    refund on failed task                     <span class="b">[EVIDENCE]</span> <span class="x">signed history decides</span>
 <span class="k">promises</span>    no training, no sharing                   <span class="a">[RECORDED]</span> <span class="x">reputation punishes breach</span></pre>
-          <div class="cap"><b>The machine margin.</b> A clause that claims more enforcement than the runtime delivers is not conformant.</div>
+          <div class="cap"><b>Every clause carries a label.</b> A document that claims more enforcement than its runtime delivers is not conformant.</div>
         </div>
       </section>
 
       <section class="band">
-        <h2>The enforcement gradient</h2>
-        <p>Every "smart contract for AI agents" pitch fails the same way: it pretends everything is enforceable. An Agent SoW carries exactly one grade on every clause, and renderers must show it. Buyers deserve to know which protections are code, which are receipts, and which are promises.</p>
+        <h2>Every clause says what backs it up</h2>
+        <p>Contracts for AI agents usually fail the same way: they pretend everything is enforceable. In an Agent SoW, every clause carries exactly one of three labels, and anything that displays the document must show them. The reader always knows which protections are code, which are receipts, and which are promises.</p>
         <div class="cards">
           <div class="card enforced">
             <span class="grade-tag enforced">Enforced</span>
@@ -80,8 +81,8 @@
       </section>
 
       <section class="band">
-        <h2>Eleven clauses, one document</h2>
-        <p>The clause list is the familiar consulting SoW, made precise enough for runtimes to act on. Owners sign; agents work; each party's own node enforces from its own countersigned copy. There is no central contract store to trust or to lose.</p>
+        <h2>What goes in the document</h2>
+        <p>The clause list is the same one a consulting SoW has, made precise enough for software to act on. The owners sign; the agents work; each side's own runtime enforces from its own signed copy. There is no central contract server to trust or to lose.</p>
         <table class="clauses">
           <tr><th>Clause</th><th>What it pins down</th><th>Grade</th></tr>
           <tr><td>Parties</td><td>Agent keys, handles, and the accountable owners behind them</td><td><span class="grade-tag evidence">evidence</span></td></tr>
@@ -99,14 +100,14 @@
       </section>
 
       <section class="band">
-        <h2>The asymmetry, named</h2>
-        <p>Clauses that protect the provider run at the provider's own gate. Trustworthy: a node guarding its own interests enforces honestly. Clauses that protect the client are checked by software the provider runs, and a provider checking its own homework is trust wearing an enforcement costume.</p>
-        <p>So the spec refuses to launder it. The client's node independently verifies deliverable form on receipt. And <b>refund-on-failed-task may only be graded enforced where a neutral clearing function will execute the reversal on signed evidence, without the provider's cooperation</b>. Where no such clearing exists, the clause is graded evidence, and shown that way. That is the honest state of most deployments today, and section 8 of the spec is written so nobody can pretend otherwise.</p>
+        <h2>Who enforces what</h2>
+        <p>The clauses that protect the seller (scope, volume, spend ceilings) run on the seller's own machine, guarding the seller's own interests. That works. The clauses that protect the buyer (deliverables, refunds) are checked by software the seller runs, and a seller checking its own work is trust, not enforcement.</p>
+        <p>The spec does not hide this. The buyer's runtime must verify deliverables independently when they arrive. And <b>refund-on-failed-task may only be labeled enforced where a neutral clearing service will reverse the payment on signed evidence, without the seller's cooperation</b>. Where clearing cannot do that yet, the label is evidence, and it is shown that way. That is the honest state of most deployments today, and section 8 of the spec is written so nobody can pretend otherwise.</p>
       </section>
 
       <section class="band">
-        <h2>A shape you graduate into</h2>
-        <p>Casual traffic never requires paperwork. Two agents saying hello are governed by ordinary admission policy: identity checks, stranger limits, hold queues. The SoW is for the moment a relationship turns into commitments, money, standing access to data, promised deliverables. Then the scattered controls consolidate into one document both owners signed, and the interesting constraints become per-relationship instead of per-packet.</p>
+        <h2>You do not need one to start</h2>
+        <p>Two agents saying hello never need paperwork. Ordinary admission rules cover casual traffic: identity checks, limits on strangers, a hold queue for unknown senders. An Agent SoW is for the point where a relationship turns into commitments: money, standing access to data, promised deliverables. Then the scattered settings become one document both owners signed, and the rules apply per relationship instead of per message.</p>
         <div class="cta" style="margin-top:26px">
           <a class="btn btn-signal" href="spec.html">Specification v0.1.0-draft</a>
           <a class="btn btn-ghost" href="example.html">The Granite and Petrel engagement</a>

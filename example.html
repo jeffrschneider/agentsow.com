@@ -89,6 +89,7 @@
     </nav>
     <div class="grp">Family</div>
     <nav>
+      <a href="https://agentcatalog.com">agentcatalog.com</a>
       <a href="https://agentmesh.ai">agentmesh.ai</a>
       <a href="https://dev.agentmesh.ai">dev.agentmesh.ai</a>
     </nav>
@@ -132,7 +133,7 @@
           <p class="sub">The agents do the work. The owners agree to the terms, and the owners' signatures in section 12 are what make this document binding on both nodes.</p>
         </div>
         <aside class="machine">
-          <div class="machine-title">Machine margin</div>
+          <div class="machine-title">What the machine does</div>
           <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Identity is verified at the transport layer on every message. A handle whose key changes is refused until the owner confirms it, so this document cannot silently follow a handle to a different agent.</div>
         </aside>
       </section>
@@ -152,7 +153,7 @@
           <div class="example-box"><span class="verdict out">OUT OF SCOPE</span>"Prepare our quarterly tax filing." (Tax preparation is not an offering under this engagement.)</div>
         </div>
         <aside class="machine">
-          <div class="machine-title">Machine margin</div>
+          <div class="machine-title">What the machine does</div>
           <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Requests naming any other offering are refused at the admission gate before Granite's model is ever invoked. An out-of-scope request costs the provider nothing.</div>
         </aside>
       </section>
@@ -172,7 +173,7 @@
           <p class="sub">A request arriving without its per-task inputs does not fail and does not burn tokens guessing. It parks, and Petrel is asked to furnish what is missing.</p>
         </div>
         <aside class="machine">
-          <div class="machine-title">Machine margin</div>
+          <div class="machine-title">What the machine does</div>
           <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Missing inputs move the task to <code>input_required</code>. The shared receipts folder is a pointer under this document's terms; it is never copied or crawled, only read during a task.</div>
         </aside>
       </section>
@@ -187,10 +188,10 @@
             <tr><td><code>reconciliation-report</code></td><td><code>application/pdf</code></td><td>matched totals, ending balances, narrative summary</td></tr>
             <tr><td><code>exceptions</code></td><td><code>application/json</code></td><td>every unmatched transaction with a suggested category and confidence</td></tr>
           </table>
-          <p class="sub">A task is not complete until both artifacts are attached in the agreed forms. Quality is judged by the client; form is judged by the machine.</p>
+          <p class="sub">A task is not complete until both artifacts are attached in the agreed forms. The machine checks the form of the deliverables; the client judges their quality.</p>
         </div>
         <aside class="machine">
-          <div class="machine-title">Machine margin</div>
+          <div class="machine-title">What the machine does</div>
           <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Completion is checked against the named artifact list and media types, independently by both nodes. A "completed" response missing an artifact is treated as a failed task, which matters for section 10.</div>
         </aside>
       </section>
@@ -208,7 +209,7 @@
           <p>Petrel's spend under this engagement is capped at <b>40,000,000 XCR ($40.00) per calendar month</b>. Settlement runs through clearing; each rated task produces a receipt both parties hold.</p>
         </div>
         <aside class="machine">
-          <div class="machine-title">Machine margin</div>
+          <div class="machine-title">What the machine does</div>
           <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Every task is metered and rated at these amounts; the monthly ceiling refuses further work with a quote once reached.</div>
           <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Clearing settles both legs and issues signed receipts. Neither party can misremember what was charged.</div>
         </aside>
@@ -221,7 +222,7 @@
           <p>Petrel may submit up to <b>2 tasks per hour</b> and <b>8 tasks per day</b> under this engagement. These limits replace, for Petrel only, the general limits Granite applies to unknown senders. Traffic beyond them is refused politely with a retry time, not held.</p>
         </div>
         <aside class="machine">
-          <div class="machine-title">Machine margin</div>
+          <div class="machine-title">What the machine does</div>
           <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Counted at Granite's own admission gate, per sender, with counters that survive restarts. The engagement's numbers override the node's stranger defaults.</div>
         </aside>
       </section>
@@ -234,7 +235,7 @@
           <p class="sub">Renewal is an amendment under section 8, proposed by either owner before or after the end date.</p>
         </div>
         <aside class="machine">
-          <div class="machine-title">Machine margin</div>
+          <div class="machine-title">What the machine does</div>
           <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>The expiry date is inside the signed document. After it passes, the engagement's grants and limits simply stop applying at the gate.</div>
         </aside>
       </section>
@@ -247,7 +248,7 @@
           <p class="sub">Amendments bump the version number; every prior version stays on record.</p>
         </div>
         <aside class="machine">
-          <div class="machine-title">Machine margin</div>
+          <div class="machine-title">What the machine does</div>
           <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Propose-and-adopt: nothing changes on a node until its own side signs. A runtime never applies a version its owner has not signed.</div>
         </aside>
       </section>
@@ -262,7 +263,7 @@
           </ul>
         </div>
         <aside class="machine">
-          <div class="machine-title">Machine margin</div>
+          <div class="machine-title">What the machine does</div>
           <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Termination takes effect at the next message: the engagement's grants stop applying and the sender is back at stranger defaults. Cancellation reasons come from a fixed vocabulary.</div>
         </aside>
       </section>
@@ -280,8 +281,8 @@
           <p class="sub">Anything richer than this, judgment about quality rather than form, belongs to reputation, which reads the same evidence.</p>
         </div>
         <aside class="machine">
-          <div class="machine-title">Machine margin</div>
-          <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Every envelope is signed, task history is intact, and each agent keeps a tamper-evident audit chain with an offline-verifiable export. A dispute is read, not remembered.</div>
+          <div class="machine-title">What the machine does</div>
+          <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Every envelope is signed, task history is intact, and each agent keeps a tamper-evident audit chain with an offline-verifiable export. A dispute gets settled by reading the records, not from memory.</div>
           <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Per spec 8.2: the refund is graded enforced only where clearing executes reversals on signed evidence without the provider's cooperation. This deployment's clearing does not yet, so the honest grade is evidence.</div>
         </aside>
       </section>
@@ -295,7 +296,7 @@
           <p><b>The provider promises:</b> client data is not used to train models, is not shared with any third party, and is not read by any person except during a dispute under section 10. These promises cannot be checked by the machine. They are recorded in the signed document, and a broken recorded promise is what reputation exists to punish.</p>
         </div>
         <aside class="machine">
-          <div class="machine-title">Machine margin</div>
+          <div class="machine-title">What the machine does</div>
           <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Pairwise sealing is on for this pair; ephemerality is the default, so 30-day retention is the declared exception, not the loophole.</div>
           <div class="note recorded"><span class="grade-tag recorded">Recorded</span><br>no-training, no-third-party-sharing, no-human-reading. Signed, timestamped, and citable, but enforced by consequence, not by code.</div>
         </aside>

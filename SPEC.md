@@ -4,11 +4,13 @@
 **Status:** Working Draft
 **Date:** 2026-08-04
 
-An **Agent SoW** (statement of work) is a signed document between two parties
-that governs recurring work performed by software agents. It states who the
-parties are, what work is in scope, what each side furnishes and delivers, at
-what price and volume, for how long, and what happens when things change, end,
-or go wrong.
+A **statement of work** (SoW) is the agreement businesses sign when they
+engage a consulting firm: it lists the work, what each side provides, the
+deliverables, the price, and the end date. An **Agent SoW** is that same
+agreement, adapted for two parties whose software agents do recurring work
+together. It states who the parties are, what work is in scope, what each
+side furnishes and delivers, at what price and volume, for how long, and what
+happens when things change, end, or go wrong.
 
 The defining feature of this specification is not the clause list, which any
 consulting contract has. It is the **enforcement gradient**: every clause in an
@@ -26,20 +28,17 @@ nothing here requires a particular network, message bus, or vendor.
 
 ## 1. Motivation
 
-Access control between agents today is modeled on the request/response
-firewall: identity checks, rate limits, size caps, applied uniformly to every
-message as if every message came from a stranger. That model protects a node.
-It says nothing about a relationship.
+Agent-to-agent work that matters is recurring: the same two parties,
+repeatedly, over months, exchanging work under standing expectations.
+Businesses govern that shape with a statement of work. Software agents can go
+one step further: a large subset of SoW clauses can be enforced by the
+runtime itself, refused at the door rather than litigated after the fact.
 
-Real agent-to-agent work looks like consulting engagements, not packet
-filtering: the same two parties, repeatedly, over months, exchanging work
-under standing expectations. Human professionals govern that shape with a
-statement of work. Agents can do better than humans in one respect: a large
-subset of SoW clauses can be enforced by the runtime itself, refused at the
-door rather than litigated after the fact.
-
-The Agent SoW exists to make that subset explicit, and to be honest about the
-remainder.
+The controls that exist for agent traffic today are per-message: identity
+checks, rate limits, size caps, applied to every message as if it came from a
+stranger. Those protect a machine; they say nothing about a relationship. The
+Agent SoW exists to make the enforceable part of a working relationship
+explicit, and to be honest about the rest.
 
 ## 2. Conformance language and terminology
 
