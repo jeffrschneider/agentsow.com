@@ -74,6 +74,15 @@
       .clause{ grid-template-columns:1fr; }
       .parties,.sig-grid{ grid-template-columns:1fr; }
     }
+    @media (max-width:640px){
+      .clause table{ display:block; overflow-x:auto; }
+      .doc-head{ padding:40px 0 20px; }
+      .doc-meta{ gap:4px 16px; }
+      .doc-meta b{ overflow-wrap:anywhere; }
+      .clause{ padding:24px 0; }
+      .signatures{ padding:20px 16px; }
+      .sig-grid{ gap:22px; }
+    }
   </style>
 </head>
 <body>

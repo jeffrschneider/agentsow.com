@@ -137,6 +137,35 @@ article.spec blockquote{ margin:14px 0; padding:10px 18px; border-left:2px solid
 
 @media (max-width: 860px){
   .layout{ grid-template-columns:1fr; }
-  .rail{ position:static; height:auto; border-right:0; border-bottom:1px solid var(--line); }
+  .rail{ position:static; height:auto; border-right:0; border-bottom:1px solid var(--line);
+    padding:18px 22px 16px; }
+  .brand{ margin-bottom:14px; }
+  .rail .grp{ margin:12px 0 6px; }
+  .rail .grp:first-of-type{ margin-top:0; }
+  .rail nav{ display:flex; flex-wrap:wrap; gap:6px 8px; }
+  .rail nav a{ padding:5px 10px; margin-left:0; border:1px solid var(--line); border-radius:6px; }
+  .rail nav a.on{ border-color:var(--enforced); }
+  .rail .foot{ margin-top:14px; padding-top:12px; }
   .wrap{ padding:0 22px 60px; }
+}
+
+@media (max-width: 640px){
+  /* wide content scrolls inside its own container, never the page */
+  table.clauses, article.spec table{ display:block; overflow-x:auto; }
+  .figure .bar{ flex-wrap:wrap; row-gap:2px; }
+  .figure pre{ font-size:.72rem; padding:16px 14px; line-height:1.7; }
+  article.spec pre{ font-size:.72rem; padding:14px; }
+}
+
+@media (max-width: 480px){
+  .wrap{ padding:0 16px 48px; }
+  .rail{ padding:16px 16px 14px; }
+  .hero{ padding:48px 0 32px; }
+  .hero h1{ font-size:clamp(1.85rem,8.5vw,2.4rem); }
+  .hero .lede{ font-size:1.05rem; }
+  .lede{ font-size:1.05rem; }
+  section.band{ padding:40px 0; }
+  section.band h2{ font-size:1.5rem; }
+  article.spec h1{ font-size:clamp(1.7rem,8vw,2rem); }
+  article.spec h2{ font-size:1.35rem; }
 }
