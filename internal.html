@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Internal SoWs: agreements between teams, not just vendors</title>
+  <meta name="description" content="A statement of work does not require an outside vendor. Inside a company that runs many agents, the same document governs work one team's agent does for another team's.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="rail">
+    <a class="brand" href="index.html"><span class="dot"></span>agent sow</a>
+    <div class="grp">Read</div>
+    <nav>
+      <a href="index.html">Overview</a>
+      <a href="spec.html">The specification</a>
+      <a href="example.html">Worked example</a>
+      <a class="on" href="internal.html">Internal SoWs</a>
+      <a href="catalog.html">With an agent catalog</a>
+    </nav>
+    <div class="grp">Family</div>
+    <nav>
+      <a href="https://agentcatalog.com">agentcatalog.com</a>
+      <a href="https://agentmesh.ai">agentmesh.ai</a>
+      <a href="https://dev.agentmesh.ai">dev.agentmesh.ai</a>
+    </nav>
+    <div class="foot">
+      v0.1.0-draft<br>
+      a working draft, developed<br>alongside AgentMesh
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="wrap">
+
+      <section class="hero" style="padding-bottom:34px">
+        <span class="eyebrow"><span class="tag">internal</span> // the counterparty can be down the hall</span>
+        <h1>Internal SoWs</h1>
+        <p class="lede">Most people picture a statement of work as a contract with an outside vendor. It does not have to be. Inside a company that runs many agents, the same document governs work one team's agent does for another team's, and the terms deserve to be just as explicit as they would be with a stranger.</p>
+      </section>
+
+      <section class="band">
+        <h2>Why write it down inside one company</h2>
+        <p>Companies already write internal agreements. IT signs service levels with the business. Shared services bill departments through chargeback. Finance publishes a close calendar and expects everyone to hit it. Those agreements exist because "we are all on the same team" does not answer who pays, how much capacity anyone may use, or when the report is due. Agents make the same questions sharper, because agents act at machine speed and spend real money.</p>
+        <p>An internal Agent SoW answers them the same way an external one does:</p>
+        <ul style="color:var(--dim);max-width:62ch">
+          <li><b>Chargeback.</b> The price clause meters internal cost allocation instead of a sale. Finance can see which department's agents consume what, from settlement records instead of estimates.</li>
+          <li><b>Capacity protection.</b> The volume clause protects shared budgets: model spend, vendor API quotas, the platform team's infrastructure. One team's enthusiasm cannot starve everyone else.</li>
+          <li><b>Data boundaries.</b> Compensation data, HR records, and deal financials have walls inside a company too. Sealed transport and retention limits are enforced; conduct promises are recorded and become compliance items.</li>
+          <li><b>Deadlines that exist.</b> Interim deliverables give the month-end report an actual due date, and a missed date is detected and recorded, not remembered in a retro.</li>
+          <li><b>Something for audit to read.</b> The evidence chain (signed tasks, settlement records, delivery verdicts) is exactly what internal audit and controls teams ask for and rarely get.</li>
+        </ul>
+      </section>
+
+      <section class="band">
+        <h2>Example: commissions close, Finance for Sales operations</h2>
+        <p>Finance runs a ledger-close agent. Sales operations needs commissions reconciled every month and asks questions about mismatches all month long. The engagement makes the monthly report an obligation with a date, prices the work for chargeback, and protects close week with volume limits.</p>
+        <div class="figure">
+          <div class="bar"><span class="lamp"></span> sow_c4f8n2k1p9r5t7w3 &middot; internal &middot; provider: Finance &middot; client: Sales Ops <span class="grow">active</span></div>
+          <pre><span class="k">parties</span>     ledger-close (Finance) serving sales-ops (Sales Operations)   <span class="b">[EVIDENCE]</span>
+<span class="k">scope</span>       commission-reconciliation, mismatch-explain                  <span class="g">[ENFORCED]</span>
+<span class="k">inputs</span>      CRM commissions export, text/csv, per task                    <span class="g">[ENFORCED]</span>
+<span class="k">interim</span>     commissions-report.pdf, monthly, due by the 3rd               <span class="b">[EVIDENCE]</span>
+<span class="k">price</span>       1,200,000 XCR per reconciliation, charged back to Sales       <span class="g">[ENFORCED]</span>
+<span class="k">volume</span>      4 per hour, 20 per day                                        <span class="g">[ENFORCED]</span>
+<span class="k">disputes</span>    escalate_to_owners (the two directors read the record)        <span class="b">[EVIDENCE]</span>
+<span class="k">promises</span>    comp data: no human reading outside a dispute                 <span class="a">[RECORDED]</span></pre>
+          <div class="cap"><b>The price clause is chargeback, not revenue.</b> Same mechanics, different accounting: Finance's cost center gets credited, Sales Operations' gets debited, and both sides hold the receipts.</div>
+        </div>
+      </section>
+
+      <section class="band">
+        <h2>Example: lead enrichment, Data Platform for Marketing</h2>
+        <p>The data platform team runs an enrichment agent backed by paid vendor APIs. Marketing's campaign agent sends leads to be enriched. The work is free internally, but the volume clause is the whole point: it protects a shared vendor budget from being spent by one campaign.</p>
+        <div class="figure">
+          <div class="bar"><span class="lamp"></span> sow_m8d2q6v4x1z9b5j7 &middot; internal &middot; provider: Data Platform &middot; client: Marketing <span class="grow">active</span></div>
+          <pre><span class="k">parties</span>     enrich (Data Platform) serving campaigns (Marketing)          <span class="b">[EVIDENCE]</span>
+<span class="k">scope</span>       lead-enrichment                                               <span class="g">[ENFORCED]</span>
+<span class="k">inputs</span>      lead list, text/csv, per task                                 <span class="g">[ENFORCED]</span>
+<span class="k">deliverables</span> enriched-leads, application/json, per task                   <span class="g">[ENFORCED]</span>
+<span class="k">price</span>       0 XCR (internal service), every task still metered            <span class="g">[ENFORCED]</span>
+<span class="k">volume</span>      500 leads per day                                             <span class="g">[ENFORCED]</span>
+<span class="k">term</span>        quarterly, renewed with the budget cycle                      <span class="g">[ENFORCED]</span>
+<span class="k">disputes</span>    none (it is free; a disagreement is a conversation)           <span class="b">[EVIDENCE]</span></pre>
+          <div class="cap"><b>Free does not mean unmetered.</b> The price is zero but every task is still rated and recorded, so the platform team can show exactly who uses the service when budget season comes.</div>
+        </div>
+      </section>
+
+      <section class="band">
+        <h2>What changes inside one company, and what does not</h2>
+        <p>The document is identical: same clauses, same three labels, same signing rule, same lifecycle. What typically differs is the choices. Price becomes chargeback or zero-but-metered. Disputes are usually <b>escalate_to_owners</b>, because refunds between cost centers are theater; the two managers reading the same signed record is the real remedy. Confidentiality promises carry more weight, not less: internally, a recorded promise is a policy commitment, and the evidence chain shows whether it held.</p>
+        <p>Standing proposals work internally too. A platform team publishes its standard terms once, and other departments countersign into them, which is how an internal agent catalog stays honest: the listing every team browses is generated from the terms they would be agreeing to. How that derivation works is the subject of <a href="catalog.html" style="color:var(--paper)">the catalog page</a>.</p>
+      </section>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>

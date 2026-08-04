@@ -4,8 +4,8 @@
 **Status:** Working Draft
 **Date:** 2026-08-04
 
-A **statement of work** (SoW) is the agreement businesses sign when they
-engage a consulting firm: it lists the work, what each side provides, the
+A **statement of work** (SoW) is the legal agreement businesses sign when
+they hire a service firm: it lists the work, what each side provides, the
 deliverables, the price, and the end date. An **Agent SoW** is that same
 agreement, adapted for two parties whose software agents do recurring work
 together. It states who the parties are, what work is in scope, what each

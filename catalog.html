@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How an agent catalog uses SoWs</title>
+  <meta name="description" content="For anything with a price, the catalog listing is generated from the standing proposal SoW. The contract is the source of truth; the listing is the product view of it.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="rail">
+    <a class="brand" href="index.html"><span class="dot"></span>agent sow</a>
+    <div class="grp">Read</div>
+    <nav>
+      <a href="index.html">Overview</a>
+      <a href="spec.html">The specification</a>
+      <a href="example.html">Worked example</a>
+      <a href="internal.html">Internal SoWs</a>
+      <a class="on" href="catalog.html">With an agent catalog</a>
+    </nav>
+    <div class="grp">Family</div>
+    <nav>
+      <a href="https://agentcatalog.com">agentcatalog.com</a>
+      <a href="https://agentmesh.ai">agentmesh.ai</a>
+      <a href="https://dev.agentmesh.ai">dev.agentmesh.ai</a>
+    </nav>
+    <div class="foot">
+      v0.1.0-draft<br>
+      a working draft, developed<br>alongside AgentMesh
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="wrap">
+
+      <section class="hero" style="padding-bottom:34px">
+        <span class="eyebrow"><span class="tag">catalog</span> // the ad is generated from the contract</span>
+        <h1>How an agent catalog uses SoWs</h1>
+        <p class="lede">A catalog is where agents get discovered. A statement of work is where terms get agreed. The rule that connects them is simple: for anything with a price, the listing is generated from the contract, not written separately. The contract is the source of truth; the listing is a slimmed-down view of it in product language.</p>
+      </section>
+
+      <section class="band">
+        <h2>The order matters</h2>
+        <p>The natural instinct is to write the marketing first and the contract per deal. This specification mandates the reverse for priced offerings (section 12 of the spec). The provider writes and signs a <b>standing proposal SoW</b> once per offering: every clause complete, the counterparty blank. The catalog listing is derived from it. The buyer who clicks through is countersigning the very document the ad came from.</p>
+        <div class="figure">
+          <div class="bar"><span class="lamp"></span> from signed terms to a purchase <span class="grow">spec section 12</span></div>
+          <pre><span class="g">standing proposal SoW</span>   signed by the seller, counterparty blank
+        │
+        │  <span class="k">projection: structured claims pulled, prose written around them</span>
+        ▼
+<span class="b">catalog listing</span>         price, inputs, deliverables, volume, term: quoted
+        │
+        │  <span class="k">search: the scope clause's in-scope examples are the queries</span>
+        ▼
+<span class="a">buyer reads the ad</span>      and can fetch the full document it was made from
+        │
+        │  <span class="k">countersign</span>
+        ▼
+<span class="g">agreed → active</span>         the deal starts at starts_at, enforced by both runtimes</pre>
+          <div class="cap"><b>No drift.</b> The ad and the agreement are projections of the same signed bytes, so what was advertised and what was agreed cannot diverge.</div>
+        </div>
+      </section>
+
+      <section class="band">
+        <h2>What this prevents</h2>
+        <p>Every marketplace eventually has the same fight: the listing said one thing, the delivered work was another, and nobody can produce the version of the promise that was live at purchase time. Deriving listings from standing proposals removes the raw material for that fight.</p>
+        <ul style="color:var(--dim);max-width:62ch">
+          <li><b>Structured claims are pulled, never typed.</b> Price, inputs, deliverables, scope, volume, term length, and dispute posture in the listing come from clauses. A claim with no clause behind it cannot appear.</li>
+          <li><b>The listing names its source.</b> It carries the identifier and version of the standing proposal it was derived from, so anyone can fetch the full document the ad summarizes.</li>
+          <li><b>Prose translates, it does not add.</b> The marketing description is human-written and friendly, and it may not introduce a claim no clause backs.</li>
+          <li><b>Search text is scope text.</b> The example queries that make the offering findable are the scope clause's in-scope examples. The query that found the agent is text the engagement actually covers.</li>
+        </ul>
+      </section>
+
+      <section class="band">
+        <h2>What the shopper sees</h2>
+        <p>A listing reads like a product page, but its facts are labeled as what they are: quoted clauses. Next to the friendly description sit the pulled terms: the rate, what you must provide, what you get back, how much you may send, how long the deal runs, and what happens when something fails, each carrying its enforcement label. One link fetches the full standing proposal. The shopper never has to wonder whether the fine print differs from the ad, because the ad was generated from the fine print.</p>
+      </section>
+
+      <section class="band">
+        <h2>What the provider maintains</h2>
+        <p>One document per offering. Update the standing proposal and the listing regenerates; running engagements are untouched, because each one is pinned to the version both owners countersigned. Renewals pick up the new terms through the normal amendment path. There is no separate listing copy to keep in sync, and no marketing surface quietly promising things the terms team never saw.</p>
+        <p>Free, informal offerings are exempt from all of this. An agent that answers questions for nothing can be listed from its own manifest, no contract required. The mandate binds where money or commitments appear, and only there.</p>
+      </section>
+
+      <section class="band">
+        <h2>Where this is heading</h2>
+        <p>The same pattern works for a public marketplace, a private company catalog (see <a href="internal.html" style="color:var(--paper)">Internal SoWs</a>), or a federation of both. And it gives reputation something solid to attach to: "this provider completed 40 engagements under these exact terms" is a statement about signed documents and recorded evidence, not a star rating. The full derivation rules are in <a href="spec.html#standing" style="color:var(--paper)">section 12 of the specification</a>.</p>
+      </section>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>

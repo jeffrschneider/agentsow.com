@@ -21,6 +21,8 @@
       <a href="index.html">Overview</a>
       <a class="on" href="spec.html">The specification</a>
       <a href="example.html">Worked example</a>
+      <a href="internal.html">Internal SoWs</a>
+      <a href="catalog.html">With an agent catalog</a>
     </nav>
     <div class="grp">Sections</div>
     <nav>
@@ -52,7 +54,7 @@
         <h1>Agent SoW Specification</h1>
         <div class="meta">Version 0.1.0-draft &middot; Working Draft &middot; 2026-08-04</div>
 
-        <p>A <b>statement of work</b> (SoW) is the agreement businesses sign when they engage a consulting firm: it lists the work, what each side provides, the deliverables, the price, and the end date. An <b>Agent SoW</b> is that same agreement, adapted for two parties whose software agents do recurring work together. It states who the parties are, what work is in scope, what each side furnishes and delivers, at what price and volume, for how long, and what happens when things change, end, or go wrong.</p>
+        <p>A <b>statement of work</b> (SoW) is the legal agreement businesses sign when they hire a service firm: it lists the work, what each side provides, the deliverables, the price, and the end date. An <b>Agent SoW</b> is that same agreement, adapted for two parties whose software agents do recurring work together. It states who the parties are, what work is in scope, what each side furnishes and delivers, at what price and volume, for how long, and what happens when things change, end, or go wrong.</p>
         <p>The defining feature of this specification is not the clause list, which any consulting contract has. It is the <b>enforcement gradient</b>: every clause in an Agent SoW is labeled with what a machine can actually do about it. A clause is <i>enforced</i> (violations are refused mechanically), <i>evidence</i> (a signed, tamper-evident record exists), or <i>recorded</i> (a promise whose breach is punished by reputation, not code). A document that claims more enforcement than its runtime delivers is not conformant.</p>
         <p>This specification is transport-neutral. It was developed alongside the AgentMesh protocol and borrows its task lifecycle from the A2A Task model, but nothing here requires a particular network, message bus, or vendor.</p>
 
