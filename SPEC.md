@@ -1,6 +1,6 @@
 # Agent SoW Specification
 
-**Version:** 0.2.0-draft
+**Version:** 0.3.0-draft
 **Status:** Working Draft
 **Date:** 2026-08-06
 
@@ -315,13 +315,47 @@ simply does not apply the engagement outside them.
 
 ### 5.8 Change control
 
-Either owner MAY propose an amendment: a full replacement document with
-`version` incremented. The amendment takes effect only when the counterparty
-owner countersigns. Unsigned proposals lapse after the stated review window.
-All prior versions remain on record.
+Either owner MAY propose an amendment: a **full replacement document** with
+`version` incremented by exactly one over the highest agreed version. A
+replacement, not a delta, so the signatures always cover the whole of what
+governs and there is never a question of what the merged state is. The
+parties and the original `starts_at` are fixed; everything else, including
+`ends_at` (renewal is just an amendment that extends it), may change.
+
+A proposed amendment carries one signature: the proposing seat's, over the
+full replacement bytes (§6). It is a **change request**, and it has no force.
+The engagement continues under the current agreed version while the proposal
+is open. At most one amendment proposal may be open on an engagement at a
+time.
+
+The counterparty resolves it one of four ways:
+
+- **Approval**: the counterparty countersigns the proposed bytes exactly,
+  under the approval authority the document states (§6.1). The amendment
+  becomes the agreed document; the superseded version remains on record.
+  Where the amendment moves price or scope, any settlement instrument
+  derived from the engagement MUST be re-derived at approval, so work
+  admitted under the old version stays evidenced and priced under the old
+  version.
+- **Denial**: a signed refusal that MUST carry a reason. An unreasoned
+  denial is not a denial; runtimes MUST refuse to record one. The current
+  version continues in force.
+- **Counter-proposal**: there are no partial approvals. Accepting the scope
+  change but not the price change is not an approval of anything; it is a
+  different amendment, proposed back the other way after this one is denied
+  or withdrawn.
+- **Silence**: an unresolved proposal lapses after `review_window_days`.
+  Lapse is recorded, and the current version continues in force.
+
+The proposer MAY withdraw an open proposal before it is resolved; withdrawal
+is recorded like the other outcomes.
 
 ```json
-"change_control": { "review_window_days": 7, "grade": "enforced" }
+"change_control": {
+  "review_window_days": 7,
+  "approval": { "formation": "agent", "amendment": "person" },
+  "grade": "enforced"
+}
 ```
 
 Grade: `enforced` by the signing rule itself: a runtime MUST NOT apply a
@@ -410,6 +444,52 @@ always ends with a fresh provider signature over the completed document
 (§12.1). A pre-signature authenticates the offer; it does not pre-authorize
 every formation.
 
+### 6.1 Approval authority
+
+A signature proves control of a key. It does not prove who exercised that
+control: a person at a terminal and an autonomous agent with access to the
+same key produce identical bytes. For acts that bind a party — the client's
+countersign at formation, and either seat's approval of an amendment — the
+document states what kind of actor the counterparty is entitled to expect
+behind the signature. Three values:
+
+- `agent`: a valid signature by the seat's key suffices. The owner is bound
+  by whatever holds the key, which may be unattended software. This is the
+  honest name for what an unadorned signature already means.
+- `person`: the approval must additionally be confirmed by the account's
+  human through a person-grade ceremony. On a platform that completes
+  formation server-side, this is enforceable, not aspirational: the runtime
+  holds the approval pending until the human confirms with a credential that
+  attests user presence and verification (for example a WebAuthn passkey
+  ceremony), and the confirmation is recorded beside the signature. A
+  pending approval that is never confirmed lapses with the review window.
+- `agent_then_person`: both artifacts on the record — the agent's signature
+  first (proving key control and intent), the person's confirmation second
+  (proving presence). Operationally this is `person` with the agent's
+  signature explicitly required to come first; documents that want both
+  fingerprints say so with this value.
+
+The declaration lives in the `change_control` clause, one value for
+formation and one for amendments:
+
+```json
+"approval": { "formation": "agent", "amendment": "person" }
+```
+
+Defaults when unstated: formation is `agent` (a published offer at a
+published price is a bounded commitment, and requiring a ceremony for every
+formation would tax the zero-ceremony principle of §10); amendments default
+to `person` (a change to a live engagement is exactly where an
+auto-approving agent is a standing target, and a human in the loop is worth
+the ceremony).
+
+Honesty bounds the claim: a person-grade ceremony proves that a verified
+human was present and confirmed. It does not prove they read the document or
+understood it. Runtimes MUST NOT present `person` approval as anything more
+than presence and verification, and where formation does not complete on a
+platform that can hold it pending, the `person` value grades `evidence`
+(the confirmation record exists) rather than `enforced`.
+
 ## 7. Lifecycle
 
 ### 7.1 Document states
@@ -424,6 +504,9 @@ standing proposal SoW seller's signature only, counterparty blank;
 agreed                both signatures, before starts_at; no force yet
 active                both signatures, starts_at reached; the runtimes
                       enforce it
+  → amendment proposed  a full replacement vN+1 with one signature is open
+                      (§5.8); no force; the current version governs until
+                      it is approved, denied, withdrawn, or lapses
   → amended           replaced by a higher version with both signatures
   → lapsed            ends_at passed
   → terminated        ended by either owner (§5.9)
@@ -535,7 +618,11 @@ capability the agent does not carry is a validation error, not an offer.
 form, not formation itself. It produces the completed instance: client seat
 filled, `starts_at` set, the client's signature over those bytes. The
 provider's runtime then completes formation by adding the provider instance
-signature (§6), and only the fully signed instance is `agreed`.
+signature (§6), and only the fully signed instance is `agreed`. Where the
+offer's approval authority for formation is `person` or `agent_then_person`
+(§6.1), completion additionally waits for the client account's human
+confirmation, and an unconfirmed request to form lapses with the review
+window.
 
 That completion step is a gate, and the rules that keep it a gate rather
 than a veto:

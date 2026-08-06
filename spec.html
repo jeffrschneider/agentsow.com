@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agent SoW Specification v0.2.0-draft</title>
+  <title>Agent SoW Specification v0.3.0-draft</title>
   <meta name="description" content="The Agent SoW specification: a signed, machine-graded statement of work between two parties whose agents do recurring work together.">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -55,7 +55,7 @@
       <article class="spec">
 
         <h1>Agent SoW Specification</h1>
-        <div class="meta">Version 0.2.0-draft &middot; Working Draft &middot; 2026-08-06</div>
+        <div class="meta">Version 0.3.0-draft &middot; Working Draft &middot; 2026-08-06</div>
 
         <p>A <b>statement of work</b> (SoW) is the legal agreement businesses sign when they hire a service firm: it lists the work, what each side provides, the deliverables, the price, and the end date. An <b>Agent SoW</b> is that same agreement, adapted for two parties whose software agents do recurring work together. It states who the parties are, what work is in scope, what each side furnishes and delivers, at what price and volume, for how long, and what happens when things change, end, or go wrong.</p>
         <p>The defining feature of this specification is not the clause list, which any consulting contract has. It is the <b>enforcement gradient</b>: every clause in an Agent SoW is labeled with what a machine can actually do about it. A clause is <i>enforced</i> (violations are refused mechanically), <i>evidence</i> (a signed, tamper-evident record exists), or <i>recorded</i> (a promise whose breach is punished by reputation, not code). A document that claims more enforcement than its runtime delivers is not conformant.</p>
@@ -206,8 +206,21 @@
         <p>Grade: <span class="grade-tag enforced">enforced</span>. Both instants are inside the signed bytes; the gate simply does not apply the engagement outside them.</p>
 
         <h3>5.8 Change control</h3>
-        <p>Either owner MAY propose an amendment: a full replacement document with <code>version</code> incremented. The amendment takes effect only when the counterparty owner countersigns. Unsigned proposals lapse after the stated review window. All prior versions remain on record.</p>
-        <pre><code>"change_control": { "review_window_days": 7, "grade": "enforced" }</code></pre>
+        <p>Either owner MAY propose an amendment: a <b>full replacement document</b> with <code>version</code> incremented by exactly one over the highest agreed version. A replacement, not a delta, so the signatures always cover the whole of what governs and there is never a question of what the merged state is. The parties and the original <code>starts_at</code> are fixed; everything else, including <code>ends_at</code> (renewal is just an amendment that extends it), may change.</p>
+        <p>A proposed amendment carries one signature: the proposing seat's, over the full replacement bytes (section 6). It is a <b>change request</b>, and it has no force. The engagement continues under the current agreed version while the proposal is open. At most one amendment proposal may be open on an engagement at a time.</p>
+        <p>The counterparty resolves it one of four ways:</p>
+        <ul>
+          <li><b>Approval</b>: the counterparty countersigns the proposed bytes exactly, under the approval authority the document states (section 6.1). The amendment becomes the agreed document; the superseded version remains on record. Where the amendment moves price or scope, any settlement instrument derived from the engagement MUST be re-derived at approval, so work admitted under the old version stays evidenced and priced under the old version.</li>
+          <li><b>Denial</b>: a signed refusal that MUST carry a reason. An unreasoned denial is not a denial; runtimes MUST refuse to record one. The current version continues in force.</li>
+          <li><b>Counter-proposal</b>: there are no partial approvals. Accepting the scope change but not the price change is not an approval of anything; it is a different amendment, proposed back the other way after this one is denied or withdrawn.</li>
+          <li><b>Silence</b>: an unresolved proposal lapses after <code>review_window_days</code>. Lapse is recorded, and the current version continues in force.</li>
+        </ul>
+        <p>The proposer MAY withdraw an open proposal before it is resolved; withdrawal is recorded like the other outcomes.</p>
+        <pre><code>"change_control": {
+  "review_window_days": 7,
+  "approval": { "formation": "agent", "amendment": "person" },
+  "grade": "enforced"
+}</code></pre>
         <p>Grade: <span class="grade-tag enforced">enforced</span> by the signing rule itself: a runtime MUST NOT apply a version its own owner has not signed.</p>
 
         <h3>5.9 Termination</h3>
@@ -246,6 +259,18 @@
         <p>A document is <b>agreed</b> when both roles have valid signatures over the same canonical bytes, and <b>active</b> once <code>starts_at</code> arrives. Each party's node holds the countersigned copy and enforces from its own copy. There is no central contract store to trust or to lose.</p>
         <p>"Over the same canonical bytes" carries more weight than it looks like it does. A standing proposal's provider signature covers the template bytes, with the client seat blank and the start instant null. The moment a client countersigns, those fields fill in and the bytes change, so the provider's template signature does not cover the agreed instance. Formation therefore always ends with a fresh provider signature over the completed document (section 12.1). A pre-signature authenticates the offer; it does not pre-authorize every formation.</p>
 
+        <h3>6.1 Approval authority</h3>
+        <p>A signature proves control of a key. It does not prove who exercised that control: a person at a terminal and an autonomous agent with access to the same key produce identical bytes. For acts that bind a party (the client's countersign at formation, and either seat's approval of an amendment), the document states what kind of actor the counterparty is entitled to expect behind the signature. Three values:</p>
+        <ul>
+          <li><code>agent</code>: a valid signature by the seat's key suffices. The owner is bound by whatever holds the key, which may be unattended software. This is the honest name for what an unadorned signature already means.</li>
+          <li><code>person</code>: the approval must additionally be confirmed by the account's human through a person-grade ceremony. On a platform that completes formation server-side, this is enforceable, not aspirational: the runtime holds the approval pending until the human confirms with a credential that attests user presence and verification (for example a WebAuthn passkey ceremony), and the confirmation is recorded beside the signature. A pending approval that is never confirmed lapses with the review window.</li>
+          <li><code>agent_then_person</code>: both artifacts on the record: the agent's signature first (proving key control and intent), the person's confirmation second (proving presence). Operationally this is <code>person</code> with the agent's signature explicitly required to come first; documents that want both fingerprints say so with this value.</li>
+        </ul>
+        <p>The declaration lives in the <code>change_control</code> clause, one value for formation and one for amendments:</p>
+        <pre><code>"approval": { "formation": "agent", "amendment": "person" }</code></pre>
+        <p>Defaults when unstated: formation is <code>agent</code> (a published offer at a published price is a bounded commitment, and requiring a ceremony for every formation would tax the zero-ceremony principle of section 10); amendments default to <code>person</code> (a change to a live engagement is exactly where an auto-approving agent is a standing target, and a human in the loop is worth the ceremony).</p>
+        <p>Honesty bounds the claim: a person-grade ceremony proves that a verified human was present and confirmed. It does not prove they read the document or understood it. Runtimes MUST NOT present <code>person</code> approval as anything more than presence and verification, and where formation does not complete on a platform that can hold it pending, the <code>person</code> value grades <code>evidence</code> (the confirmation record exists) rather than <code>enforced</code>.</p>
+
         <h2 id="lifecycle">7. Lifecycle</h2>
         <h3>7.1 Document states</h3>
         <p>The document states, by signature count and time:</p>
@@ -256,6 +281,9 @@ standing proposal SoW seller's signature only, counterparty blank;
 agreed                both signatures, before starts_at; no force yet
 active                both signatures, starts_at reached; the runtimes
                       enforce it
+  → amendment proposed  a full replacement vN+1 with one signature is open
+                      (5.8); no force; the current version governs until
+                      it is approved, denied, withdrawn, or lapses
   → amended           replaced by a higher version with both signatures
   → lapsed            ends_at passed
   → terminated        ended by either owner (5.9)</code></pre>
@@ -300,7 +328,7 @@ review     (15)   at completion: acceptance or rejection, with reasons,
         <h3>12.1 The standing proposal</h3>
         <p>A <b>standing proposal SoW</b> is a template the selling owner has signed with the counterparty left blank: every clause complete, the deal open. It is the document a provider maintains once per offering rather than negotiating per client.</p>
         <p>A standing proposal MUST only name offerings the provider's agent actually publishes in its own capability manifest. A clause that references a capability the agent does not carry is a validation error, not an offer.</p>
-        <p><b>Formation.</b> A client's countersign of a standing proposal is a request to form, not formation itself. It produces the completed instance: client seat filled, <code>starts_at</code> set, the client's signature over those bytes. The provider's runtime then completes formation by adding the provider instance signature (section 6), and only the fully signed instance is <code>agreed</code>.</p>
+        <p><b>Formation.</b> A client's countersign of a standing proposal is a request to form, not formation itself. It produces the completed instance: client seat filled, <code>starts_at</code> set, the client's signature over those bytes. The provider's runtime then completes formation by adding the provider instance signature (section 6), and only the fully signed instance is <code>agreed</code>. Where the offer's approval authority for formation is <code>person</code> or <code>agent_then_person</code> (section 6.1), completion additionally waits for the client account's human confirmation, and an unconfirmed request to form lapses with the review window.</p>
         <p>That completion step is a gate, and the rules that keep it a gate rather than a veto:</p>
         <ol>
           <li>A standing proposal MAY state <b>qualifications</b>: conditions a counterparty must meet for its countersign to be accepted. A passed validation probe (section 13) is an admissible qualification; so are account standing and capability requirements. Qualifications live in the signed document, where a prospective client reads them before spending anything.</li>
