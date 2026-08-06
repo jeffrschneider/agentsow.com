@@ -31,7 +31,7 @@
       <a href="https://dev.agentmesh.ai">dev.agentmesh.ai</a>
     </nav>
     <div class="foot">
-      v0.1.0-draft<br>
+      v0.3.0-draft<br>
       a working draft, developed<br>alongside AgentMesh
     </div>
   </aside>
@@ -54,20 +54,22 @@
           <li><b>Capacity protection.</b> The volume clause protects shared budgets: model spend, vendor API quotas, the platform team's infrastructure. One team's enthusiasm cannot starve everyone else.</li>
           <li><b>Data boundaries.</b> Compensation data, HR records, and deal financials have walls inside a company too. Sealed transport and retention limits are enforced; conduct promises are recorded and become compliance items.</li>
           <li><b>Deadlines that exist.</b> Interim deliverables give the month-end report an actual due date, and a missed date is detected and recorded, not remembered in a retro.</li>
+          <li><b>Changes a person signs off.</b> Starting the engagement can be routine, and the agents can do it. Changing the rate is not routine, because a new rate moves money between two departments' budgets. The document says which is which: formation by agent, amendment by a person, so a rate change waits for the director's own confirmation instead of an agent approving it overnight.</li>
           <li><b>Something for audit to read.</b> The evidence chain (signed tasks, settlement records, delivery verdicts) is exactly what internal audit and controls teams ask for and rarely get.</li>
         </ul>
       </section>
 
       <section class="band">
         <h2>Example: commissions close, Finance for Sales operations</h2>
-        <p>Finance runs a ledger-close agent. Sales operations needs commissions reconciled every month and asks questions about mismatches all month long. The engagement makes the monthly report an obligation with a date, prices the work for chargeback, and protects close week with volume limits.</p>
+        <p>Finance runs a ledger-close agent. Sales operations needs commissions reconciled every month and asks questions about mismatches all month long. The engagement makes the monthly report an obligation with a date, prices the work for chargeback, and protects close week with volume limits. It also says who is allowed to change the rate: the two agents may form the engagement between themselves, but an amendment waits for a person, because the rate is the number that moves money between two cost centers.</p>
         <div class="figure">
           <div class="bar"><span class="lamp"></span> sow_c4f8n2k1p9r5t7w3 &middot; internal &middot; provider: Finance &middot; client: Sales Ops <span class="grow">active</span></div>
           <pre><span class="k">parties</span>     ledger-close (Finance) serving sales-ops (Sales Operations)   <span class="b">[EVIDENCE]</span>
-<span class="k">scope</span>       commission-reconciliation, mismatch-explain                  <span class="g">[ENFORCED]</span>
+<span class="k">scope</span>       commission-reconciliation, mismatch-explain                   <span class="g">[ENFORCED]</span>
 <span class="k">inputs</span>      CRM commissions export, text/csv, per task                    <span class="g">[ENFORCED]</span>
 <span class="k">interim</span>     commissions-report.pdf, monthly, due by the 3rd               <span class="b">[EVIDENCE]</span>
 <span class="k">price</span>       1,200,000 XCR per reconciliation, charged back to Sales       <span class="g">[ENFORCED]</span>
+<span class="k">approval</span>    formation by agent, amendment by a person                     <span class="g">[ENFORCED]</span>
 <span class="k">volume</span>      4 per hour, 20 per day                                        <span class="g">[ENFORCED]</span>
 <span class="k">disputes</span>    escalate_to_owners (the two directors read the record)        <span class="b">[EVIDENCE]</span>
 <span class="k">promises</span>    comp data: no human reading outside a dispute                 <span class="a">[RECORDED]</span></pre>
@@ -94,7 +96,7 @@
 
       <section class="band">
         <h2>What changes inside one company, and what does not</h2>
-        <p>The document is identical: same clauses, same three labels, same signing rule, same lifecycle. What typically differs is the choices. Price becomes chargeback or zero-but-metered. Disputes are usually <b>escalate_to_owners</b>, because refunds between cost centers are theater; the two managers reading the same signed record is the real remedy. Confidentiality promises carry more weight, not less: internally, a recorded promise is a policy commitment, and the evidence chain shows whether it held.</p>
+        <p>The document is identical: same clauses, same three labels, same signing rule, same document states, and the same optional bookends around the work, a validation probe before signing and a review after delivery. What typically differs is the choices. Price becomes chargeback or zero-but-metered. Disputes are usually <b>escalate_to_owners</b>, because refunds between cost centers are theater; the two managers reading the same signed record is the real remedy. Confidentiality promises carry more weight, not less: internally, a recorded promise is a policy commitment, and the evidence chain shows whether it held.</p>
         <p>Standing proposals work internally too. A platform team publishes its standard terms once, and other departments countersign into them, which is how an internal agent catalog stays honest: the listing every team browses is generated from the terms they would be agreeing to. How that derivation works is the subject of <a href="catalog.html" style="color:var(--paper)">the catalog page</a>.</p>
       </section>
 

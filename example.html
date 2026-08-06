@@ -141,7 +141,7 @@
               <div class="key">handle <b>Petrel.mari@harborandline.example</b><br>agent key <b>UAPTRL6K3JMQZW7XE2B5CVHY4DNSGF3OAU6IR5TQLXW2MKEAZJ7B4CDN</b></div>
             </div>
           </div>
-          <p class="sub">The agents do the work. The owners agree to the terms, and the owners' signatures in section 12 are what make this document binding on both nodes.</p>
+          <p class="sub">The agents do the work. The owners agree to the terms, and the owners' signatures in section 13 are what make this document binding on both nodes.</p>
         </div>
         <aside class="machine">
           <div class="machine-title">What the machine does</div>
@@ -181,11 +181,16 @@
             <tr><td>Receipts folder</td><td>shared resource, <code>read</code> access</td><td>standing, for the term</td></tr>
             <tr><td>Chart of accounts</td><td><code>application/json</code></td><td>once, at engagement start</td></tr>
           </table>
-          <p class="sub">A request arriving without its per-task inputs does not fail and does not burn tokens guessing. It parks, and Petrel is asked to furnish what is missing.</p>
+          <p>All four inputs were exercised before either owner signed. On 2026-07-29 Petrel sent its real July statement, ledger export, and chart of accounts as a marked probe, and Granite tried the receipts folder: not delivery, no obligations under any clause, no charge beyond a token. Granite's runtime signed the outcome. Three inputs passed; the receipts folder failed with <code>no_permission</code> until Marisol widened the share, and the probe was re-run. Both parties hold that record, and it is the kind of thing a published offer can require before it accepts a countersign (<a href="spec.html#validation" style="color:var(--paper)">section 13 of the specification</a>).</p>
+          <p>A request arriving without its per-task inputs does not fail and does not burn tokens guessing. The task parks in <code>input_required</code> carrying a <b>problem report</b>: which input, what kind of problem, and a description Petrel's agent can act on. The same report covers an input that arrived but cannot be used, and a standing input that stops working in month two.</p>
+          <div class="example-box"><span class="verdict out">PROBLEM REPORT</span>input <code>bank-statement</code>, problem <code>wrong_format</code>, expected <code>text/csv</code>. "The file arrived as an .xlsx workbook with three sheets; the engagement names text/csv. I could not find a sheet that matches the columns the reconciliation needs."</div>
+          <p>The code comes from a set of five: <code>missing</code>, <code>unreadable</code>, <code>wrong_format</code>, <code>no_permission</code>, and <code>other</code>. The codes are there for routing and for the record. The description is the field the other agent actually reasons from, and it is required on every report, including the four specific codes. Granite says what is wrong; it does not tell Petrel how to fix it, and Petrel's runtime hands the report to Petrel's agent as written, with no resend loop of its own invention.</p>
+          <p class="sub">A report nobody answers is not a stalemate that runs forever. Petrel's runtime raises it to Marisol as the task's deadline nears, and a report still unresolved at the deadline makes the task a failed obligation, which is what sections 9 and 10 act on.</p>
         </div>
         <aside class="machine">
           <div class="machine-title">What the machine does</div>
-          <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Missing inputs move the task to <code>input_required</code>. The shared receipts folder is a pointer under this document's terms; it is never copied or crawled, only read during a task.</div>
+          <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Missing or unusable inputs move the task to <code>input_required</code> with the problem report attached. The shared receipts folder is a pointer under this document's terms; it is never copied or crawled, only read during a task.</div>
+          <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>The report and whatever resolved it, a corrected file, a restored permission, or nothing, stay attached to the task record. The probe outcome is held by both parties the same way.</div>
         </aside>
       </section>
 
@@ -261,12 +266,21 @@
       <section class="clause">
         <div>
           <h2><span class="num">8</span>Change control</h2>
-          <p>Either owner may propose an amendment: a new version of this document with changed clauses. The proposal takes effect only when the other owner countersigns it. Until then, the current version governs. Proposals not countersigned within <b>7 days</b> lapse.</p>
-          <p class="sub">Amendments bump the version number; every prior version stays on record.</p>
+          <p>Either owner may propose an amendment, and an amendment is a <b>full replacement</b> of this document at the next version number, not a list of edits to it. The replacement carries one signature, the proposer's. One signature is a change request: it has no force, and version 1 keeps governing every task while the request is open. Only one may be open at a time.</p>
+          <p>The other owner resolves it one of four ways. <b>Approve</b>, by countersigning the proposed bytes exactly. <b>Deny</b>, with a stated reason, because an unreasoned denial is not recorded as a denial at all. <b>Counter-propose</b>, which is what accepting the scope change but not the price change actually is, since there are no partial approvals. Or leave it, in which case it lapses after <b>7 days</b> and version 1 continues. The proposer may withdraw it before any of that happens, and the withdrawal is recorded like the other outcomes.</p>
+          <p>This document also states who is allowed to do the signing:</p>
+          <table>
+            <tr><th>Act</th><th>Authority</th><th>What that means here</th></tr>
+            <tr><td>formation</td><td><code>agent</code></td><td>Petrel's agent countersigned Granite's standing terms on its own; Marisol was not at a keyboard</td></tr>
+            <tr><td>amendment</td><td><code>person</code></td><td>a new rate or a wider scope waits for the approving owner to confirm it personally, with a credential that attests they were present: Marisol for Petrel, D. Okafor for Stonework</td></tr>
+          </table>
+          <p class="sub">In the signed document this is one line inside the change control clause, <code>"approval": { "formation": "agent", "amendment": "person" }</code>, which is what the specification assumes when a document says nothing. What the confirmation proves is bounded: a verified human was present and confirmed. It does not prove they read the document or understood it.</p>
+          <p class="sub">Amendments bump the version number; every prior version stays on record. Where an amendment moves price or scope, the settlement instruments are re-derived at approval, so work admitted under version 1 stays priced under version 1.</p>
         </div>
         <aside class="machine">
           <div class="machine-title">What the machine does</div>
           <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Propose-and-adopt: nothing changes on a node until its own side signs. A runtime never applies a version its owner has not signed.</div>
+          <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>An amendment approval is held pending on the approving side's node, Marisol's when Granite proposes a new rate, until the human confirms it. Unconfirmed, it lapses with the same 7-day window. Where a deployment cannot hold an approval pending, the confirmation is only a record and the honest grade drops to evidence.</div>
         </aside>
       </section>
 
@@ -304,10 +318,26 @@
         </aside>
       </section>
 
-      <!-- 11 Confidentiality -->
+      <!-- 11 Review -->
       <section class="clause">
         <div>
-          <h2><span class="num">11</span>Confidentiality and retention</h2>
+          <h2><span class="num">11</span>Review and acceptance</h2>
+          <p>Section 10 covers failure. This section covers judgment, which is a different thing: a task can arrive complete and on time, with both artifacts in the agreed formats, and still be wrong about the business.</p>
+          <p>At the end of any task, and at the end of the engagement, Marisol may record a <b>review</b>: acceptance, or rejection with a stated reason. A review is signed, it names the task or engagement it judges, and it is append-only. Changing her mind is a second review, not an edit to the first. An unreasoned rejection is not a review and carries no weight anywhere.</p>
+          <p>A review never stands in for the facts. "Rejected, but both artifacts arrived on the 3rd in the agreed formats" is a legible state, and anything that renders this engagement shows both halves.</p>
+          <p class="sub">Petrel is not obliged to review anything, and silence is not acceptance. An unreviewed month is an unreviewed month, and no runtime may count it as a satisfied one. The specification keeps review outside the clause list (<a href="spec.html#review" style="color:var(--paper)">section 15 of the specification</a>) because the judgment is made after the work rather than agreed before it. It appears here because these two parties said they would use it.</p>
+        </div>
+        <aside class="machine">
+          <div class="machine-title">What the machine does</div>
+          <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Reviews are signed by the owner and appended to the same evidence chain as the task history, so a later reader sees the judgment next to the form check that preceded it.</div>
+          <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Absence of review is absence of evidence. A conforming runtime must not turn Petrel's silence into implied acceptance, and settlement under section 10 is unaffected either way.</div>
+        </aside>
+      </section>
+
+      <!-- 12 Confidentiality -->
+      <section class="clause">
+        <div>
+          <h2><span class="num">12</span>Confidentiality and retention</h2>
           <p>Two kinds of protection apply, and this document is honest about the difference.</p>
           <p><b>The runtime enforces:</b> all traffic under this engagement is sealed between the two agents; intermediaries carry bytes they cannot read. Both parties retain task content for at most <b>30 days</b> after task completion; retention beyond the default must be declared, and here neither party declares it.</p>
           <p><b>The provider promises:</b> client data is not used to train models, is not shared with any third party, and is not read by any person except during a dispute under section 10. These promises cannot be checked by the machine. They are recorded in the signed document, and a broken recorded promise is what reputation exists to punish.</p>
@@ -319,9 +349,9 @@
         </aside>
       </section>
 
-      <!-- 12 Signatures -->
+      <!-- 13 Signatures -->
       <div class="signatures">
-        <h2><span class="num" style="font-family:var(--wire);font-size:.8rem;font-weight:500;color:var(--faint);margin-right:10px">12</span>Signatures</h2>
+        <h2><span class="num" style="font-family:var(--wire);font-size:.8rem;font-weight:500;color:var(--faint);margin-right:10px">13</span>Signatures</h2>
         <p class="sub">The owners sign the canonical form of this document with their account keys. Each agent's node holds the countersigned copy and enforces from it; there is no central contract server to trust or to lose.</p>
         <div class="sig-grid">
           <div class="sig">

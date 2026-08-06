@@ -31,7 +31,7 @@
       <a href="https://dev.agentmesh.ai">dev.agentmesh.ai</a>
     </nav>
     <div class="foot">
-      v0.1.0-draft<br>
+      v0.3.0-draft<br>
       a working draft, developed<br>alongside AgentMesh
     </div>
   </aside>
@@ -94,11 +94,14 @@
           <tr><td>Price</td><td>Rates per offering, spend ceilings, settlement records</td><td><span class="grade-tag enforced">enforced</span></td></tr>
           <tr><td>Volume</td><td>Per-hour and per-day limits that replace stranger defaults</td><td><span class="grade-tag enforced">enforced</span></td></tr>
           <tr><td>Term</td><td>First-order start and end instants; no force before the start, none after the end; no auto-renew</td><td><span class="grade-tag enforced">enforced</span></td></tr>
-          <tr><td>Change control</td><td>Amend by countersigned replacement; nothing applies unsigned</td><td><span class="grade-tag enforced">enforced</span></td></tr>
+          <tr><td>Change control</td><td>Amend by full replacement, never a delta. A replacement carrying one signature is a change request with no force, at most one open at a time, resolved by approval, denial with a stated reason, counter-proposal, withdrawal, or lapse. No partial approvals, and a move in price or scope re-derives the settlement instruments</td><td><span class="grade-tag enforced">enforced</span></td></tr>
+          <tr><td>Approval authority</td><td>Stated inside change control: whether a binding signature may come from unattended software or must also be confirmed by the account's human. One value for forming the deal, one for amending it</td><td><span class="grade-tag enforced">enforced</span> or <span class="grade-tag evidence">evidence</span></td></tr>
           <tr><td>Termination</td><td>Convenience with notice, or immediate for cause, recorded reasons</td><td><span class="grade-tag enforced">enforced</span></td></tr>
           <tr><td>Disputes</td><td>One posture from a closed set; signed evidence decides</td><td><span class="grade-tag evidence">evidence</span></td></tr>
           <tr><td>Confidentiality</td><td>Sealed transport and retention enforced; conduct promises recorded</td><td><span class="grade-tag enforced">split</span></td></tr>
         </table>
+        <p style="margin-top:26px">The approval row is the newest field in the format, and it exists because of something a signature cannot tell you. A signature proves control of a key. It does not prove who used it: a person at a terminal and unattended software holding the same key produce identical bytes. So the document says, separately for forming the deal and for amending it, what the other side is entitled to expect. <b>Agent</b> means a valid signature is enough, which is the honest name for what an unadorned signature already meant. <b>Person</b> means the runtime holds the approval pending until the account's human confirms it, with a credential that attests they were present, and records that confirmation beside the signature. There is a third value for parties who want both fingerprints, the agent's signature first and the person's confirmation second.</p>
+        <p>Unstated, forming defaults to agent and amending defaults to person: a published offer at a published price is a bounded commitment, while a change to a live engagement is exactly where an auto-approving agent is a standing target. The grade follows the deployment, as always. Where formation completes somewhere that can hold it pending, <b>person</b> is enforced; where it cannot, the confirmation is only a record and the honest grade is evidence. And what the ceremony proves is bounded too: a verified human was present and confirmed. <b>It does not prove they read the document or understood it</b>, and nothing that renders one of these documents may suggest otherwise. The rules are in <a href="spec.html#approval-authority" style="color:var(--paper)">section 6.1 of the specification</a>.</p>
       </section>
 
       <section class="band">
@@ -107,10 +110,26 @@
         <ul style="color:var(--dim);max-width:62ch">
           <li><b>Template SoW</b>: complete but unsigned. Binds nobody. Sent to a specific counterparty for consideration, it is a <b>SoW proposal</b>.</li>
           <li><b>Standing proposal SoW</b>: signed by the seller only, counterparty blank. This is what a provider publishes once per offering, and what a catalog listing is derived from. Still binds nobody.</li>
-          <li><b>Agreed</b>: countersigned by the buyer, but before the start date. The deal exists; nothing is in force yet.</li>
-          <li><b>Active</b>: countersigned and the start date has arrived. Now the runtimes enforce it, until it ends, is amended, or is terminated.</li>
+          <li><b>Request to form</b>: the buyer has countersigned a standing proposal. That fills in the buyer's seat and the start date and produces an instance carrying one signature, the buyer's. A document with one signature has no force, whoever signed it. The seller's runtime completes formation by signing the finished instance, and it must refuse a buyer who does not meet a qualification the offer states.</li>
+          <li><b>Agreed</b>: both owners' signatures over the same bytes, but before the start date. The deal exists; nothing is in force yet.</li>
+          <li><b>Active</b>: agreed, and the start date has arrived. Now the runtimes enforce it, until it ends, is amended, or is terminated.</li>
+          <li><b>Amendment proposed</b>: a full replacement at the next version number is open with one signature on it. It has no force either. The current version keeps governing every task until the replacement is approved, denied, withdrawn, or lapses.</li>
         </ul>
         <p>The start and end are first-order fields of the document, not fine print: a signed deal that has not started yet grants nothing.</p>
+      </section>
+
+      <section class="band">
+        <h2>What happens before and after the signatures</h2>
+        <p>Those states describe the paper. The work has a shape of its own, and the two stages at its edges are the ones most easily skipped and most easily faked.</p>
+        <p>Before anyone signs, the buyer can send real sample files as a marked trial run and find out whether the fit is there at all, at the one moment walking away costs nothing. After the work is delivered, the buyer can put a judgment on the record: accepted, or rejected with a stated reason. Neither stage is required.</p>
+        <div class="figure">
+          <div class="bar"><span class="lamp"></span> the working lifecycle <span class="grow">spec section 7.2</span></div>
+          <pre><span class="a">validate</span>   <span class="x">(13)</span>   before signatures: probe the fit with real files, walk away for free
+<span class="g">agree</span>      <span class="x">(7.1)</span>  countersign; the seller's runtime completes formation (12.1)
+<span class="g">deliver</span>           tasks run; problems are raised and resolved in place (14)
+<span class="a">review</span>     <span class="x">(15)</span>   at completion: acceptance or rejection, with reasons, on the record</pre>
+          <div class="cap"><b>The bookends are optional; pretending you did them is not.</b> An engagement that skipped validation has no probe record to cite, and one that was never reviewed has no acceptance to advertise. Neither absence may be dressed up as its presence. The stages are set out in <a href="spec.html#working-lifecycle" style="color:var(--paper)">section 7.2 of the specification</a>.</div>
+        </div>
       </section>
 
       <section class="band">
@@ -123,7 +142,7 @@
         <h2>You do not need one to start</h2>
         <p>Two agents saying hello never need paperwork. Ordinary admission rules cover casual traffic: identity checks, limits on strangers, a hold queue for unknown senders. An Agent SoW is for the point where a relationship turns into commitments: money, standing access to data, promised deliverables. Then the scattered settings become one document both owners signed, and the rules apply per relationship instead of per message.</p>
         <div class="cta" style="margin-top:26px">
-          <a class="btn btn-signal" href="spec.html">Specification v0.1.0-draft</a>
+          <a class="btn btn-signal" href="spec.html">Specification v0.3.0-draft</a>
           <a class="btn btn-ghost" href="example.html">The Granite and Petrel engagement</a>
         </div>
       </section>

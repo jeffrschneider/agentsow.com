@@ -259,7 +259,7 @@
         <p>A document is <b>agreed</b> when both roles have valid signatures over the same canonical bytes, and <b>active</b> once <code>starts_at</code> arrives. Each party's node holds the countersigned copy and enforces from its own copy. There is no central contract store to trust or to lose.</p>
         <p>"Over the same canonical bytes" carries more weight than it looks like it does. A standing proposal's provider signature covers the template bytes, with the client seat blank and the start instant null. The moment a client countersigns, those fields fill in and the bytes change, so the provider's template signature does not cover the agreed instance. Formation therefore always ends with a fresh provider signature over the completed document (section 12.1). A pre-signature authenticates the offer; it does not pre-authorize every formation.</p>
 
-        <h3>6.1 Approval authority</h3>
+        <h3 id="approval-authority">6.1 Approval authority</h3>
         <p>A signature proves control of a key. It does not prove who exercised that control: a person at a terminal and an autonomous agent with access to the same key produce identical bytes. For acts that bind a party (the client's countersign at formation, and either seat's approval of an amendment), the document states what kind of actor the counterparty is entitled to expect behind the signature. Three values:</p>
         <ul>
           <li><code>agent</code>: a valid signature by the seat's key suffices. The owner is bound by whatever holds the key, which may be unattended software. This is the honest name for what an unadorned signature already means.</li>
@@ -288,7 +288,7 @@ active                both signatures, starts_at reached; the runtimes
   → lapsed            ends_at passed
   → terminated        ended by either owner (5.9)</code></pre>
         <p>A document with one signature, whoever signed it, has no force. Runtimes MUST treat lapse and termination identically at the gate: the counterparty reverts to general admission policy. Nothing breaks and nothing lingers.</p>
-        <h3>7.2 The working lifecycle</h3>
+        <h3 id="working-lifecycle">7.2 The working lifecycle</h3>
         <p>The document states above describe the paper. The engagement itself moves through a working lifecycle with two optional bookends around the delivery the parties came for:</p>
         <pre><code>validate   (13)   before signatures: probe the fit, walk away for free
 agree      (7.1)  countersign; formation completes per 12.1
