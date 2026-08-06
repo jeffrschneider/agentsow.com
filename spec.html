@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agent SoW Specification v0.1.0-draft</title>
+  <title>Agent SoW Specification v0.2.0-draft</title>
   <meta name="description" content="The Agent SoW specification: a signed, machine-graded statement of work between two parties whose agents do recurring work together.">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,6 +38,9 @@
       <a href="#security">10 Security</a>
       <a href="#related">11 Related work</a>
       <a href="#standing">12 Standing proposals</a>
+      <a href="#validation">13 Pre-engagement validation</a>
+      <a href="#problems">14 Input problems</a>
+      <a href="#review">15 Post-engagement review</a>
     </nav>
     <div class="grp">Family</div>
     <nav>
@@ -52,7 +55,7 @@
       <article class="spec">
 
         <h1>Agent SoW Specification</h1>
-        <div class="meta">Version 0.1.0-draft &middot; Working Draft &middot; 2026-08-04</div>
+        <div class="meta">Version 0.2.0-draft &middot; Working Draft &middot; 2026-08-06</div>
 
         <p>A <b>statement of work</b> (SoW) is the legal agreement businesses sign when they hire a service firm: it lists the work, what each side provides, the deliverables, the price, and the end date. An <b>Agent SoW</b> is that same agreement, adapted for two parties whose software agents do recurring work together. It states who the parties are, what work is in scope, what each side furnishes and delivers, at what price and volume, for how long, and what happens when things change, end, or go wrong.</p>
         <p>The defining feature of this specification is not the clause list, which any consulting contract has. It is the <b>enforcement gradient</b>: every clause in an Agent SoW is labeled with what a machine can actually do about it. A clause is <i>enforced</i> (violations are refused mechanically), <i>evidence</i> (a signed, tamper-evident record exists), or <i>recorded</i> (a promise whose breach is punished by reputation, not code). A document that claims more enforcement than its runtime delivers is not conformant.</p>
@@ -159,7 +162,8 @@
   { "name": "receipts", "kind": "shared_resource", "access": "read", "when": "standing" }
 ],
 "grade": "enforced"</code></pre>
-        <p>Grade: <span class="grade-tag enforced">enforced</span>. A task arriving without a required <code>per_task</code> input MUST NOT fail and MUST NOT be silently attempted; it moves to <code>input_required</code> and the client is told what is missing. Standing shared resources are pointers governed by the engagement's confidentiality clause; a provider MUST NOT copy, crawl, or retain them beyond task execution.</p>
+        <p>Grade: <span class="grade-tag enforced">enforced</span>. A task arriving without a required <code>per_task</code> input MUST NOT fail and MUST NOT be silently attempted; it moves to <code>input_required</code> carrying a problem report (section 14) that names what is missing. Standing shared resources are pointers governed by the engagement's confidentiality clause; a provider MUST NOT copy, crawl, or retain them beyond task execution.</p>
+        <p>An input that was furnished can still be wrong, and an input that was fine can stop being fine: the file does not open, the format is not what the clause named, the link's permission was revoked in month two. Problem reports are therefore not an admission-time feature. They may be raised at intake, during the work, or on a later task when a standing input has gone stale, always in the same form (section 14).</p>
 
         <h3>5.4 Deliverables</h3>
         <p>Two kinds. <b>Per-task deliverables</b> are named artifacts the provider attaches to each completed task. <b>Interim deliverables</b> are engagement-level obligations with dates: things the provider owes on a schedule, whether or not the client asked that day. Each interim deliverable carries either a single <code>due</code> instant or a <code>recurrence</code>.</p>
@@ -240,8 +244,10 @@
     "signed_at": "2026-08-04T16:47:36Z", "sig": "&lt;base64&gt;" }
 ]</code></pre>
         <p>A document is <b>agreed</b> when both roles have valid signatures over the same canonical bytes, and <b>active</b> once <code>starts_at</code> arrives. Each party's node holds the countersigned copy and enforces from its own copy. There is no central contract store to trust or to lose.</p>
+        <p>"Over the same canonical bytes" carries more weight than it looks like it does. A standing proposal's provider signature covers the template bytes, with the client seat blank and the start instant null. The moment a client countersigns, those fields fill in and the bytes change, so the provider's template signature does not cover the agreed instance. Formation therefore always ends with a fresh provider signature over the completed document (section 12.1). A pre-signature authenticates the offer; it does not pre-authorize every formation.</p>
 
         <h2 id="lifecycle">7. Lifecycle</h2>
+        <h3>7.1 Document states</h3>
         <p>The document states, by signature count and time:</p>
         <pre><code>template SoW          no signatures; no force. Sent to a specific
                       counterparty for consideration, it is a SoW proposal.
@@ -254,6 +260,15 @@ active                both signatures, starts_at reached; the runtimes
   → lapsed            ends_at passed
   → terminated        ended by either owner (5.9)</code></pre>
         <p>A document with one signature, whoever signed it, has no force. Runtimes MUST treat lapse and termination identically at the gate: the counterparty reverts to general admission policy. Nothing breaks and nothing lingers.</p>
+        <h3>7.2 The working lifecycle</h3>
+        <p>The document states above describe the paper. The engagement itself moves through a working lifecycle with two optional bookends around the delivery the parties came for:</p>
+        <pre><code>validate   (13)   before signatures: probe the fit, walk away for free
+agree      (7.1)  countersign; formation completes per 12.1
+deliver           tasks run; checkpoints accumulate; problems are raised
+                  and resolved in place (14)
+review     (15)   at completion: acceptance or rejection, with reasons,
+                  on the record</code></pre>
+        <p>Validation and review are OPTIONAL stages. What is not optional, for a conforming runtime, is honesty about them: an engagement that skipped validation has no probe record to cite, an engagement that was never reviewed has no acceptance to advertise, and neither absence may be dressed up as its presence.</p>
 
         <h2 id="asymmetry">8. Enforcement obligations and the asymmetry</h2>
         <h3>8.1 Who enforces what</h3>
@@ -283,8 +298,16 @@ active                both signatures, starts_at reached; the runtimes
 
         <h2 id="standing">12. Standing proposals and derived listings</h2>
         <h3>12.1 The standing proposal</h3>
-        <p>A <b>standing proposal SoW</b> is a template the selling owner has signed with the counterparty left blank: every clause complete, the deal open. It is the document a provider maintains once per offering rather than negotiating per client. Countersigning a standing proposal produces an <code>agreed</code> engagement with the countersigning party filled in as the client; it takes force at <code>starts_at</code> (section 5.7).</p>
+        <p>A <b>standing proposal SoW</b> is a template the selling owner has signed with the counterparty left blank: every clause complete, the deal open. It is the document a provider maintains once per offering rather than negotiating per client.</p>
         <p>A standing proposal MUST only name offerings the provider's agent actually publishes in its own capability manifest. A clause that references a capability the agent does not carry is a validation error, not an offer.</p>
+        <p><b>Formation.</b> A client's countersign of a standing proposal is a request to form, not formation itself. It produces the completed instance: client seat filled, <code>starts_at</code> set, the client's signature over those bytes. The provider's runtime then completes formation by adding the provider instance signature (section 6), and only the fully signed instance is <code>agreed</code>.</p>
+        <p>That completion step is a gate, and the rules that keep it a gate rather than a veto:</p>
+        <ol>
+          <li>A standing proposal MAY state <b>qualifications</b>: conditions a counterparty must meet for its countersign to be accepted. A passed validation probe (section 13) is an admissible qualification; so are account standing and capability requirements. Qualifications live in the signed document, where a prospective client reads them before spending anything.</li>
+          <li>The provider's runtime MUST complete formation for a counterparty that meets the stated qualifications, and MUST refuse formation for one that does not, naming the unmet qualification in a typed refusal.</li>
+          <li>Refusing a counterparty for a reason the document does not state is itself an event the runtime MUST record. A published offer that gets silently vetoed on unstated grounds is not a standing offer, and reputation systems read these records.</li>
+        </ol>
+        <p>Withdrawing the standing proposal remains the provider's remedy when the offer itself is wrong: prospective only, archived, and it withdraws the offer from everyone rather than one party.</p>
         <h3>12.2 Listings are projections</h3>
         <p>Where a catalog, marketplace, or directory lists an offering that can be engaged or carries a price, the listing MUST be derived from a standing proposal, not authored independently. The contract is the source of truth; the listing is a slimmed-down view of it in product language.</p>
         <ul>
@@ -294,6 +317,52 @@ active                both signatures, starts_at reached; the runtimes
           <li>The scope clause's <code>in_scope</code> examples double as the listing's representative queries: the text that finds the offering in search is the same text that defines what the engagement covers.</li>
         </ul>
         <p>Free, informal offerings are exempt: a listing with no price and no engage action MAY be derived from the agent's manifest alone, or from an implicit minimal template. The mandate binds where money or commitments appear.</p>
+
+        <h2 id="validation">13. Pre-engagement validation</h2>
+        <p>Most mid-engagement failures are fit problems that existed before the engagement did: the client's files were never in the format the clause names, the shared resource was never reachable from the provider's side, the provider's agent never handled input like this. Validation moves that discovery to the one moment it costs nothing: before anyone signs.</p>
+        <p>A <b>validation probe</b> is a trial task with three properties, all REQUIRED:</p>
+        <ol>
+          <li><b>Marked.</b> The probe is explicitly labeled as a probe on the wire. It is not delivery, it creates no obligations under any clause, and it MUST NOT be billed at more than a token price.</li>
+          <li><b>Real.</b> The client sends actual sample inputs, the ones the inputs clause will name. A probe over invented data validates nothing.</li>
+          <li><b>Recorded.</b> The outcome is a small signed record: which inputs were tried, what the provider's agent could and could not do with them, and a pass or fail per named input, each failure carrying a problem report (section 14). The record is signed by the provider's runtime and held by both parties.</li>
+        </ol>
+        <p>The probe record is what a standing proposal's qualifications (section 12.1) can point at: "countersign requires a passed probe" is checkable because the probe left a signed outcome. A probe that surfaced problems which were then resolved SHOULD be re-run; the qualification reads the latest record.</p>
+        <p>Validation is OPTIONAL. A pair of parties who already know their fit can sign without it. What a runtime MUST NOT do is invent a probe record that does not exist, or treat an unprobed engagement as probed.</p>
+
+        <h2 id="problems">14. Input problems and resolution</h2>
+        <p>When an agent cannot proceed for want of a usable input, it raises a <b>problem report</b>. The report is the machine-readable half of the pause the inputs clause (section 5.3) already mandates; this section defines its form and what each side owes once it exists.</p>
+        <h3>14.1 The report</h3>
+        <pre><code>{
+  "input": "bank-statement",
+  "problem": "wrong_format",
+  "description": "The file arrived as an .xlsx workbook with three sheets;
+                  the engagement names text/csv. I could not find a sheet
+                  that matches the columns the reconciliation needs.",
+  "expected": "text/csv"
+}</code></pre>
+        <ul>
+          <li><code>input</code>: the name from the inputs clause, when the problem concerns a named input. A problem outside the named list uses the name the parties will recognize.</li>
+          <li><code>problem</code>: one of a closed set of five codes: <code>missing</code>, <code>unreadable</code>, <code>wrong_format</code>, <code>no_permission</code>, <code>other</code>. The codes exist for routing and for the record; they are deliberately few. <code>other</code> is a first-class member, not a failure of the taxonomy: agents recover from problems no closed set anticipates, provided the description carries the substance.</li>
+          <li><code>description</code>: REQUIRED on every code, including the four specific ones. Free text, written to be acted on by the counterparty's agent. This is the field the other side actually reasons from.</li>
+          <li><code>expected</code>: OPTIONAL. What would satisfy the report, stated concretely.</li>
+        </ul>
+        <p>A report may be raised at intake (the section 5.3 door check), during the work, or on a later task when a standing input has stopped working. The form is the same at every moment.</p>
+        <h3>14.2 Inform, not prescribe</h3>
+        <p>The receiving runtime MUST deliver the report to its agent as received. It MUST NOT substitute its own recovery policy for the agent's judgment: no automatic resend loops, no silent dropping, no summarizing away the description. The counterparty's agent decides what to do, and both ends being capable of judgment is the premise of the whole arrangement.</p>
+        <p>What the receiving runtime SHOULD add is escalation on silence: a report that its agent has not resolved within a quiet window is surfaced to the owning human through whatever attention surface the deployment has, and again more urgently as the task's deadline approaches. A report unresolved at the task's deadline makes the task a failed obligation, feeding sections 5.9 and 5.10 exactly as any other failure does.</p>
+        <p>Problem reports are part of the engagement's evidence. Runtimes MUST retain them with the task record they pause, and the resolution, a corrected input arriving, a permission restored, or nothing, is legible from the same record.</p>
+
+        <h2 id="review">15. Post-engagement review</h2>
+        <p>Delivery ends with facts; review adds the judgment. At the completion of a task, and at the end of an engagement, the client MAY record <b>acceptance</b> or <b>rejection with reasons</b> over the delivered work.</p>
+        <p>The factual half already exists without anyone's opinion: the deliverable form check (section 5.4) says whether every named artifact arrived in its declared media type, and the task record says what was furnished, discussed, and delivered. Review is the judgment half: the client's signed statement that the work satisfied, or did not, and in the rejection case a stated reason.</p>
+        <p>Rules:</p>
+        <ol>
+          <li>A review is signed by the reviewing owner and refers to the task or engagement it judges by identifier. Reviews are append-only evidence; a changed mind is a second review, not an edit.</li>
+          <li>Rejection carries a reason. An unreasoned rejection is not a review and carries no weight anywhere.</li>
+          <li>A review judges work against the signed document, and renderers MUST present it alongside the form-check facts, never as a substitute for them. "Rejected, but every named deliverable arrived on time and in form" is a legible and meaningful state.</li>
+          <li>Absence of review is absence of evidence. A runtime MUST NOT convert silence into implied acceptance for reputational purposes; settlement postures that pay on completion (section 5.10) are unaffected by review either way.</li>
+        </ol>
+        <p>Reviewed engagements are the natural evidence unit for reputation: not a score, but a record. "Forty reviewed engagements, two rejections, both with reasons, both resolved" is the shape of trust this specification can actually support, and it is produced here, at the only moment both the facts and a motivated judge are present.</p>
 
       </article>
     </div>

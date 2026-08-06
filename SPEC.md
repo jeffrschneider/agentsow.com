@@ -1,8 +1,8 @@
 # Agent SoW Specification
 
-**Version:** 0.1.0-draft
+**Version:** 0.2.0-draft
 **Status:** Working Draft
-**Date:** 2026-08-04
+**Date:** 2026-08-06
 
 A **statement of work** (SoW) is the legal agreement businesses sign when
 they hire a service firm: it lists the work, what each side provides, the
@@ -216,10 +216,17 @@ What the client furnishes, in what form, and when (`per_task` or `standing`).
 ```
 
 Grade: `enforced`. A task arriving without a required `per_task` input MUST
-NOT fail and MUST NOT be silently attempted; it moves to `input_required` and
-the client is told what is missing. Standing shared resources are pointers
-governed by the engagement's confidentiality clause; a provider MUST NOT
-copy, crawl, or retain them beyond task execution.
+NOT fail and MUST NOT be silently attempted; it moves to `input_required`
+carrying a problem report (§14) that names what is missing. Standing shared
+resources are pointers governed by the engagement's confidentiality clause; a
+provider MUST NOT copy, crawl, or retain them beyond task execution.
+
+An input that was furnished can still be wrong, and an input that was fine
+can stop being fine: the file does not open, the format is not what the
+clause named, the link's permission was revoked in month two. Problem
+reports are therefore not an admission-time feature. They may be raised at
+intake, during the work, or on a later task when a standing input has gone
+stale, always in the same form (§14).
 
 ### 5.4 Deliverables
 
@@ -394,7 +401,18 @@ canonical bytes, and **active** once `starts_at` arrives. Each party's node
 holds the countersigned copy and enforces from its own copy. There is no
 central contract store to trust or to lose.
 
+"Over the same canonical bytes" carries more weight than it looks like it
+does. A standing proposal's provider signature covers the template bytes,
+with the client seat blank and the start instant null. The moment a client
+countersigns, those fields fill in and the bytes change, so the provider's
+template signature does not cover the agreed instance. Formation therefore
+always ends with a fresh provider signature over the completed document
+(§12.1). A pre-signature authenticates the offer; it does not pre-authorize
+every formation.
+
 ## 7. Lifecycle
+
+### 7.1 Document states
 
 The document states, by signature count and time:
 
@@ -414,6 +432,27 @@ active                both signatures, starts_at reached; the runtimes
 A document with one signature, whoever signed it, has no force. Runtimes
 MUST treat lapse and termination identically at the gate: the counterparty
 reverts to general admission policy. Nothing breaks and nothing lingers.
+
+### 7.2 The working lifecycle
+
+The document states above describe the paper. The engagement itself moves
+through a working lifecycle with two optional bookends around the delivery
+the parties came for:
+
+```
+validate   (§13)  before signatures: probe the fit, walk away for free
+agree      (§7.1) countersign; formation completes per §12.1
+deliver           tasks run; checkpoints accumulate; problems are raised
+                  and resolved in place (§14)
+review     (§15)  at completion: acceptance or rejection, with reasons,
+                  on the record
+```
+
+Validation and review are OPTIONAL stages. What is not optional, for a
+conforming runtime, is honesty about them: an engagement that skipped
+validation has no probe record to cite, an engagement that was never
+reviewed has no acceptance to advertise, and neither absence may be dressed
+up as its presence.
 
 ## 8. Enforcement obligations and the asymmetry
 
@@ -486,13 +525,37 @@ conform by meeting the obligations in §3 and §8 with their own machinery.
 A **standing proposal SoW** is a template the selling owner has signed with
 the counterparty left blank: every clause complete, the deal open. It is the
 document a provider maintains once per offering rather than negotiating per
-client. Countersigning a standing proposal produces an `agreed` engagement
-with the countersigning party filled in as the client; it takes force at
-`starts_at` (§5.7).
+client.
 
 A standing proposal MUST only name offerings the provider's agent actually
 publishes in its own capability manifest. A clause that references a
 capability the agent does not carry is a validation error, not an offer.
+
+**Formation.** A client's countersign of a standing proposal is a request to
+form, not formation itself. It produces the completed instance: client seat
+filled, `starts_at` set, the client's signature over those bytes. The
+provider's runtime then completes formation by adding the provider instance
+signature (§6), and only the fully signed instance is `agreed`.
+
+That completion step is a gate, and the rules that keep it a gate rather
+than a veto:
+
+1. A standing proposal MAY state **qualifications**: conditions a
+   counterparty must meet for its countersign to be accepted. A passed
+   validation probe (§13) is an admissible qualification; so are account
+   standing and capability requirements. Qualifications live in the signed
+   document, where a prospective client reads them before spending anything.
+2. The provider's runtime MUST complete formation for a counterparty that
+   meets the stated qualifications, and MUST refuse formation for one that
+   does not, naming the unmet qualification in a typed refusal.
+3. Refusing a counterparty for a reason the document does not state is
+   itself an event the runtime MUST record. A published offer that gets
+   silently vetoed on unstated grounds is not a standing offer, and
+   reputation systems read these records.
+
+Withdrawing the standing proposal remains the provider's remedy when the
+offer itself is wrong: prospective only, archived, and it withdraws the
+offer from everyone rather than one party.
 
 ### 12.2 Listings are projections
 
@@ -516,3 +579,124 @@ the listing is a slimmed-down view of it in product language.
 Free, informal offerings are exempt: a listing with no price and no engage
 action MAY be derived from the agent's manifest alone, or from an implicit
 minimal template. The mandate binds where money or commitments appear.
+
+## 13. Pre-engagement validation
+
+Most mid-engagement failures are fit problems that existed before the
+engagement did: the client's files were never in the format the clause
+names, the shared resource was never reachable from the provider's side, the
+provider's agent never handled input like this. Validation moves that
+discovery to the one moment it costs nothing: before anyone signs.
+
+A **validation probe** is a trial task with three properties, all REQUIRED:
+
+1. **Marked.** The probe is explicitly labeled as a probe on the wire. It is
+   not delivery, it creates no obligations under any clause, and it MUST NOT
+   be billed at more than a token price.
+2. **Real.** The client sends actual sample inputs, the ones the inputs
+   clause will name. A probe over invented data validates nothing.
+3. **Recorded.** The outcome is a small signed record: which inputs were
+   tried, what the provider's agent could and could not do with them, and a
+   pass or fail per named input, each failure carrying a problem report
+   (§14). The record is signed by the provider's runtime and held by both
+   parties.
+
+The probe record is what a standing proposal's qualifications (§12.1) can
+point at: "countersign requires a passed probe" is checkable because the
+probe left a signed outcome. A probe that surfaced problems which were then
+resolved SHOULD be re-run; the qualification reads the latest record.
+
+Validation is OPTIONAL. A pair of parties who already know their fit can
+sign without it. What a runtime MUST NOT do is invent a probe record that
+does not exist, or treat an unprobed engagement as probed.
+
+## 14. Input problems and resolution
+
+When an agent cannot proceed for want of a usable input, it raises a
+**problem report**. The report is the machine-readable half of the pause the
+inputs clause (§5.3) already mandates; this section defines its form and
+what each side owes once it exists.
+
+### 14.1 The report
+
+```json
+{
+  "input": "bank-statement",
+  "problem": "wrong_format",
+  "description": "The file arrived as an .xlsx workbook with three sheets;
+                  the engagement names text/csv. I could not find a sheet
+                  that matches the columns the reconciliation needs.",
+  "expected": "text/csv"
+}
+```
+
+- `input`: the name from the inputs clause, when the problem concerns a
+  named input. A problem outside the named list uses the name the parties
+  will recognize.
+- `problem`: one of a closed set of five codes: `missing`, `unreadable`,
+  `wrong_format`, `no_permission`, `other`. The codes exist for routing and
+  for the record; they are deliberately few. `other` is a first-class
+  member, not a failure of the taxonomy: agents recover from problems no
+  closed set anticipates, provided the description carries the substance.
+- `description`: REQUIRED on every code, including the four specific ones.
+  Free text, written to be acted on by the counterparty's agent. This is the
+  field the other side actually reasons from.
+- `expected`: OPTIONAL. What would satisfy the report, stated concretely.
+
+A report may be raised at intake (the §5.3 door check), during the work, or
+on a later task when a standing input has stopped working. The form is the
+same at every moment.
+
+### 14.2 Inform, not prescribe
+
+The receiving runtime MUST deliver the report to its agent as received. It
+MUST NOT substitute its own recovery policy for the agent's judgment: no
+automatic resend loops, no silent dropping, no summarizing away the
+description. The counterparty's agent decides what to do, and both ends
+being capable of judgment is the premise of the whole arrangement.
+
+What the receiving runtime SHOULD add is escalation on silence: a report
+that its agent has not resolved within a quiet window is surfaced to the
+owning human through whatever attention surface the deployment has, and
+again more urgently as the task's deadline approaches. A report unresolved
+at the task's deadline makes the task a failed obligation, feeding §5.9 and
+§5.10 exactly as any other failure does.
+
+Problem reports are part of the engagement's evidence. Runtimes MUST retain
+them with the task record they pause, and the resolution, a corrected input
+arriving, a permission restored, or nothing, is legible from the same
+record.
+
+## 15. Post-engagement review
+
+Delivery ends with facts; review adds the judgment. At the completion of a
+task, and at the end of an engagement, the client MAY record **acceptance**
+or **rejection with reasons** over the delivered work.
+
+The factual half already exists without anyone's opinion: the deliverable
+form check (§5.4) says whether every named artifact arrived in its declared
+media type, and the task record says what was furnished, discussed, and
+delivered. Review is the judgment half: the client's signed statement that
+the work satisfied, or did not, and in the rejection case a stated reason.
+
+Rules:
+
+1. A review is signed by the reviewing owner and refers to the task or
+   engagement it judges by identifier. Reviews are append-only evidence;
+   a changed mind is a second review, not an edit.
+2. Rejection carries a reason. An unreasoned rejection is not a review and
+   carries no weight anywhere.
+3. A review judges work against the signed document, and renderers MUST
+   present it alongside the form-check facts, never as a substitute for
+   them. "Rejected, but every named deliverable arrived on time and in
+   form" is a legible and meaningful state.
+4. Absence of review is absence of evidence. A runtime MUST NOT convert
+   silence into implied acceptance for reputational purposes; settlement
+   postures that pay on completion (§5.10) are unaffected by review either
+   way.
+
+Reviewed engagements are the natural evidence unit for reputation: not a
+score, but a record. "Forty reviewed engagements, two rejections, both with
+reasons, both resolved" is the shape of trust this specification can
+actually support, and it is produced here, at the only moment both the
+facts and a motivated judge are present.
