@@ -1,6 +1,6 @@
 # Agent SoW Specification
 
-**Version:** 0.8.0-draft
+**Version:** 0.9.0-draft
 **Status:** Working Draft
 **Date:** 2026-08-07
 
@@ -487,6 +487,18 @@ The cap is a not-to-exceed number, not a forecast. Metered usage MUST NOT be
 billed past it, and units the provider incurs after the cap is reached are
 the provider's to bear.
 
+The cap bounds what the client pays, including any operator fee inside the
+price (§5.5.8). An operator fee is not charged on top of the cap. The
+provider's rated work runs to the cap less the fee taken on it, and reaching
+that limit reaches the cap: §5.5.5 applies unchanged, the engagement
+concludes `exhausted`, and units past that point are the provider's to bear.
+This is what makes the committed price a statement of the client's real
+exposure. A not-to-exceed number that did not bound what the client is
+charged would bound nothing, and the Agent Mandate ceiling check would be
+testing a number the client does not pay. The reservation of §5.5.4 is for
+the cap amount and therefore already covers the whole exposure, fee
+included.
+
 #### 5.5.4 Reservation and the window
 
 A time and materials engagement MUST carry a `reservation` with a stated
@@ -650,7 +662,14 @@ supplier and passed on (§5.5.6).
 Wherever a price is quoted or settled, any operator fee inside that price
 MUST be disclosed as its own line. The line MUST carry the fee's `amount` in
 the settlement currency, the `basis` it was computed from, and the `base` the
-basis was applied to. A `basis` is either a percentage or a fixed charge.
+basis was applied to.
+
+A `basis` is either a percentage or a fixed charge, and it carries the value
+field its `kind` names. A percentage basis is
+`{ "kind": "percent", "percent": N }`, a percentage of `base`. A fixed basis
+is `{ "kind": "fixed", "fixed": N }`, a charge stated directly in the
+settlement currency. A basis MUST carry exactly one value field, the one its
+`kind` names, and a client node MUST reject a basis carrying both or neither.
 
 ```json
 "operator_fee": {
@@ -661,11 +680,29 @@ basis was applied to. A `basis` is either a percentage or a fixed charge.
 }
 ```
 
+```json
+"operator_fee": {
+  "operator": "acme-mesh.example",
+  "basis": { "kind": "fixed", "fixed": 62500 },
+  "base": 2500000,
+  "amount": 62500
+}
+```
+
 The shape is the pass-through line of §5.5.6 with a different party taking
 the cut. There the party is the provider's supplier and the line is capped at
 the upstream cost; here the party is the operator and the line is a margin
 the operator is entitled to charge. In both cases a buyer reads one document
 and sees every hand that took money out of what it paid.
+
+**The total is the provider's lines plus the fee.** A quoted or settled total
+MUST equal the sum of the provider's own lines and the operator fee inside
+it, and the total less the fee is the provider's net. This follows from the
+line having the shape of a §5.5.6 pass-through line, since a pass-through
+line is part of the total, and it is stated outright because it is the one
+piece of arithmetic every implementation of this subsection has to agree on.
+The fee is not deducted from the provider's price. The provider is paid its
+lines and the client pays those lines plus the fee.
 
 `base` is required and it is not decoration. A percentage is not checkable
 until the buyer knows what it was applied to, and an operator charging ten
@@ -673,10 +710,43 @@ percent of the provider's price and an operator charging ten percent of the
 total the buyer pays quote different numbers from the same percentage. A
 client node MUST NOT infer the base.
 
-`amount` MUST equal the basis applied to `base`, rounded to a whole unit of
-the settlement currency. Where the operator's rounding rule is not stated, a
-client node MUST accept a difference of at most one whole unit and MUST
-reject a larger one.
+`percent` MUST be a non-negative integer, and a client node MUST reject a
+fractional one. A fraction inside signed bytes is a floating point value that
+two implementations have to print identically forever, and it makes the
+arithmetic check below inexact. An operator whose rate is finer than a whole
+percent states the charge that rate produced as a fixed basis against the
+same `base`. That discloses strictly more than the percentage would, because
+the buyer reads the charge itself instead of multiplying the base out.
+
+`amount` MUST equal the basis applied to `base`, computed by **flooring** to
+a whole unit of the settlement currency. Under a percentage basis, `amount`
+MUST equal `floor(base × percent / 100)`. Under a fixed basis nothing is
+rounded and `amount` MUST equal `basis.fixed`, whatever `base` is. The line
+carries no rounding field and an operator states no rounding rule, because
+there is no choice left to state.
+
+Flooring is the direction §5.5.2 already applies to usage rating, so money is
+computed one way throughout this specification, and the floor favours the
+buyer. Because the rule is single and exact, the check it supports is exact.
+A client node MUST reject an `amount` that is not the floored figure, and
+there is no tolerance for a difference of one unit or of any other size. A
+percentage of a base too small to produce one whole unit produces nothing,
+and an operator that intends to charge a whole unit there states a fixed
+basis of one unit, which discloses the charge as the charge it is.
+
+**The cap bounds what the client pays, fee included.** Under
+`time_and_materials` the not-to-exceed cap of §5.5.3 bounds the total the
+client pays, and the operator fee is part of that total. A runtime MUST NOT
+bill the client, over the engagement, a sum of provider lines and operator
+fees greater than the cap. The provider's rated work therefore runs to the
+cap less the fee taken on it, not to the cap. Reaching that limit is reaching
+the cap: the engagement concludes `exhausted` under §5.5.5, a task in flight
+ends `exhausted` with whatever artifacts exist attached, and metered units
+the provider incurs past that point are the provider's to bear. No new state,
+field, or refusal is introduced. The reservation of §5.5.4 is for the cap
+amount, so it covers the client's whole exposure, and the number an Agent
+Mandate ceiling check tests before formation is the number the client can
+actually be charged.
 
 A `no_charge` engagement rates nothing and produces no settlement record
 (§5.5.7), so it has no total for a fee to sit inside and carries no operator
@@ -694,9 +764,10 @@ fee line.
    arithmetic is checkable after the fact. A settlement record MUST NOT state
    a total that its own lines do not account for.
 
-A client node reading a settlement record MUST check three things: that an
-operator fee line is present where the quote carried one, that the line's
-`amount` follows from its `basis` and `base`, and that the record's total
+A client node reading a settlement record MUST check four things: that an
+operator fee line is present where the quote carried one; that the record
+discloses no operator fee where the quote carried none; that the line's
+`amount` follows from its `basis` and `base`; and that the record's total
 accounts for every line the record carries. A record failing any of those
 checks is a **disputed settlement**, and on one the client node:
 
@@ -711,6 +782,15 @@ checks is a **disputed settlement**, and on one the client node:
 - MAY continue to admit work under the engagement, since one settlement
   discrepancy is not by itself grounds to stop the work, and SHOULD refuse
   further work under the same operator after a second disputed settlement.
+
+The second check is the mirror of the first. A quote that states a total and
+carries no operator fee line asserts that no operator fee is inside that
+total, so a record disclosing one contradicts the quote as directly as a
+record omitting a line the quote carried. A client node that checked only for
+the omission would enforce the quote's assertion in one direction. A client
+node that names the failure in its own record SHOULD name the check that
+failed: `operator_fee_missing`, `operator_fee_undisclosed`,
+`operator_fee_arithmetic`, or `total_unaccounted`.
 
 A settlement record carrying no operator fee line, against a quote that
 carried none, is well formed. The absence is an assertion, and it is that
@@ -743,10 +823,10 @@ arrangement, by selling directly or by pricing the work at a total it will
 stand behind. The remedy is not to omit the line.
 
 Grade: `enforced` where the operator builds the quote and settles the charge.
-The operator constructs the line, and the party the line protects can check
-it from bytes it already holds, so a violation produces a mechanical refusal
-by the client's node rather than a grievance. Presence and arithmetic are
-what is enforced.
+Both ends are required. The operator constructs the line at each of them, and
+the party the line protects can check it from bytes it already holds, so a
+violation produces a mechanical refusal by the client's node rather than a
+grievance. Presence and arithmetic are what is enforced.
 
 Grade: `evidence` for the basis itself. A client node can verify that the
 disclosed percentage was applied to the disclosed base. It cannot verify that
@@ -764,6 +844,15 @@ written. Breach is establishable only outside the system and answerable to
 reputation, which is what `recorded` means in §3. Grading the peer-to-peer
 case `enforced` would be exactly the laundering of trust as enforcement that
 §8.2 forbids.
+
+Grade: `recorded` where an operator is in the path at one end only, having
+built the quote without settling the charge, or settled a charge whose quote
+it did not build. `enforced` compares a settlement record against the quote
+it followed, and an operator that constructed only one of those two documents
+left the other to a party under no obligation to write the line. The omission
+this subsection exists to catch is still available at that end, and nothing
+in the path can refuse it, so an operator at one end only earns the same
+grade as no operator at all.
 
 ### 5.6 Volume
 
@@ -1098,7 +1187,8 @@ runs on bytes the client holds. It cannot check that the disclosed basis is
 the rate the operator actually agreed with the provider, because the client
 is not party to that agreement, and it cannot detect a fee that was never
 disclosed where no operator built the quote. Those two facts are why §5.5.8
-grades the basis `evidence` and the peer-to-peer case `recorded` rather than
+grades the basis `evidence`, and grades `recorded` every case where one
+operator did not both build the quote and settle the charge, rather than
 extending `enforced` over the whole subsection.
 
 This section exists so the specification cannot be used to launder trust as
@@ -1336,6 +1426,69 @@ actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
 
 ## Changelog
+
+**0.9.0-draft** (2026-08-07). The operator fee line is pinned: a written
+fixed basis, one rounding rule, and a cap that bounds what the client pays.
+
+§5.5.8 was published before it had an implementation. Building it across two
+SDKs, a platform, and a protocol bridge found seven places where two
+implementations reading only this text would write different bytes, or reach
+different verdicts on the same bytes, inside a signed document. All seven are
+closed here.
+
+The fixed basis now has a written shape, `{ "kind": "fixed", "fixed": N }`,
+following the percentage form in naming the value field for the kind, and a
+basis carries exactly one value field. `percent` MUST be a non-negative
+integer. A fraction there is a floating point value inside signed bytes that
+two implementations have to print identically forever, and an operator whose
+rate is finer than a whole percent states the charge that rate produced as a
+fixed basis against the same base, which discloses more than the percentage
+would.
+
+The rounding rule is stated rather than deferred. `amount` is computed by
+flooring, which is the direction §5.5.2 already applies to usage rating, so
+money is computed one way throughout this specification and the floor favours
+the buyer. The one-whole-unit tolerance is withdrawn. It existed because the
+subsection defined no field in which an operator could state a rounding rule,
+so no operator ever stated one, so the fallback always applied and an
+arithmetic check described as `enforced` accepted any of several answers
+forever. With one rule the check is exact, and a client node MUST reject an
+`amount` that is not the floored figure.
+
+Two arithmetic facts that were only inferable are now stated. The total is
+the provider's lines plus the fee, which follows from the line having the
+shape of a §5.5.6 pass-through line and is the fact every implementation has
+to agree on. And the not-to-exceed cap of §5.5.3 bounds what the client pays,
+fee included: the provider's rated work runs to the cap less the fee taken on
+it, and reaching that limit reaches the cap in the ordinary way, concluding
+the engagement `exhausted` under §5.5.5. The alternative reading, a fee
+charged on top of the cap, would leave the client's real exposure above the
+number an Agent Mandate ceiling check tests before formation, which is the
+number the cap exists to be. §5.5.3 and §5.5.8 both carry the rule, so a
+reader of either finds it.
+
+The client node's checks go from three to four. The three caught a settlement
+record missing a line the quote carried, and never caught a record disclosing
+a fee the quote did not, even though a quote carrying no line asserts that no
+operator fee is inside its total. The fourth check tests that assertion in
+the other direction, and the four failures have names a client node uses when
+it records one.
+
+The grades gain the case they were missing. An operator that builds the quote
+but does not settle the charge, or settles a charge whose quote it did not
+build, grades `recorded`. `enforced` compares two documents the operator
+constructed, and where it constructed one of them the omission at the other
+end is one nothing in the path can refuse.
+
+The minor version moves rather than the draft revision, for two reasons. The
+flooring rule changes the verdict on existing bytes: a percentage line whose
+amount was rounded up was conformant under 0.8.0-draft and is refused under
+this text, and the deployment this specification was developed alongside
+rounds a margin up today. And the cap ruling changes what a runtime may bill,
+because the same engagement admits less rated work under this text than under
+the previous one. Both are behaviour a counterparty sees. Engagement
+documents are unaffected: no clause changes shape, and a document written
+against 0.8.0-draft stays conformant unchanged.
 
 **0.8.0-draft** (2026-08-07). An identifier is minted once, and re-derivation
 is not a conformance test.
