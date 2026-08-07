@@ -120,6 +120,7 @@ article.spec h1{ font-size:clamp(2rem,4vw,2.8rem); margin:0 0 8px; }
 article.spec .meta{ font-family:var(--wire); font-size:.78rem; color:var(--dim); margin-bottom:36px; }
 article.spec h2{ font-size:1.5rem; margin:44px 0 12px; padding-top:22px; border-top:1px solid var(--line); }
 article.spec h3{ font-size:1.12rem; margin:28px 0 10px; }
+article.spec h4{ font-size:.96rem; margin:22px 0 8px; color:var(--paper); font-weight:600; }
 article.spec p, article.spec li{ color:var(--dim); max-width:70ch; }
 article.spec p b, article.spec li b, article.spec p strong, article.spec li strong{ color:var(--paper); }
 article.spec code{ font-family:var(--wire); font-size:.82em; color:var(--paper);

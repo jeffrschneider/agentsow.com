@@ -1,8 +1,8 @@
 # Agent SoW Specification
 
-**Version:** 0.3.0-draft
+**Version:** 0.4.0-draft
 **Status:** Working Draft
-**Date:** 2026-08-06
+**Date:** 2026-08-07
 
 A **statement of work** (SoW) is the legal agreement businesses sign when
 they hire a service firm: it lists the work, what each side provides, the
@@ -65,6 +65,14 @@ interpreted as described in RFC 2119.
   enforceable clauses on that agent's behalf.
 - **Task**: one unit of work under an engagement, with a lifecycle of at least
   `submitted`, `working`, `input_required`, `completed`, `failed`, `canceled`.
+  Under a time and materials arrangement a task may also end `exhausted`
+  (§5.5.5).
+- **Pricing arrangement**: the basis on which an engagement prices work,
+  either `fixed_fee` or `time_and_materials` (§5.5). Every engagement
+  declares one.
+- **Meter**: a named quantity a runtime counts and bills, with a stated unit.
+  Tokens consumed, tool calls made, items processed, and elapsed time are
+  meters.
 - **Artifact**: a named deliverable attached to a completed task, distinct
   from conversational messages.
 - **Clearing**: a settlement function trusted by both parties to move value
@@ -174,6 +182,9 @@ human-readable handle, the owner's identity, and the party's role
 }
 ```
 
+A party MAY additionally carry an `organization` reference beside its owner,
+naming the organization on whose behalf that seat engages (§6.2).
+
 Grade: `evidence`. Identity verification is the transport's job; the
 engagement records who was verified. A runtime SHOULD refuse to apply an
 engagement to traffic whose transport identity does not match the named agent
@@ -263,12 +274,25 @@ reputation.
 
 ### 5.5 Price and metering
 
+Every engagement MUST declare exactly one **pricing arrangement**, in the
+price clause's `arrangement` field. Two are defined: `fixed_fee`, where work
+is priced per task at a published rate (§5.5.1), and `time_and_materials`,
+where work is priced as a rate schedule over declared meters (§5.5.2). There
+is no undeclared default. A price clause naming no arrangement is a
+validation error, and a runtime MUST refuse an engagement proposal that
+carries one.
+
+Under either arrangement, every billable unit of work MUST be rated at the
+engagement's price and produce a settlement record both parties hold.
+
+#### 5.5.1 Fixed fee
+
 Rates per offering, the settlement currency, and an optional spend ceiling
-per period. Every completed task MUST be rated at the engagement's price and
-produce a settlement record both parties hold.
+per period. The price of a task is known before the task runs.
 
 ```json
 "price": {
+  "arrangement": "fixed_fee",
   "currency": "XCR",
   "rates": [
     { "offering": "reconcile-statement", "per_task": 2500000 },
@@ -281,6 +305,132 @@ produce a settlement record both parties hold.
 
 Grade: `enforced` for rating and ceilings (work beyond the ceiling is refused
 with a quote); `evidence` for settlement records.
+
+#### 5.5.2 Time and materials
+
+Time and materials is expressed as a **rate schedule over declared meters**,
+not as hours and parts. Each line of the schedule names a meter, the unit
+that meter counts, and the price of one unit. The provider's offering
+declares which meters it bills; the engagement prices those meters.
+
+```json
+"price": {
+  "arrangement": "time_and_materials",
+  "currency": "XCR",
+  "schedule": [
+    { "meter": "tokens_out", "unit": "1000 tokens", "per_unit": 1500 },
+    { "meter": "tool_calls", "unit": "call",        "per_unit": 2000 },
+    { "meter": "items",      "unit": "invoice",     "per_unit": 40000 },
+    { "meter": "elapsed",    "unit": "minute",      "per_unit": 12000 }
+  ],
+  "cap": { "amount": 40000000 },
+  "reservation": { "window_days": 30 },
+  "grade": "enforced"
+}
+```
+
+Elapsed time is one meter among several, and most offerings will not price
+it. The billable inputs of agent work are things like tokens consumed, tool
+and API calls made, and items processed; elapsed time earns a line only for
+jobs that genuinely run long, such as a crawl or a watch held open for
+hours. Billing wall-clock time alone is a poor proxy for what the work cost,
+and it pays a slow agent more than a fast one for the same result, which a
+provider can arrange deliberately.
+
+A schedule MUST NOT price a meter the offering does not declare, and a
+runtime MUST NOT bill a meter the schedule does not price. Both are
+validation errors, not defaults to be filled in.
+
+Grade: `enforced` for rating against the schedule and for the cap (§5.5.3);
+`evidence` for the metered counts and the settlement records. A meter that
+only the provider can count grades `evidence`, never `enforced`, for the
+reason §8.2 gives.
+
+#### 5.5.3 The not-to-exceed cap
+
+A time and materials engagement MUST carry a not-to-exceed `cap`. There is no
+uncapped time and materials engagement, and a runtime MUST refuse a proposal
+that omits the cap.
+
+Two reasons. Uncapped exposure is what destroys an owner's confidence in
+delegating spend at all: a rate schedule with no ceiling asks the buyer to
+sign an open account. And an authority check needs a single number to test.
+For an Agent Mandate ceiling check (https://agentmandate.net), the committed
+price of a time and materials engagement **is** the cap, so a per-engagement
+or per-month ceiling has something to compare against before formation
+rather than after the spending.
+
+The cap is a not-to-exceed number, not a forecast. Metered usage MUST NOT be
+billed past it, and units the provider incurs after the cap is reached are
+the provider's to bear.
+
+#### 5.5.4 Reservation and the window
+
+Funds are **reserved** when the engagement forms, the way a purchase order
+commits a budget before any invoice exists. The reservation is for the cap
+amount and carries a stated window, `reservation.window_days`. Billing
+occurs inside the window against actual metered usage. At the end of the
+window the unused remainder is **released** back to the client.
+
+What that implies is worth stating plainly: reserved funds are not available
+for other work while they are held. A cap set far above expected usage is not
+free. It is money the client cannot spend elsewhere until the window closes.
+
+The window MUST NOT extend beyond `ends_at`. A runtime MUST NOT admit work
+under a released reservation; an engagement whose term outlasts its window
+needs a new reservation before more work runs.
+
+Grade: `enforced` where clearing supports holds, `evidence` where it does not
+and the reservation is a recorded intent only. This is the honesty rule of
+§8.2 applied to reservations, and renderers MUST show whichever grade the
+deployment has actually earned.
+
+#### 5.5.5 Reaching the cap
+
+Reaching the cap concludes the work. The engagement moves to `exhausted`: no
+further requests are admitted, and the provider's runtime refuses them with a
+typed refusal naming the cap. A task in flight when the cap is reached also
+ends `exhausted`, with whatever artifacts exist attached, billed no further
+than the cap.
+
+`exhausted` sits beside `lapsed` and `terminated` in §7.1 as a way an
+engagement ends, and it is not a failure. `lapsed` means the term ran out;
+`exhausted` means the cap ran out. A runtime MUST NOT record an exhausted
+engagement or task as failed.
+
+Time and materials buys best effort, not guaranteed deliverables. There is
+therefore no acceptance or rejection of a deliverable under this arrangement,
+and the deliverable-form check of §5.4 has nothing to judge where the
+engagement names no per-task artifacts. That is a real loss for the buyer and
+it should be said rather than papered over: the buyer's protection shifts
+from acceptance to the integrity of the meter. For that reason, billed units
+SHOULD be ones a buyer can verify independently, such as tokens, calls, or
+items processed, rather than self-declared effort.
+
+An engagement that ends `exhausted` is recorded as a fact and is not scored,
+the same way terminations are recorded unscored. Buyer reviews (§15) remain
+the scoring signal. The rules are at https://agentreputations.com.
+
+#### 5.5.6 Pass-through lines
+
+When a provider bills for something it bought elsewhere, including from
+another agent on the mesh, that schedule line MUST be marked
+`"pass_through": true`, and every settlement record for the line MUST
+reference the upstream receipt that evidences the cost.
+
+```json
+{ "meter": "vendor_lookups", "unit": "lookup", "per_unit": 9000,
+  "pass_through": true }
+```
+
+A pass-through line MUST NOT be priced above the upstream cost. A provider
+that wants a margin on resold work prices that work as its own metered line
+instead. This is the honest meaning of "materials": at cost, with proof.
+
+The proof is usually free. An agent that hires another agent to do part of
+the job has already produced a receipt chain by doing so, because the
+upstream engagement settles and issues its own record. The receipt the buyer
+is owed is one the provider already holds.
 
 ### 5.6 Volume
 
@@ -309,6 +459,9 @@ Engagements MUST NOT renew automatically. After `ends_at` the engagement
 lapses: its grants and limits stop applying and the client reverts to
 whatever the provider's general admission policy says. Renewal is an
 amendment under §5.8, which may set a new `ends_at`.
+
+An engagement may also end before `ends_at`: by termination (§5.9), or by
+reaching its cap under a time and materials arrangement (§5.5.5).
 
 Grade: `enforced`. Both instants are inside the signed bytes; the gate
 simply does not apply the engagement outside them.
@@ -448,8 +601,8 @@ every formation.
 
 A signature proves control of a key. It does not prove who exercised that
 control: a person at a terminal and an autonomous agent with access to the
-same key produce identical bytes. For acts that bind a party — the client's
-countersign at formation, and either seat's approval of an amendment — the
+same key produce identical bytes. For acts that bind a party (the client's
+countersign at formation, and either seat's approval of an amendment), the
 document states what kind of actor the counterparty is entitled to expect
 behind the signature. Three values:
 
@@ -463,7 +616,7 @@ behind the signature. Three values:
   attests user presence and verification (for example a WebAuthn passkey
   ceremony), and the confirmation is recorded beside the signature. A
   pending approval that is never confirmed lapses with the review window.
-- `agent_then_person`: both artifacts on the record — the agent's signature
+- `agent_then_person`: both artifacts on the record: the agent's signature
   first (proving key control and intent), the person's confirmation second
   (proving presence). Operationally this is `person` with the agent's
   signature explicitly required to come first; documents that want both
@@ -490,6 +643,37 @@ than presence and verification, and where formation does not complete on a
 platform that can hold it pending, the `person` value grades `evidence`
 (the confirmation record exists) rather than `enforced`.
 
+### 6.2 Organizational authority
+
+Two optional fields let a document carry organizational authority, per
+section 7 of the Agent Mandate specification (https://agentmandate.net):
+
+- A party MAY carry `"organization": "org_..."` beside its `owner`, naming
+  the organization on whose behalf that seat engages.
+- An approval record MAY carry `"mandate": "mnd_..."`, naming the mandate
+  under which the approving person acted.
+
+Both fields sit inside the signed bytes, so neither can be added, removed, or
+altered after signing without breaking the signature. Both are additive: a
+document that omits them is conformant, and nothing here changes how
+signatures are computed or verified.
+
+What they buy is one step past §6.1. A person-grade approval proves that a
+verified human was present and confirmed. With a mandate reference beside it,
+the counterparty can also see that the human held current, sufficient,
+traceable authority to bind the organization: a mandate that had started and
+had not expired or been revoked, whose powers covered the act, whose ceilings
+covered the committed price, and whose chain runs up to the organization's
+charter. The claim stops there. What a court would say about the
+organization's obligation remains outside this system, and a runtime MUST NOT
+present a mandate reference as a legal opinion.
+
+A runtime that does not perform the checks of Agent Mandate section 7 MUST
+NOT present a document carrying these fields as mandate-verified. The
+reference is then `evidence` that a mandate was cited, not `enforced`
+authority. Where the platform does perform the check and refuses acts that
+fail it, the grade is `enforced`.
+
 ## 7. Lifecycle
 
 ### 7.1 Document states
@@ -508,13 +692,16 @@ active                both signatures, starts_at reached; the runtimes
                       (§5.8); no force; the current version governs until
                       it is approved, denied, withdrawn, or lapses
   → amended           replaced by a higher version with both signatures
+  → exhausted         the not-to-exceed cap was reached (§5.5.5); admission
+                      and billing stop, and the engagement ends
   → lapsed            ends_at passed
   → terminated        ended by either owner (§5.9)
 ```
 
 A document with one signature, whoever signed it, has no force. Runtimes
-MUST treat lapse and termination identically at the gate: the counterparty
-reverts to general admission policy. Nothing breaks and nothing lingers.
+MUST treat lapse, exhaustion, and termination identically at the gate: the
+counterparty reverts to general admission policy. Nothing breaks and nothing
+lingers.
 
 ### 7.2 The working lifecycle
 
@@ -561,6 +748,15 @@ not enforcement. Therefore:
 3. Where no such clearing exists, conforming documents grade the refund
    clause `evidence`, and renderers show it that way. This is the honest
    state of most deployments today.
+
+Time and materials is a second instance of the same problem. The units billed
+are counted by the provider's runtime, which is the party they pay. A meter
+MUST NOT be graded `enforced` unless the client's node can count the same
+units from its own records; meters the client cannot independently count are
+`evidence` at best. This is why §5.5.5 prefers units a buyer can verify,
+tokens and calls and items, over self-declared effort, and why the cap is
+mandatory: the cap is the one number the client's own node can enforce
+without trusting the count.
 
 This section exists so the specification cannot be used to launder trust as
 enforcement. The asymmetry is real; naming it is the fix available now, and
@@ -662,6 +858,9 @@ the listing is a slimmed-down view of it in product language.
 - The scope clause's `in_scope` examples double as the listing's
   representative queries: the text that finds the offering in search is the
   same text that defines what the engagement covers.
+- Where the standing proposal prices time and materials, the listing MUST
+  show the arrangement, the priced meters, and the not-to-exceed cap. A rate
+  shown without its cap misrepresents the offer.
 
 Free, informal offerings are exempt: a listing with no price and no engage
 action MAY be derived from the agent's manifest alone, or from an implicit
@@ -787,3 +986,38 @@ score, but a record. "Forty reviewed engagements, two rejections, both with
 reasons, both resolved" is the shape of trust this specification can
 actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
+
+## Changelog
+
+**0.4.0-draft** (2026-08-07). Time and materials pricing, and the mandate
+addendum. §5.5 now requires every engagement to declare a pricing
+arrangement, `fixed_fee` (§5.5.1) or `time_and_materials` (§5.5.2), with no
+undeclared default. This is a breaking change for documents written against
+0.3.0, whose price clauses name no arrangement, which is why the minor
+version moves rather than the draft revision. Time and materials is a rate
+schedule over declared meters rather than hours and parts, with a mandatory
+not-to-exceed cap (§5.5.3), funds reserved for a stated window and released
+unused at its end (§5.5.4), work concluding in the new `exhausted` state at
+the cap (§5.5.5), and pass-through lines billed at cost against the upstream
+receipt (§5.5.6). §8.2 extends the buyer-side gap to meters. New §6.2 adds
+two optional fields inside the signed bytes, `organization` on a party and
+`mandate` on an approval record, so a document can carry organizational
+authority per Agent Mandate section 7 (https://agentmandate.net).
+
+**0.3.0-draft** (2026-08-06). Change requests and approval authority. §5.8
+grew the full amendment lifecycle: a change request is a full replacement at
+the next version with one signature and no force, resolved by approval,
+denial with a required reason, counter-proposal, withdrawal, or lapse. New
+§6.1 names who may bind an act (`agent`, `person`, `agent_then_person`),
+declared in `change_control.approval`, with formation defaulting to `agent`
+and amendments to `person`.
+
+**0.2.0-draft** (2026-08-06). The working lifecycle and its bookends. New
+§7.2 names the stages of the work itself; new §13 defines the pre-engagement
+validation probe, §14 the problem report and what each side owes once one
+exists, and §15 post-engagement review as signed acceptance or reasoned
+rejection.
+
+**0.1.0-draft** (2026-08-04). First draft: the enforcement gradient, the
+document model, the eleven clauses, signatures, the lifecycle, the buyer-side
+asymmetry, precedence, standing proposals, and listings derived from them.
