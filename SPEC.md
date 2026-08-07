@@ -1,6 +1,6 @@
 # Agent SoW Specification
 
-**Version:** 0.4.0-draft
+**Version:** 0.5.0-draft
 **Status:** Working Draft
 **Date:** 2026-08-07
 
@@ -70,9 +70,10 @@ interpreted as described in RFC 2119.
 - **Pricing arrangement**: the basis on which an engagement prices work,
   either `fixed_fee` or `time_and_materials` (§5.5). Every engagement
   declares one.
-- **Meter**: a named quantity a runtime counts and bills, with a stated unit.
-  Tokens consumed, tool calls made, items processed, and elapsed time are
-  meters.
+- **Meter**: a named quantity a runtime counts and bills. Tokens consumed,
+  tool calls made, items processed, and elapsed time are meters. A meter
+  counts in its own natural grain; the schedule line that prices it states
+  how many of those counts make one billable unit (§5.5.2).
 - **Artifact**: a named deliverable attached to a completed task, distinct
   from conversational messages.
 - **Clearing**: a settlement function trusted by both parties to move value
@@ -309,25 +310,47 @@ with a quote); `evidence` for settlement records.
 #### 5.5.2 Time and materials
 
 Time and materials is expressed as a **rate schedule over declared meters**,
-not as hours and parts. Each line of the schedule names a meter, the unit
-that meter counts, and the price of one unit. The provider's offering
-declares which meters it bills; the engagement prices those meters.
+not as hours and parts. Each line of the schedule names a meter, how many of
+that meter's counts make one billable unit, the price of one unit, and a
+label for the unit that a person reads. The provider's offering declares
+which meters it bills; the engagement prices those meters.
 
 ```json
 "price": {
   "arrangement": "time_and_materials",
   "currency": "XCR",
   "schedule": [
-    { "meter": "tokens_out", "unit": "1000 tokens", "per_unit": 1500 },
-    { "meter": "tool_calls", "unit": "call",        "per_unit": 2000 },
-    { "meter": "items",      "unit": "invoice",     "per_unit": 40000 },
-    { "meter": "elapsed",    "unit": "minute",      "per_unit": 12000 }
+    { "meter": "tokens_out", "per": 1000, "unit": "1000 tokens", "per_unit": 1500 },
+    { "meter": "tool_calls", "per": 1,    "unit": "call",        "per_unit": 2000 },
+    { "meter": "items",      "per": 1,    "unit": "invoice",     "per_unit": 40000 },
+    { "meter": "elapsed",    "per": 60,   "unit": "minute",      "per_unit": 12000 }
   ],
   "cap": { "amount": 40000000 },
   "reservation": { "window_days": 30 },
   "grade": "enforced"
 }
 ```
+
+`per` is the divisor: the number of raw meter counts that make one billable
+unit. It is a positive integer and it defaults to 1, so a line that prices a
+meter one count at a time may omit it. `unit` is a **label for people** and
+carries no arithmetic. A runtime MUST rate on `per` and MUST NOT parse
+`unit`; where the two disagree the arithmetic follows `per`, and a renderer
+showing a label that contradicts the divisor is showing the buyer a number
+the engagement will not charge.
+
+The distinction is not pedantry. Under this arrangement there is no
+deliverable to accept (§5.5.5), so the buyer's only protection is that the
+meter is honest and independently checkable. A unit of "1000 tokens" that a
+machine cannot convert defeats exactly that protection: the buyer can count
+tokens from its own records and still not know what it owes. The divisor
+puts the conversion inside the signed bytes, where both parties compute the
+same charge from the same counts.
+
+A line rates as `floor(count × per_unit / per)`, in integers. The floor is
+deliberate and it favours the buyer: a partial unit never charges a partial
+unit's money, and two implementations doing integer arithmetic cannot
+disagree by one.
 
 Elapsed time is one meter among several, and most offerings will not price
 it. The billable inputs of agent work are things like tokens consumed, tool
@@ -365,6 +388,14 @@ billed past it, and units the provider incurs after the cap is reached are
 the provider's to bear.
 
 #### 5.5.4 Reservation and the window
+
+A time and materials engagement MUST carry a `reservation` with a stated
+window, `reservation.window_days`, and a runtime MUST refuse a proposal that
+omits it. There is no unreserved time and materials engagement, for the same
+structural reason there is no uncapped one: the arrangement is a purchase
+order, and a purchase order that commits no funds and names no period has no
+defined settlement behaviour at all. Nothing says when billing stops, and
+nothing says when the client's money comes back.
 
 Funds are **reserved** when the engagement forms, the way a purchase order
 commits a budget before any invoice exists. The reservation is for the cap
@@ -988,6 +1019,20 @@ actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
 
 ## Changelog
+
+**0.5.0-draft** (2026-08-07). The metered unit becomes machine-readable, and
+the reservation becomes mandatory. A schedule line now carries `per` (§5.5.2),
+the positive-integer divisor giving how many raw meter counts make one
+billable unit; it defaults to 1, `unit` is demoted to a label for people that
+a runtime MUST NOT parse, and a line rates as `floor(count x per_unit / per)`.
+The old shape could not be settled without a human reading the label, which
+under an arrangement with no deliverable to accept (§5.5.5) defeated the
+buyer's only protection: a meter it can independently check. §5.5.4 now
+requires a `reservation` on every time and materials engagement and a runtime
+MUST refuse a proposal that omits it, because an arrangement that commits no
+funds and names no period has no defined settlement behaviour. That second
+change is breaking for documents written against 0.4.0, which is why the minor
+version moves rather than the draft revision.
 
 **0.4.0-draft** (2026-08-07). Time and materials pricing, and the mandate
 addendum. §5.5 now requires every engagement to declare a pricing

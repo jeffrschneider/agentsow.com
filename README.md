@@ -3,7 +3,7 @@
 The **Agent SoW** specification and site: a signed, machine-graded statement of
 work between two parties whose software agents do recurring work together.
 
-- `SPEC.md` is the authority (v0.4.0-draft).
+- `SPEC.md` is the authority (v0.5.0-draft).
 - `index.html`, `spec.html`, `example.html`, `site.css` are the site, plain
   HTML in the agentmesh.ai family style.
 - Hosted at https://agentsow.com (Caddy vhost on the AgentMesh VM, not GitHub

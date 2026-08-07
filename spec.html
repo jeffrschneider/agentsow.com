@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agent SoW Specification v0.4.0-draft</title>
+  <title>Agent SoW Specification v0.5.0-draft</title>
   <meta name="description" content="The Agent SoW specification: a signed, machine-graded statement of work between two parties whose agents do recurring work together.">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -59,7 +59,7 @@
       <article class="spec">
 
         <h1>Agent SoW Specification</h1>
-        <div class="meta">Version 0.4.0-draft &middot; Working Draft &middot; 2026-08-07</div>
+        <div class="meta">Version 0.5.0-draft &middot; Working Draft &middot; 2026-08-07</div>
 
         <p>A <b>statement of work</b> (SoW) is the legal agreement businesses sign when they hire a service firm: it lists the work, what each side provides, the deliverables, the price, and the end date. An <b>Agent SoW</b> is that same agreement, adapted for two parties whose software agents do recurring work together. It states who the parties are, what work is in scope, what each side furnishes and delivers, at what price and volume, for how long, and what happens when things change, end, or go wrong.</p>
         <p>The defining feature of this specification is not the clause list, which any consulting contract has. It is the <b>enforcement gradient</b>: every clause in an Agent SoW is labeled with what a machine can actually do about it. A clause is <i>enforced</i> (violations are refused mechanically), <i>evidence</i> (a signed, tamper-evident record exists), or <i>recorded</i> (a promise whose breach is punished by reputation, not code). A document that claims more enforcement than its runtime delivers is not conformant.</p>
@@ -84,7 +84,7 @@
           <li><b>Node</b>: the runtime that hosts an agent and enforces the engagement's enforceable clauses on that agent's behalf.</li>
           <li><b>Task</b>: one unit of work under an engagement, with a lifecycle of at least <code>submitted</code>, <code>working</code>, <code>input_required</code>, <code>completed</code>, <code>failed</code>, <code>canceled</code>. Under a time and materials arrangement a task may also end <code>exhausted</code> (section 5.5.5).</li>
           <li><b>Pricing arrangement</b>: the basis on which an engagement prices work, either <code>fixed_fee</code> or <code>time_and_materials</code> (section 5.5). Every engagement declares one.</li>
-          <li><b>Meter</b>: a named quantity a runtime counts and bills, with a stated unit. Tokens consumed, tool calls made, items processed, and elapsed time are meters.</li>
+          <li><b>Meter</b>: a named quantity a runtime counts and bills. Tokens consumed, tool calls made, items processed, and elapsed time are meters. A meter counts in its own natural grain; the schedule line that prices it states how many of those counts make one billable unit (5.5.2).</li>
           <li><b>Artifact</b>: a named deliverable attached to a completed task, distinct from conversational messages.</li>
           <li><b>Clearing</b>: a settlement function trusted by both parties to move value and, where supported, to reverse it.</li>
         </ul>
@@ -208,20 +208,23 @@
         <p>Grade: <span class="grade-tag enforced">enforced</span> for rating and ceilings (work beyond the ceiling is refused with a quote); <span class="grade-tag evidence">evidence</span> for settlement records.</p>
 
         <h4 id="time-and-materials">5.5.2 Time and materials</h4>
-        <p>Time and materials is expressed as a <b>rate schedule over declared meters</b>, not as hours and parts. Each line of the schedule names a meter, the unit that meter counts, and the price of one unit. The provider's offering declares which meters it bills; the engagement prices those meters.</p>
+        <p>Time and materials is expressed as a <b>rate schedule over declared meters</b>, not as hours and parts. Each line of the schedule names a meter, how many of that meter's counts make one billable unit, the price of one unit, and a label for the unit that a person reads. The provider's offering declares which meters it bills; the engagement prices those meters.</p>
         <pre><code>"price": {
   "arrangement": "time_and_materials",
   "currency": "XCR",
   "schedule": [
-    { "meter": "tokens_out", "unit": "1000 tokens", "per_unit": 1500 },
-    { "meter": "tool_calls", "unit": "call",        "per_unit": 2000 },
-    { "meter": "items",      "unit": "invoice",     "per_unit": 40000 },
-    { "meter": "elapsed",    "unit": "minute",      "per_unit": 12000 }
+    { "meter": "tokens_out", "per": 1000, "unit": "1000 tokens", "per_unit": 1500 },
+    { "meter": "tool_calls", "per": 1,    "unit": "call",        "per_unit": 2000 },
+    { "meter": "items",      "per": 1,    "unit": "invoice",     "per_unit": 40000 },
+    { "meter": "elapsed",    "per": 60,   "unit": "minute",      "per_unit": 12000 }
   ],
   "cap": { "amount": 40000000 },
   "reservation": { "window_days": 30 },
   "grade": "enforced"
 }</code></pre>
+        <p><code>per</code> is the divisor: the number of raw meter counts that make one billable unit. It is a positive integer and it defaults to 1, so a line that prices a meter one count at a time may omit it. <code>unit</code> is a <b>label for people</b> and carries no arithmetic. A runtime MUST rate on <code>per</code> and MUST NOT parse <code>unit</code>; where the two disagree the arithmetic follows <code>per</code>, and a renderer showing a label that contradicts the divisor is showing the buyer a number the engagement will not charge.</p>
+        <p>The distinction is not pedantry. Under this arrangement there is no deliverable to accept (5.5.5), so the buyer's only protection is that the meter is honest and independently checkable. A unit of "1000 tokens" that a machine cannot convert defeats exactly that protection: the buyer can count tokens from its own records and still not know what it owes. The divisor puts the conversion inside the signed bytes, where both parties compute the same charge from the same counts.</p>
+        <p>A line rates as <code>floor(count x per_unit / per)</code>, in integers. The floor is deliberate and it favours the buyer: a partial unit never charges a partial unit's money, and two implementations doing integer arithmetic cannot disagree by one.</p>
         <p>Elapsed time is one meter among several, and most offerings will not price it. The billable inputs of agent work are things like tokens consumed, tool and API calls made, and items processed; elapsed time earns a line only for jobs that genuinely run long, such as a crawl or a watch held open for hours. Billing wall-clock time alone is a poor proxy for what the work cost, and it pays a slow agent more than a fast one for the same result, which a provider can arrange deliberately.</p>
         <p>A schedule MUST NOT price a meter the offering does not declare, and a runtime MUST NOT bill a meter the schedule does not price. Both are validation errors, not defaults to be filled in.</p>
         <p>Grade: <span class="grade-tag enforced">enforced</span> for rating against the schedule and for the cap (5.5.3); <span class="grade-tag evidence">evidence</span> for the metered counts and the settlement records. A meter that only the provider can count grades <span class="grade-tag evidence">evidence</span>, never <span class="grade-tag enforced">enforced</span>, for the reason 8.2 gives.</p>
@@ -232,6 +235,7 @@
         <p>The cap is a not-to-exceed number, not a forecast. Metered usage MUST NOT be billed past it, and units the provider incurs after the cap is reached are the provider's to bear.</p>
 
         <h4 id="reservation">5.5.4 Reservation and the window</h4>
+        <p>A time and materials engagement MUST carry a <code>reservation</code> with a stated window, <code>reservation.window_days</code>, and a runtime MUST refuse a proposal that omits it. There is no unreserved time and materials engagement, for the same structural reason there is no uncapped one: the arrangement is a purchase order, and a purchase order that commits no funds and names no period has no defined settlement behaviour at all. Nothing says when billing stops, and nothing says when the client's money comes back.</p>
         <p>Funds are <b>reserved</b> when the engagement forms, the way a purchase order commits a budget before any invoice exists. The reservation is for the cap amount and carries a stated window, <code>reservation.window_days</code>. Billing occurs inside the window against actual metered usage. At the end of the window the unused remainder is <b>released</b> back to the client.</p>
         <p>What that implies is worth stating plainly: reserved funds are not available for other work while they are held. A cap set far above expected usage is not free. It is money the client cannot spend elsewhere until the window closes.</p>
         <p>The window MUST NOT extend beyond <code>ends_at</code>. A runtime MUST NOT admit work under a released reservation; an engagement whose term outlasts its window needs a new reservation before more work runs.</p>
@@ -463,6 +467,7 @@ review     (15)   at completion: acceptance or rejection, with reasons,
         <p>Reviewed engagements are the natural evidence unit for reputation: not a score, but a record. "Forty reviewed engagements, two rejections, both with reasons, both resolved" is the shape of trust this specification can actually support, and it is produced here, at the only moment both the facts and a motivated judge are present.</p>
 
         <h2 id="changelog">Changelog</h2>
+        <p><b>0.5.0-draft</b> (2026-08-07). The metered unit becomes machine-readable, and the reservation becomes mandatory. A schedule line now carries <code>per</code> (5.5.2), the positive-integer divisor giving how many raw meter counts make one billable unit; it defaults to 1, <code>unit</code> is demoted to a label for people that a runtime MUST NOT parse, and a line rates as <code>floor(count x per_unit / per)</code>. The old shape could not be settled without a human reading the label, which under an arrangement with no deliverable to accept (5.5.5) defeated the buyer's only protection: a meter it can independently check. Section 5.5.4 now requires a <code>reservation</code> on every time and materials engagement and a runtime MUST refuse a proposal that omits it, because an arrangement that commits no funds and names no period has no defined settlement behaviour. That second change is breaking for documents written against 0.4.0, which is why the minor version moves rather than the draft revision.</p>
         <p><b>0.4.0-draft</b> (2026-08-07). Time and materials pricing, and the mandate addendum. Section 5.5 now requires every engagement to declare a pricing arrangement, <code>fixed_fee</code> (5.5.1) or <code>time_and_materials</code> (5.5.2), with no undeclared default. This is a breaking change for documents written against 0.3.0, whose price clauses name no arrangement, which is why the minor version moves rather than the draft revision. Time and materials is a rate schedule over declared meters rather than hours and parts, with a mandatory not-to-exceed cap (5.5.3), funds reserved for a stated window and released unused at its end (5.5.4), work concluding in the new <code>exhausted</code> state at the cap (5.5.5), and pass-through lines billed at cost against the upstream receipt (5.5.6). Section 8.2 extends the buyer-side gap to meters. New section 6.2 adds two optional fields inside the signed bytes, <code>organization</code> on a party and <code>mandate</code> on an approval record, so a document can carry organizational authority per Agent Mandate section 7 (<a href="https://agentmandate.net">https://agentmandate.net</a>).</p>
         <p><b>0.3.0-draft</b> (2026-08-06). Change requests and approval authority. Section 5.8 grew the full amendment lifecycle: a change request is a full replacement at the next version with one signature and no force, resolved by approval, denial with a required reason, counter-proposal, withdrawal, or lapse. New section 6.1 names who may bind an act (<code>agent</code>, <code>person</code>, <code>agent_then_person</code>), declared in <code>change_control.approval</code>, with formation defaulting to <code>agent</code> and amendments to <code>person</code>.</p>
         <p><b>0.2.0-draft</b> (2026-08-06). The working lifecycle and its bookends. New section 7.2 names the stages of the work itself; new section 13 defines the pre-engagement validation probe, section 14 the problem report and what each side owes once one exists, and section 15 post-engagement review as signed acceptance or reasoned rejection.</p>
