@@ -1,6 +1,6 @@
 # Agent SoW Specification
 
-**Version:** 0.9.0-draft
+**Version:** 0.10.0-draft
 **Status:** Working Draft
 **Date:** 2026-08-07
 
@@ -404,6 +404,21 @@ per period. The price of a task is known before the task runs.
 }
 ```
 
+Where the clause states a `ceiling`, the ceiling bounds what the client pays
+in the period, including any operator fee inside the price (§5.5.8). An
+operator fee is not charged on top of the ceiling. The provider's rated work
+runs to the ceiling less the fees taken on it, and a task whose price plus
+the fee on that price would carry the period's spend past the ceiling is
+refused with a quote, which is the refusal this subsection already grades
+`enforced`. Nothing else changes. The engagement does not end, the ceiling is
+per period, and the refusal lifts when the next period begins.
+
+This is what makes the committed price of a fixed fee engagement a statement
+of the client's real exposure. A ceiling that did not bound what the client
+is charged would bound nothing, and an Agent Mandate ceiling check
+(https://agentmandate.net) performed against it would be testing a number the
+buyer does not pay.
+
 Grade: `enforced` for rating and ceilings (work beyond the ceiling is refused
 with a quote); `evidence` for settlement records.
 
@@ -734,7 +749,7 @@ percentage of a base too small to produce one whole unit produces nothing,
 and an operator that intends to charge a whole unit there states a fixed
 basis of one unit, which discloses the charge as the charge it is.
 
-**The cap bounds what the client pays, fee included.** Under
+**The cap and the ceiling bound what the client pays, fee included.** Under
 `time_and_materials` the not-to-exceed cap of §5.5.3 bounds the total the
 client pays, and the operator fee is part of that total. A runtime MUST NOT
 bill the client, over the engagement, a sum of provider lines and operator
@@ -747,6 +762,25 @@ field, or refusal is introduced. The reservation of §5.5.4 is for the cap
 amount, so it covers the client's whole exposure, and the number an Agent
 Mandate ceiling check tests before formation is the number the client can
 actually be charged.
+
+The per-period `ceiling` of §5.5.1 works the same way and for the same
+reason. It bounds what the client pays in the period, fee included, the
+provider's rated work runs to the ceiling less the fees taken on it, and a
+task whose price plus the fee on that price would carry the period's spend
+past the ceiling is refused with a quote, which is the refusal §5.5.1 already
+grades `enforced`. A bound that did not bound what the client is charged
+would bound nothing, whichever arrangement states it.
+
+More than one rated total can satisfy either bound at its boundary. The fee
+floors, so a cap of 100 with a ten percent basis is satisfied by a rated
+total of 90, and also by 91, whose fee of 9 brings the client's charge to
+exactly 100. A client node reading a settlement record cannot distinguish the
+two, because both leave the total inside the bound, both close
+arithmetically, and nothing obliges a provider to bill everything a bound
+admits. Which of them a runtime bills is therefore an agreement between
+implementations rather than a requirement of this specification, and two
+implementers who both read this subsection correctly can differ by a unit at
+the boundary. A conformance suite is where that is settled.
 
 A `no_charge` engagement rates nothing and produces no settlement record
 (§5.5.7), so it has no total for a fee to sit inside and carries no operator
@@ -1426,6 +1460,40 @@ actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
 
 ## Changelog
+
+**0.10.0-draft** (2026-08-07). The fixed fee ceiling bounds what the client
+pays, and the boundary is named.
+
+0.9.0-draft ruled that the not-to-exceed cap of §5.5.3 bounds what the client
+pays with the operator fee inside it, and said nothing about the per-period
+`ceiling` of §5.5.1, where the question is identical. §5.5.1 now carries the
+same rule in the same terms. The ceiling bounds what the client pays in the
+period, fee included; the provider's rated work runs to the ceiling less the
+fees taken on it; and a task whose price plus the fee on that price would
+carry the period's spend past the ceiling is refused with a quote. That
+refusal is the one §5.5.1 already grades `enforced`, so nothing new is
+introduced by it. The engagement does not end, and the refusal lifts when the
+next period begins. §5.5.8 now cross-references both bounds, so a reader of
+the fee subsection finds the cap and the ceiling together.
+
+§5.5.8 also states a limit of its own rule, found by implementing it. Because
+the fee floors, more than one rated total can satisfy a bound at its
+boundary: a cap of 100 with a ten percent basis admits a rated total of 90,
+and also 91, whose fee of 9 brings the client's charge to exactly 100. A
+client node cannot tell those apart, since both leave the total inside the
+bound and both close arithmetically, and nothing obliges a provider to bill
+everything a bound admits. Which one a runtime bills is an agreement between
+implementations rather than a requirement of this specification, and it
+belongs in a conformance suite. The text says so rather than leaving two
+implementers who both read it correctly to discover in production that they
+differ by a unit.
+
+The minor version moves rather than the draft revision, because the ceiling
+rule changes what a runtime may bill under `fixed_fee`. A task that was
+admitted under 0.9.0-draft, on the reading that the fee sat outside the
+ceiling, is refused under this text. Documents are unaffected: no clause
+changes shape, and an engagement written against 0.9.0-draft stays conformant
+unchanged.
 
 **0.9.0-draft** (2026-08-07). The operator fee line is pinned: a written
 fixed basis, one rounding rule, and a cap that bounds what the client pays.
