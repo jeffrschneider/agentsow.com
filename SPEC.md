@@ -1,6 +1,6 @@
 # Agent SoW Specification
 
-**Version:** 0.5.0-draft
+**Version:** 0.6.0-draft
 **Status:** Working Draft
 **Date:** 2026-08-07
 
@@ -67,8 +67,8 @@ interpreted as described in RFC 2119.
   `submitted`, `working`, `input_required`, `completed`, `failed`, `canceled`.
   Under a time and materials arrangement a task may also end `exhausted`
   (§5.5.5).
-- **Pricing arrangement**: the basis on which an engagement prices work,
-  either `fixed_fee` or `time_and_materials` (§5.5). Every engagement
+- **Pricing arrangement**: the basis on which an engagement prices work:
+  `fixed_fee`, `time_and_materials`, or `no_charge` (§5.5). Every engagement
   declares one.
 - **Meter**: a named quantity a runtime counts and bills. Tokens consumed,
   tool calls made, items processed, and elapsed time are meters. A meter
@@ -276,15 +276,17 @@ reputation.
 ### 5.5 Price and metering
 
 Every engagement MUST declare exactly one **pricing arrangement**, in the
-price clause's `arrangement` field. Two are defined: `fixed_fee`, where work
-is priced per task at a published rate (§5.5.1), and `time_and_materials`,
-where work is priced as a rate schedule over declared meters (§5.5.2). There
-is no undeclared default. A price clause naming no arrangement is a
-validation error, and a runtime MUST refuse an engagement proposal that
-carries one.
+price clause's `arrangement` field. Three are defined: `fixed_fee`, where work
+is priced per task at a published rate (§5.5.1); `time_and_materials`, where
+work is priced as a rate schedule over declared meters (§5.5.2); and
+`no_charge`, where the provider charges nothing (§5.5.7). There is no
+undeclared default. A price clause naming no arrangement is a validation
+error, and a runtime MUST refuse an engagement proposal that carries one.
 
-Under either arrangement, every billable unit of work MUST be rated at the
-engagement's price and produce a settlement record both parties hold.
+Under `fixed_fee` and `time_and_materials`, every billable unit of work MUST
+be rated at the engagement's price and produce a settlement record both
+parties hold. A `no_charge` engagement has no billable units: it rates
+nothing and produces no settlement record.
 
 #### 5.5.1 Fixed fee
 
@@ -462,6 +464,81 @@ The proof is usually free. An agent that hires another agent to do part of
 the job has already produced a receipt chain by doing so, because the
 upstream engagement settles and issues its own record. The receipt the buyer
 is owed is one the provider already holds.
+
+#### 5.5.7 No charge
+
+`no_charge` declares that the provider charges nothing for the work. Every
+engagement declares an arrangement, so work done for nothing needs one it can
+declare honestly. The alternative is a `fixed_fee` clause with a rate of
+zero, which puts the decision in a magic value: a reader cannot tell a price
+the provider set deliberately from a price nobody filled in. A declared
+`no_charge` arrangement states that the provider chose to charge nothing.
+
+```json
+"price": {
+  "arrangement": "no_charge",
+  "grade": "enforced"
+}
+```
+
+The clause carries the arrangement and its grade and nothing else. A
+`no_charge` price clause MUST NOT carry `currency`, `rates`, `schedule`,
+`cap`, `reservation`, `ceiling`, or any other price field. A clause that
+carries one is malformed, and a runtime MUST refuse an engagement proposal
+that carries one. There is no rate to state, no ceiling to test, and no cap
+to reserve against.
+
+Nothing settles. A runtime MUST NOT rate work under a `no_charge`
+engagement, MUST NOT draw from the client's balance, MUST NOT produce a
+settlement record, and MUST NOT call clearing. A client node MUST refuse a
+settlement record that cites a `no_charge` engagement. This is written as a
+prohibition rather than left to implementations because the alternative
+design produces a settlement record of zero for every task, and those records
+carry no information while sitting in both accounts' books beside the records
+that do.
+
+Grade: `enforced`. The test is the one §3 asks for: a charge under a
+`no_charge` engagement is refused mechanically by the client's node, not
+argued about afterwards.
+
+Everything else about the engagement is ordinary. It forms under §12.1,
+produces the same task and evidence records, may be amended under §5.8 and
+terminated under §5.9, and lapses at `ends_at`. Scope, inputs, deliverables,
+volume, term, and confidentiality apply unchanged, and the deliverable-form
+check of §5.4 judges its artifacts exactly as it judges paid ones. It may be
+reviewed under §15, and those reviews carry the weight any review carries, so
+an agent that works for nothing still earns a reputation from the work.
+
+One clause changes effect. The `refund_on_failed_task` posture (§5.10) has
+nothing to reverse, because nothing was settled. A failed task is still
+recorded as failed and still counts as a failed obligation for §5.9 and §15.
+The `none` and `escalate_to_owners` postures are unaffected.
+
+Authority is unaffected. A party MAY carry an `organization` and an approval
+record MAY carry a `mandate` (§6.2), and formation or amendment MAY require
+person approval (§6.1) where the document says so. An engagement that charges
+nothing can still commit a party to scope, confidentiality, and a term, so
+the approval rules apply to it exactly as they apply to a priced engagement.
+For an Agent Mandate ceiling check (https://agentmandate.net), the committed
+price of a `no_charge` engagement is zero and any ceiling covers it; the
+powers check is unchanged.
+
+**Amending between arrangements.** An amendment MAY change the arrangement,
+under §5.8 like any other clause change: a full replacement at the next
+version, signed by both owners. The change is prospective. Work admitted
+under the previous version stays priced and evidenced under that version,
+which §5.8 already requires by re-deriving settlement instruments at
+approval. Amending to `no_charge` does not refund work already billed, and
+amending away from `no_charge` does not bill work already delivered for
+nothing.
+
+Reservations follow the price clause of the version in force. An amendment
+into `time_and_materials` opens a reservation for the new cap at approval,
+and a runtime that cannot place that reservation MUST refuse the amendment
+rather than admit work against a cap holding no funds (§5.5.4). An amendment
+out of `time_and_materials`, to either other arrangement, releases the open
+reservation at approval, and the held remainder returns to the client then
+rather than at the end of the window it was written for.
 
 ### 5.6 Volume
 
@@ -892,10 +969,15 @@ the listing is a slimmed-down view of it in product language.
 - Where the standing proposal prices time and materials, the listing MUST
   show the arrangement, the priced meters, and the not-to-exceed cap. A rate
   shown without its cap misrepresents the offer.
+- Where the standing proposal declares `no_charge`, the listing MUST show
+  that arrangement rather than an absent price or a price of zero.
 
-Free, informal offerings are exempt: a listing with no price and no engage
-action MAY be derived from the agent's manifest alone, or from an implicit
-minimal template. The mandate binds where money or commitments appear.
+Informal listings are exempt: a listing with no price and no engage action
+MAY be derived from the agent's manifest alone, or from an implicit minimal
+template. The requirement binds where money or commitments appear. A free
+offering that can be engaged is a commitment even though no money moves, so
+its listing is derived from a standing proposal declaring `no_charge`
+(§5.5.7) like any other.
 
 ## 13. Pre-engagement validation
 
@@ -1019,6 +1101,43 @@ actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
 
 ## Changelog
+
+**0.6.0-draft** (2026-08-07). A third pricing arrangement, `no_charge`
+(§5.5.7). Every engagement declares an arrangement (§5.5), and work a
+provider chooses not to charge for had none it could declare honestly: a
+`fixed_fee` clause with a rate of zero encodes the decision in a magic value
+that a reader cannot tell apart from a price nobody filled in. The clause
+carries the declaration and its grade and no price field of any kind, and a
+runtime MUST refuse one that does. Nothing is rated, nothing is drawn, no
+settlement record is produced, and no clearing call is made, because the
+alternative design writes a zero-valued receipt for every task into both
+accounts' books. The engagement is otherwise ordinary: it forms, amends,
+terminates, lapses, and is reviewed like any other, so an agent working for
+nothing still earns a reputation. §5.5.7 also states what an amendment
+between arrangements does, which the specification had not said for any pair.
+The change is prospective, and reservations follow the price clause of the
+version in force, so an amendment into time and materials opens a reservation
+at approval and an amendment out of it releases one. §12.2's exemption
+narrows to informal listings: a free offering that can be engaged is derived
+from a standing proposal declaring `no_charge` like any other listing.
+
+With `no_charge` defined, free work is no longer a shape that has no
+arrangement to declare, and the §5.5 refusal of an undeclared price clause
+has no remaining exception. The specification never carried a transitional
+allowance for it; runtimes that read an undeclared clause as a fixed fee now
+have the value they were missing, and the path to refusing undeclared clauses
+outright is clear.
+
+The change is additive. Documents written against 0.5.0 stay conformant and
+no existing clause changes meaning, so this is not breaking the way 0.4.0 and
+0.5.0 were. The minor version moves anyway, for two reasons. The set of
+values `arrangement` may take is normative, and a 0.5.0 runtime MUST refuse a
+conforming `no_charge` document, so a reader deciding whether a deployment can
+accept a document needs the version to say the set grew. And §12.2 now asks
+for an arrangement on free offerings that could previously be listed without
+one. The new subsection is numbered 5.5.7 rather than 5.5.3 so that the cap,
+the reservation, reaching the cap, and pass-through lines keep the numbers
+other documents and runtimes already cite.
 
 **0.5.0-draft** (2026-08-07). The metered unit becomes machine-readable, and
 the reservation becomes mandatory. A schedule line now carries `per` (§5.5.2),

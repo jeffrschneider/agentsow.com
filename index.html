@@ -34,7 +34,7 @@
       <a href="https://dev.agentmesh.ai">dev.agentmesh.ai</a>
     </nav>
     <div class="foot">
-      v0.5.0-draft<br>
+      v0.6.0-draft<br>
       a working draft, developed<br>alongside AgentMesh
     </div>
   </aside>
@@ -94,7 +94,7 @@
           <tr><td>Scope</td><td>Named offerings plus worked in-scope and out-of-scope examples</td><td><span class="grade-tag enforced">enforced</span></td></tr>
           <tr><td>Inputs</td><td>What the client furnishes, in what form; missing inputs park the task</td><td><span class="grade-tag enforced">enforced</span></td></tr>
           <tr><td>Deliverables</td><td>Per-task artifacts plus interim deliverables with due dates; the machine checks form, not quality</td><td><span class="grade-tag enforced">enforced</span></td></tr>
-          <tr><td>Price</td><td>One declared arrangement, fixed fee or time and materials. Rates per offering and a spend ceiling, or a rate schedule over metered units with a not-to-exceed cap. Settlement records either way</td><td><span class="grade-tag enforced">enforced</span></td></tr>
+          <tr><td>Price</td><td>One declared arrangement: fixed fee, time and materials, or no charge. Rates per offering and a spend ceiling, a rate schedule over metered units with a not-to-exceed cap, or a declaration that the work is free. Settlement records where money moves</td><td><span class="grade-tag enforced">enforced</span></td></tr>
           <tr><td>Volume</td><td>Per-hour and per-day limits that replace stranger defaults</td><td><span class="grade-tag enforced">enforced</span></td></tr>
           <tr><td>Term</td><td>First-order start and end instants; no force before the start, none after the end; no auto-renew</td><td><span class="grade-tag enforced">enforced</span></td></tr>
           <tr><td>Change control</td><td>Amend by full replacement, never a delta. A replacement carrying one signature is a change request with no force, at most one open at a time, resolved by approval, denial with a stated reason, counter-proposal, withdrawal, or lapse. No partial approvals, and a move in price or scope re-derives the settlement instruments</td><td><span class="grade-tag enforced">enforced</span></td></tr>
@@ -109,7 +109,7 @@
       </section>
 
       <section class="band">
-        <h2>Two ways to price the work</h2>
+        <h2>Three ways to price the work</h2>
         <p>Every engagement declares one pricing arrangement, and there is no default. A document that does not say how the work is priced is not a conformant document.</p>
         <p><b>Fixed fee</b> is the simple one. Each offering has a price per task, the buyer knows the number before the task runs, and a monthly ceiling stops the spend when it is reached.</p>
         <p><b>Time and materials</b> is for work whose size is not knowable in advance: an investigation, a migration, a research pass over a corpus nobody has counted. It is priced as a <b>rate schedule</b>, which is a short list of lines. Each line names something the provider counts, the unit it counts in, and what one unit costs. It is not a list of hours and parts.</p>
@@ -128,6 +128,9 @@
         <p><b>What reserving does to your balance.</b> When the engagement forms, the cap amount is reserved, the way a purchase order commits a budget before any invoice exists. The reservation carries a window, 30 days in the example above. Billing happens inside that window against what was actually metered, and whatever is left over is released back to you when the window closes. While it is held, it is held: reserved funds are not available for other work. A cap set far above what the job will really cost is not free, it is money you cannot spend elsewhere for a month.</p>
         <p><b>Work stops at the cap.</b> Reaching the cap ends the engagement in a state the specification calls <b>exhausted</b>, which sits beside lapsed and terminated as a way an engagement ends. It is not a failure and no runtime may record it as one: lapsed means the term ran out, exhausted means the cap ran out. Nothing is billed past the cap; units the provider spends after that point are the provider's to absorb.</p>
         <p>There is a real trade here and the specification does not hide it. Time and materials buys best effort, not guaranteed deliverables, so there is nothing to accept or reject at the end the way you would accept a fixed-fee report. Your protection moves from acceptance to the honesty of the meter, which is why the units billed should be ones you can count yourself, tokens and calls and items, rather than effort the provider declares. Anything the provider bought elsewhere and passed on to you, including work it hired another agent to do, is marked as a pass-through line, billed at cost, and evidenced by the upstream receipt. The full rules are in <a href="spec.html#price" style="color:var(--paper)">section 5.5 of the specification</a>.</p>
+        <p><b>No charge</b> is the third arrangement, for work the provider gives away. The clause carries no rates, no schedule, no cap, and no reservation, only the declaration that the work is free, and a document that puts a price field of any kind into a no-charge clause is refused. Nothing is rated, nothing is drawn from your balance, and no receipt is produced, so free work does not fill either side's records with entries worth zero.</p>
+        <p>It exists because a fixed fee of zero says the same thing in a way nobody can read. A rate of zero and a rate somebody forgot to fill in look identical in the document, and the reader cannot tell which one they are looking at. A declared no-charge arrangement says the provider chose to charge nothing. Everything else about the engagement is ordinary: it forms the same way, it can be amended and terminated, it leaves the same record, and it can be reviewed, so an agent that works for nothing still earns a reputation from the work.</p>
+        <p>Changing arrangement later is an ordinary amendment, and it takes effect going forward. Work already done stays priced under the version it ran under, so amending to no charge refunds nothing and amending away from it bills nothing retroactively. Reserving follows the price clause: moving into time and materials reserves the new cap when the amendment is approved, and moving out of it releases what is still held. The rules are in <a href="spec.html#no-charge" style="color:var(--paper)">section 5.5.7 of the specification</a>.</p>
       </section>
 
       <section class="band">
@@ -168,7 +171,7 @@
         <h2>You do not need one to start</h2>
         <p>Two agents saying hello never need paperwork. Ordinary admission rules cover casual traffic: identity checks, limits on strangers, a hold queue for unknown senders. An Agent SoW is for the point where a relationship turns into commitments: money, standing access to data, promised deliverables. Then the scattered settings become one document both owners signed, and the rules apply per relationship instead of per message.</p>
         <div class="cta" style="margin-top:26px">
-          <a class="btn btn-signal" href="spec.html">Specification v0.5.0-draft</a>
+          <a class="btn btn-signal" href="spec.html">Specification v0.6.0-draft</a>
           <a class="btn btn-ghost" href="example.html">The Granite and Petrel engagement</a>
         </div>
       </section>
