@@ -1,6 +1,6 @@
 # Agent SoW Specification
 
-**Version:** 0.6.0-draft
+**Version:** 0.7.0-draft
 **Status:** Working Draft
 **Date:** 2026-08-07
 
@@ -112,8 +112,34 @@ An engagement is a JSON document. The canonical form is JCS (RFC 8785)
 canonical JSON. The document identifier is:
 
 ```
-sow_<base32(sha256(canonical bytes of version 1, minus signatures))[0..16]>
+sow_<crockford32(sha256(canonical bytes of version 1, minus id and signatures))[0..16]>
 ```
+
+1. **The hashed bytes exclude `id` and `signatures`.** An implementation MUST
+   remove both members from the version-1 document, canonicalize what remains
+   under JCS, and hash that. `id` is excluded because the document carries the
+   identifier derived from it: bytes that contain `id` cannot be assembled
+   until the identifier is known, and the derivation would not terminate.
+   `signatures` is excluded because the signatures are made over a document
+   the identifier already names. These two exclusions are not the same as the
+   signed bytes of §6, which remove `signatures` only and still include `id`.
+   The hashed bytes and the signed bytes are two different byte strings in the
+   same document. An implementation that hashes the signed bytes derives the
+   wrong identifier, and an implementation that signs the hashed bytes signs
+   the wrong document.
+2. **`crockford32` is Crockford base32, lowercased.** The alphabet is
+   `0123456789abcdefghjkmnpqrstvwxyz`, which omits `i`, `l`, `o`, and `u`. An
+   implementation MUST emit lowercase, MUST NOT pad, MUST NOT insert hyphens,
+   and MUST NOT use Crockford's check symbol. The digest is encoded five bits
+   per character, most significant bit first, and the first 16 characters are
+   taken, which are the first 80 bits of the digest. Crockford's decoding
+   aliases, `o` for `0` and `i` or `l` for `1`, are a reader's convenience and
+   MUST NOT appear in an emitted identifier. RFC 4648 base32 is not the
+   encoding here and MUST NOT be substituted: its alphabet has no `0`, `1`,
+   `8`, or `9`.
+3. Two implementations following these rules derive the same identifier from
+   the same document. An implementation that derives a different one is not
+   conformant.
 
 The identifier is stable across amendments; each amendment increments an
 integer `version` starting at 1.
@@ -287,6 +313,12 @@ Under `fixed_fee` and `time_and_materials`, every billable unit of work MUST
 be rated at the engagement's price and produce a settlement record both
 parties hold. A `no_charge` engagement has no billable units: it rates
 nothing and produces no settlement record.
+
+Two kinds of amount inside a price are not the provider's own charge, and
+both are stated on their own line rather than blended into a total: a
+**pass-through line**, which is a cost the provider bought elsewhere and
+bills at cost (§5.5.6), and an **operator fee**, which is a cut taken by a
+party that stands between the client and the provider (§5.5.8).
 
 #### 5.5.1 Fixed fee
 
@@ -539,6 +571,133 @@ rather than admit work against a cap holding no funds (§5.5.4). An amendment
 out of `time_and_materials`, to either other arrangement, releases the open
 reservation at approval, and the held remainder returns to the client then
 rather than at the end of the window it was written for.
+
+#### 5.5.8 Operator fees
+
+An **operator** is a party that stands between the client and the provider
+when money moves: it hosts one or both agents, builds the quote, settles the
+charge, or does more than one of those. An **operator fee** is the operator's
+own charge on the transaction, taken out of what the client pays. It is not
+the provider's price, and it is not a cost the provider bought from a
+supplier and passed on (§5.5.6).
+
+Wherever a price is quoted or settled, any operator fee inside that price
+MUST be disclosed as its own line. The line MUST carry the fee's `amount` in
+the settlement currency, the `basis` it was computed from, and the `base` the
+basis was applied to. A `basis` is either a percentage or a fixed charge.
+
+```json
+"operator_fee": {
+  "operator": "acme-mesh.example",
+  "basis": { "kind": "percent", "percent": 10 },
+  "base": 2500000,
+  "amount": 250000
+}
+```
+
+The shape is the pass-through line of §5.5.6 with a different party taking
+the cut. There the party is the provider's supplier and the line is capped at
+the upstream cost; here the party is the operator and the line is a margin
+the operator is entitled to charge. In both cases a buyer reads one document
+and sees every hand that took money out of what it paid.
+
+`base` is required and it is not decoration. A percentage is not checkable
+until the buyer knows what it was applied to, and an operator charging ten
+percent of the provider's price and an operator charging ten percent of the
+total the buyer pays quote different numbers from the same percentage. A
+client node MUST NOT infer the base.
+
+`amount` MUST equal the basis applied to `base`, rounded to a whole unit of
+the settlement currency. Where the operator's rounding rule is not stated, a
+client node MUST accept a difference of at most one whole unit and MUST
+reject a larger one.
+
+A `no_charge` engagement rates nothing and produces no settlement record
+(§5.5.7), so it has no total for a fee to sit inside and carries no operator
+fee line.
+
+**Disclosure binds at two moments, and both are required.**
+
+1. **In the quote, before commitment.** A quote MUST carry the operator fee
+   line beside the total, so that the client knows what it is agreeing to
+   before it agrees. A quote that states a total and carries no operator fee
+   line asserts that no operator fee is inside that total.
+2. **In the settlement record, afterwards.** Every settlement record for a
+   charge that carried an operator fee MUST carry the same line, with the
+   amount actually taken and the basis it was computed from, so that the
+   arithmetic is checkable after the fact. A settlement record MUST NOT state
+   a total that its own lines do not account for.
+
+A client node reading a settlement record MUST check three things: that an
+operator fee line is present where the quote carried one, that the line's
+`amount` follows from its `basis` and `base`, and that the record's total
+accounts for every line the record carries. A record failing any of those
+checks is a **disputed settlement**, and on one the client node:
+
+- MUST NOT record the charge as settled in its own evidence chain, and MUST
+  record the discrepancy instead, holding both the quote and the record it
+  compared;
+- MUST raise the discrepancy under the engagement's dispute clause (§5.10),
+  where it counts as a failed obligation for §5.9 and §5.10;
+- MUST NOT repair the record by supplying the missing line or recomputing the
+  total, because a record the client rewrote is no longer evidence of what
+  the operator claimed;
+- MAY continue to admit work under the engagement, since one settlement
+  discrepancy is not by itself grounds to stop the work, and SHOULD refuse
+  further work under the same operator after a second disputed settlement.
+
+A settlement record carrying no operator fee line, against a quote that
+carried none, is well formed. The absence is an assertion, and it is that
+assertion §5.10 tests if it later proves false.
+
+**What disclosure reveals.** Disclosing the operator's fee reveals what the
+provider receives, because the total minus the disclosed fee is the
+provider's net. There is no version of this rule that discloses the
+operator's cut and conceals the provider's net, and an implementer should not
+have to work that out alone after building to it. This specification accepts
+the trade deliberately, for three reasons.
+
+The buyer is the party with the least information and the most at stake, and
+a total that silently contains a third party's margin is a total the buyer
+cannot check against anything. Concealment also protects less than it
+appears to: an operator that publishes its fee schedule at all has already
+made the rate public, and a buyer who reads a quoted total can invert it. In
+the deployment this specification was developed alongside, the operator's
+markup percentage is served without authentication and the price quoted to a
+caller is the retail total, so the provider's net was already recoverable by
+arithmetic before this rule existed. What concealment bought was not privacy.
+It was the buyer's inability to know the fee was there at all. And every
+other document in this family holds that a document says what it means. A
+price clause naming a total whose composition it declines to state fails that
+standard in the one place it matters most.
+
+A provider unwilling to have its net readable by its clients cannot sell
+through an operator that takes a disclosed fee. The remedy is to change the
+arrangement, by selling directly or by pricing the work at a total it will
+stand behind. The remedy is not to omit the line.
+
+Grade: `enforced` where the operator builds the quote and settles the charge.
+The operator constructs the line, and the party the line protects can check
+it from bytes it already holds, so a violation produces a mechanical refusal
+by the client's node rather than a grievance. Presence and arithmetic are
+what is enforced.
+
+Grade: `evidence` for the basis itself. A client node can verify that the
+disclosed percentage was applied to the disclosed base. It cannot verify that
+the disclosed percentage is the rate the operator actually agreed with the
+provider, because the client is not party to that agreement. The signed quote
+and the signed settlement record are what a dispute is read from.
+
+Grade: `recorded` where a price is quoted and settled peer to peer with no
+operator in the path of either. Nothing there refuses an omission. A quote
+carrying no operator fee line asserts that no operator fee is inside it, and
+where no third party constructed the quote there is no second record to test
+that assertion against. A client node can still check that a disclosed line's
+arithmetic closes, and MUST, but it cannot detect a line that was never
+written. Breach is establishable only outside the system and answerable to
+reputation, which is what `recorded` means in §3. Grading the peer-to-peer
+case `enforced` would be exactly the laundering of trust as enforcement that
+§8.2 forbids.
 
 ### 5.6 Volume
 
@@ -866,6 +1025,16 @@ tokens and calls and items, over self-declared effort, and why the cap is
 mandatory: the cap is the one number the client's own node can enforce
 without trusting the count.
 
+The operator fee (§5.5.8) is a third instance, with the gap in a narrower
+place. The client's node can check that the disclosed fee follows from its
+disclosed basis and base, and that check is genuine enforcement because it
+runs on bytes the client holds. It cannot check that the disclosed basis is
+the rate the operator actually agreed with the provider, because the client
+is not party to that agreement, and it cannot detect a fee that was never
+disclosed where no operator built the quote. Those two facts are why §5.5.8
+grades the basis `evidence` and the peer-to-peer case `recorded` rather than
+extending `enforced` over the whole subsection.
+
 This section exists so the specification cannot be used to launder trust as
 enforcement. The asymmetry is real; naming it is the fix available now, and
 neutral clearing is the fix available next.
@@ -1101,6 +1270,72 @@ actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
 
 ## Changelog
+
+**0.7.0-draft** (2026-08-07). Operator fees are disclosed, and the document
+identifier is derivable.
+
+New §5.5.8 requires that any operator fee inside a quoted or settled price be
+disclosed on its own line, carrying its amount, the basis it was computed
+from, and the base that basis was applied to. Disclosure binds at both
+moments: in the quote, before the client commits, so a buyer knows what it is
+agreeing to; and in the settlement record, so the arithmetic is checkable
+afterwards. A client node MUST refuse a settlement record whose operator line
+is missing where the quote carried one, or whose amount does not follow from
+its stated basis and base, and MUST NOT repair such a record itself. The line
+has the same shape as the pass-through line of §5.5.6. It is a separate
+subsection rather than part of §5.5.6 because that subsection caps a
+pass-through line at the upstream cost, while an operator fee is a margin by
+definition; folding one into the other would have put a rule and its
+exception under one heading. The number is 5.5.8 rather than an insertion, so
+the cap, the reservation, reaching the cap, pass-through lines, and no charge
+keep the numbers other documents and runtimes already cite.
+
+The consequence is stated in the subsection rather than left for an
+implementer to discover. Disclosing the operator's cut reveals what the
+provider receives, because the total minus the cut is the provider's net.
+That is a deliberate trade, and it is a smaller one than it looks: an
+operator that publishes a fee schedule at all has already made the rate
+public, and in the deployment this specification was developed alongside the
+markup percentage is served without authentication while the quoted price is
+the retail total, so the provider's net was already recoverable by
+arithmetic. §5.5.8 is graded `enforced` where the operator builds the quote
+and settles, `evidence` for whether the disclosed basis is the rate the
+operator actually agreed with the provider, and `recorded` where a price is
+quoted and settled peer to peer with no operator in the path, because nothing
+there can refuse an omission. §8.2 gains the operator fee as a third instance
+of the buyer-side gap.
+
+§4.1 corrects two defects in the identifier derivation. They were found while
+implementing Agent Mandate (https://agentmandate.net) against every
+identifier in this family and were corrected there first, so the two
+specifications now agree. The derivation was circular: it hashed the
+canonical bytes of the version-1 document, and that document contains the
+`id` member being derived, so bytes containing `id` could not be assembled
+until the identifier was already known. The hashed bytes now exclude `id` and
+`signatures`. That exclusion is stated against the signed bytes of §6
+explicitly, because the two are different byte strings in the same document:
+the signed bytes remove `signatures` only and still include `id`, so an
+implementer who does not notice signs the wrong thing. The encoding was also
+unnamed, and the document contradicted its own examples: it said `base32`
+without naming an alphabet, and RFC 4648 base32 has no `0`, `1`, `8`, or `9`,
+while every example identifier here contains at least one. The encoding is
+now normative as Crockford base32, lowercased, unpadded, without hyphens and
+without the check symbol, five bits per character most significant bit first,
+first sixteen characters. Every existing example identifier was checked
+against that reading and all are valid under it, so no example changed.
+
+The identifier change is breaking, which is why the minor version moves
+rather than the draft revision. An identifier derived under the old reading
+does not in general match one derived under this one, and identifiers travel
+by reference into other documents: a listing, a receipt, a review, or a
+mandate that names an engagement names it by identifier. There is no
+compatibility mode and no migration this specification can perform. An
+identifier is either derived under §4.1 as it now reads or it is not
+conformant, and an implementation holding identifiers derived under the old
+reading MUST re-derive them. The operator fee change is not breaking in the
+same way: it adds a required line to quotes and settlement records that carry
+an operator fee, which binds operators rather than documents, and engagement
+documents written against 0.6.0 stay conformant unchanged.
 
 **0.6.0-draft** (2026-08-07). A third pricing arrangement, `no_charge`
 (§5.5.7). Every engagement declares an arrangement (§5.5), and work a
