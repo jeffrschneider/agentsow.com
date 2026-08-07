@@ -1,6 +1,6 @@
 # Agent SoW Specification
 
-**Version:** 0.7.0-draft
+**Version:** 0.8.0-draft
 **Status:** Working Draft
 **Date:** 2026-08-07
 
@@ -143,6 +143,72 @@ sow_<crockford32(sha256(canonical bytes of version 1, minus id and signatures))[
 
 The identifier is stable across amendments; each amendment increments an
 integer `version` starting at 1.
+
+#### 4.1.1 Minting and re-derivation
+
+An identifier is minted once. The implementation that creates the version-1
+document derives the identifier there, writes it into `id`, and does not
+derive it again. From that moment the identifier is a handle, and other
+documents hold it by value: a settlement record names the engagement it
+settles, a review names what it judges, a catalog listing names the standing
+proposal it was derived from, an RFP award names the response it selects, and
+an approval record names the act it authorized. Amending an engagement to
+version N+1 under §5.8 leaves the identifier alone, which is what stability
+across amendments means above.
+
+An implementation MUST derive an identifier once, when it mints the
+version-1 document. Storing, amending, rendering, exporting, or verifying a
+document MUST NOT re-derive its identifier.
+
+A verifier MUST NOT reject a document because its identifier does not equal
+what §4.1 would derive from that document's version-1 bytes. The derivation
+rule binds the implementation that mints an identifier. It does not bind the
+reader of a document minted earlier, possibly under an earlier revision of
+this specification. Point 3 of §4.1 is a test a minting implementation
+applies to the documents it mints, and it is not a test a reader applies to
+the documents it receives.
+
+Documents minted before this revision carry identifiers derived under a
+superseded reading of §4.1. Those identifiers remain valid and remain the
+names of their documents. That is the reason re-derivation is not a
+conformance test. A specification that made it one would invalidate every
+identifier minted under its own earlier text, and would break every reference
+to those identifiers held by parties who did not mint them and cannot repair
+them.
+
+There is a check a reader may legitimately want, and it is narrower than it
+looks. Where a reader holds a version-1 document and knows it was minted
+under §4.1 as this revision states it, re-deriving the identifier and
+comparing detects accidental damage: a truncated file, a re-encoded string, a
+record stored against the wrong document. Implementations MAY run that check
+as a diagnostic. A minting implementation SHOULD run it on its own output
+before the document is signed and published, which is the last moment a wrong
+identifier is cheap to fix; afterwards the identifier is inside bytes other
+parties hold and signed, and the correction is no longer local.
+
+Four things the check does not establish, listed because an implementation
+that has it working may be tempted to rely on it for more:
+
+1. It says nothing about a document at version 2 or higher. The identifier
+   commits to the version-1 bytes. An amendment is a full replacement (§5.8)
+   and may change every clause a reader cares about, and the identifier is
+   unchanged by all of it.
+2. A mismatch does not establish that a document was altered. The reader
+   cannot tell an altered document from one minted correctly under an earlier
+   reading of §4.1, and in a deployment with any history the second is the
+   likely case.
+3. It is not a tamper check. A party that alters a document can mint a fresh
+   identifier over the altered bytes, so the check finds accidents and not
+   adversaries.
+4. Eighty bits of a truncated digest is sized to be read, typed, and quoted
+   inside another document. It is not sized to resist a search for a
+   colliding document.
+
+The content commitment a reader can rely on is the signature of §6. It covers
+the whole canonical document, including `id`, at the version being read, and
+it is made by a key the reader can attribute to an owner. An identifier that
+does not re-derive is not evidence of anything. A signature that does not
+verify is.
 
 ### 4.2 Top-level shape
 
@@ -1270,6 +1336,59 @@ actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
 
 ## Changelog
+
+**0.8.0-draft** (2026-08-07). An identifier is minted once, and re-derivation
+is not a conformance test.
+
+§4.1 says how an identifier is derived. It did not say when, so a reader
+holding a stored document whose identifier does not equal what the current
+rule would produce had nothing in the text telling it whether the document
+was still good. New §4.1.1 says that it is. An identifier is minted once,
+from the version-1 document, and is not derived again. It is then a handle
+other documents hold by value, and a verifier MUST NOT reject a document
+because its identifier does not match a fresh derivation. The derivation rule
+binds the implementation that mints an identifier, not the reader of one
+minted earlier under an earlier revision of this text. Identifiers minted
+under the superseded reading remain valid, and point 3 of §4.1 is a test a
+minting implementation applies to what it mints rather than a test a reader
+applies to what it receives.
+
+§4.1.1 also states what re-derivation is good for, because the honest answer
+is narrower than the appealing one. On a version-1 document a reader knows
+was minted under the current rule, a match detects accidental damage, and a
+minting implementation SHOULD check its own output before the document is
+signed and published. The check establishes nothing beyond that. It says
+nothing about a document at version 2 or higher, because the identifier
+commits to the version-1 bytes and an amendment replaces the document. A
+mismatch does not distinguish an altered document from one minted under an
+earlier reading. It is not a tamper check, because a party that alters a
+document can mint an identifier over the altered bytes. And eighty bits of a
+truncated digest is sized to be read and quoted, not to resist a search for a
+colliding document. The content commitment a reader can rely on is the
+signature of §6.
+
+This withdraws one sentence of the 0.7.0-draft entry below, which said that
+an implementation holding identifiers derived under the old reading MUST
+re-derive them. That instruction was wrong about its own reach. The
+references it would have broken are not all held by the implementation doing
+the re-deriving: an identifier travels into stored engagements, settlement
+records, reviews, catalog listings, and mandates, and some of those bytes
+were signed by the other party. An implementation holding identifiers minted
+under the old reading keeps them. The rest of the 0.7.0-draft entry stands,
+including that §4.1 as it now reads is the only derivation a new identifier
+may be minted under.
+
+The version choice was argued rather than assumed. The case for a draft
+revision is real: no document's bytes change, no existing document becomes
+invalid, and nothing here makes a well formed engagement malformed. The case
+for the minor version is stronger, for two reasons. It withdraws an
+instruction issued with a MUST in 0.7.0-draft, and a deployment that obeyed
+that instruction holds different identifiers for the same documents than one
+that reads this text, which is the divergence a version number exists to
+name. And point 3 of §4.1, read alone, is a plausible licence to treat a
+failed re-derivation as non-conformance, so a verifier built against
+0.7.0-draft and one built against this text can accept and reject the same
+bytes differently. That is behaviour a counterparty sees, not prose.
 
 **0.7.0-draft** (2026-08-07). Operator fees are disclosed, and the document
 identifier is derivable.
