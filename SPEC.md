@@ -1,8 +1,8 @@
 # Agent SoW Specification
 
-**Version:** 0.10.0-draft
+**Version:** 0.11.0-draft
 **Status:** Working Draft
-**Date:** 2026-08-07
+**Date:** 2026-08-08
 
 A **statement of work** (SoW) is the legal agreement businesses sign when
 they hire a service firm: it lists the work, what each side provides, the
@@ -50,9 +50,14 @@ interpreted as described in RFC 2119.
   force. When it is sent to a specific counterparty for consideration it is
   also called a **SoW proposal**.
 - **Standing proposal SoW**: a template signed by the selling party only,
-  with the counterparty left blank, published so that a qualified
+  with the counterparty seat left blank, published so that a qualified
   counterparty can countersign it. The normal source of catalog listings
   (§12).
+- **Directed standing proposal**: a standing proposal that names the one
+  party entitled to countersign it (§12.1.1). The seat is still blank; the
+  named party is a term of the offer, inside the selling owner's signature.
+  It is an offer to that party rather than to the market, it produces no
+  public listing, and it lapses.
 - **Agreed**: countersigned by both owners but before the start instant.
 - **Active**: countersigned and at or past the start instant; the only state
   in which runtimes apply the engagement.
@@ -1141,6 +1146,9 @@ template SoW          no signatures; no force. Sent to a specific
                       counterparty for consideration, it is a SoW proposal.
 standing proposal SoW seller's signature only, counterparty blank;
                       published, waiting for a qualified countersign (§12)
+directed standing     seller's signature only, naming the one party
+proposal              entitled to countersign; not publicly listed; spent
+                      by the formation it completes, and it lapses (§12.1.1)
 agreed                both signatures, before starts_at; no force yet
 active                both signatures, starts_at reached; the runtimes
                       enforce it
@@ -1302,10 +1310,174 @@ than a veto:
    itself an event the runtime MUST record. A published offer that gets
    silently vetoed on unstated grounds is not a standing offer, and
    reputation systems read these records.
+4. A qualification the counterparty asserts about itself, and that no
+   runtime can check, is `evidence`. It MUST NOT be graded or rendered as
+   `enforced`. What the runtime can do is refuse a countersign that omits
+   the assertion, and hold the signed assertion afterwards; the record is
+   evidence that the party asserted the thing, not proof that the thing is
+   true. Jurisdiction of establishment and sanctions status are exactly
+   this case, and they are the two a seller is most likely to grade wrong.
+   §3 rule 1 already forbids grading a refusal a runtime does not perform.
+
+A qualification does not discharge an obligation that belongs to the
+operator. Where an operator is merchant of record (§5.5.8), sanctions
+screening, customer identification, and tax status are that operator's
+obligations to the authorities that impose them, and a seller's document
+cannot satisfy them by stating a condition and a buyer cannot satisfy them
+by asserting it is met. Those checks belong at account admission, before a
+party can transact at all, and at settlement, where the money moves. A
+standing proposal MUST NOT be written as though a qualification performed
+them, and a runtime MUST NOT treat a met qualification as a completed
+screen.
 
 Withdrawing the standing proposal remains the provider's remedy when the
 offer itself is wrong: prospective only, archived, and it withdraws the
-offer from everyone rather than one party.
+offer from everyone rather than one party. On a directed proposal (§12.1.1),
+everyone is the one party the offer names.
+
+#### 12.1.1 The named counterparty
+
+A standing proposal MAY name the one party entitled to countersign it. A
+proposal that does is a **directed standing proposal**: an offer to that
+party, not to the market.
+
+The name sits in the parties clause, beside the seats rather than in one,
+and it is singly graded as §4.2 requires of a clause that splits across
+grades:
+
+```json
+"parties": {
+  "provider": { "agent": "<public key>", "handle": "Granite.books@stonework.example",
+                "owner": "Stonework Analytics" },
+  "client": null,
+  "offered_to": { "agent": "<public key>",
+                  "handle": "Petrel.mari@harborandline.example",
+                  "owner": "Harbor & Line Outfitters",
+                  "expires_at": "2026-09-20T00:00:00Z",
+                  "grade": "enforced" },
+  "grade": "evidence"
+}
+```
+
+`offered_to` names exactly one party, and a document naming more than one is
+a validation error a runtime MUST refuse. A list of permitted signers is an
+access control list rather than an offer, and it admits a race formation has
+no rule for: two named parties countersign the same bytes, and only one of
+them can form.
+
+Naming a counterparty does not fill the client seat. The seat stays blank,
+`starts_at` stays null, and formation remains the two-step gate above: the
+countersign is a request to form, and the provider's runtime completes
+formation with a fresh signature over the completed bytes. §6 is unchanged,
+and so is the reason it gives, that a pre-signature authenticates the offer
+without pre-authorizing every formation.
+
+`offered_to` is inside the signed bytes, because the signed bytes are the
+canonical document less `signatures` (§6). The restriction is therefore a
+term of the offer the selling owner signed, and it cannot be added, removed,
+or altered afterwards without breaking that signature. It is not a policy a
+platform lays over a document that does not carry it. A platform that wants
+the restriction MUST put it in the bytes before the provider signs, and a
+platform that adds it afterwards has produced a document whose signature
+does not verify.
+
+Only the named party may countersign, and the test is against the filled
+seat. A runtime completing formation MUST refuse unless the completed
+instance's `parties.client.agent` equals `offered_to.agent`, and the refusal
+MUST be typed and MUST name the restriction. The match is on the agent key.
+`handle` and `owner` are labels for people, and §5.1's rule about a handle
+whose underlying key has changed applies here for the same reason: a handle
+pointed at a new key names a different party.
+
+What binds the signature on the client seat to the party that seat names is
+not narrowed here. It is the binding formation already relies on for every
+standing proposal: §5.1 grades the parties clause `evidence` and leaves
+identity verification to the transport. A deployment whose transport does
+not verify the countersigning party's identity gains nothing from
+`offered_to` and MUST NOT grade it `enforced`.
+
+A directed proposal is spent by the formation it completes. An open standing
+proposal is not consumed by being countersigned, and one document forms as
+many engagements as it draws counterparties; a directed proposal is one
+offer to one party, and a runtime MUST refuse a second formation under the
+same directed document.
+
+Directedness MUST NOT be expressed as a qualification. Qualifications are
+conditions a runtime tests about a counterparty; who the offer is for is a
+fact about the offer, and a surface deciding whether it may list a document
+has to read that fact without interpreting prose.
+
+**Lapse.** A directed offer does not outlive its occasion. It ends, and a
+runtime MUST refuse formation under it, at the first of:
+
+1. `offered_to.expires_at`, where the offer states one.
+2. The close of the occasion the offer names, where it names one outside
+   this specification. A response to a solicitation is the case this was
+   written for: the offer answers a particular ask, and the specification
+   that defines the ask states when the ask closes. Agent RFP
+   (https://agentrfp.net) is one such specification. A runtime that does
+   not understand the occasion a document names MUST refuse formation
+   rather than read the offer as unbounded. That is less of a burden than
+   it sounds: the runtime that completes formation is the provider's own,
+   and a provider that offered against an occasion knows what the occasion
+   was.
+3. Withdrawal by the provider, which on a directed proposal reaches its
+   whole audience.
+4. The formation it completes, per the rule above.
+
+A directed proposal bounded by neither an `expires_at` nor a named occasion
+is a validation error, and a runtime MUST refuse formation under one. An
+offer to one party with no end is an open account of a different kind: the
+named party holds it and countersigns, months later, a price the provider
+set for a market that has moved.
+
+A lapsed directed proposal stays readable. It is the record of an offer that
+was made, and §12.1 rule 3 already makes what happens at this gate a fact
+reputation systems read. What a surface MUST NOT do is present a lapsed
+offer as open.
+
+**What a surface may do with it.** §12.2 requires that a public listing be
+derived from a standing proposal. It does not follow that every standing
+proposal yields a listing, and a directed one yields none.
+
+- A catalog, marketplace, directory, or board MUST NOT derive a public
+  listing from a directed standing proposal, and MUST NOT contribute its
+  scope examples to a public index. §12.2 makes the `in_scope` examples the
+  listing's representative queries, and a document only one party may form
+  has no business answering the market's searches.
+- A surface MAY show a directed proposal in full to the party it names and
+  to the provider that signed it.
+- A surface MAY disclose that a directed proposal exists, and MAY count it
+  in aggregate figures, without disclosing its terms. A board that publishes
+  how many offers a solicitation drew, while showing the offers only to the
+  party they name, is conformant.
+- A public listing MUST NOT cite a directed proposal as the document it was
+  derived from.
+
+**Grade.** `enforced` where one platform authors and signs the document in
+its own store and checks the countersigning party at formation. Both ends
+are required, for the reason §5.5.8 gives about the operator fee: the
+platform that put `offered_to` inside the bytes is the platform that reads
+it at the gate, so a countersign by another party meets a mechanical refusal
+rather than a grievance.
+
+`evidence` peer to peer. The named party sits inside the provider's signed
+template bytes and the client seat sits inside the signed instance, so an
+engagement formed with a party the offer did not name carries its own
+contradiction across two signatures and a dispute is read from the
+documents. What no document can do is stop a provider runtime that ignores
+the field from completing the formation anyway.
+
+`recorded` for who sees the document. Naming a counterparty restricts who
+may form. It does not make the document confidential: nothing in it prevents
+a holder from passing it to a party it does not name, and the listing rules
+above bind the surfaces that apply them and nobody else. A provider that
+needs its terms unseen should not hand them to a party that will republish
+them.
+
+A renderer MUST show the grade the deployment has earned and MUST NOT
+present a directed proposal as exclusive where no runtime checks the
+counterparty (§3 rule 2).
 
 ### 12.2 Listings are projections
 
@@ -1337,6 +1509,11 @@ template. The requirement binds where money or commitments appear. A free
 offering that can be engaged is a commitment even though no money moves, so
 its listing is derived from a standing proposal declaring `no_charge`
 (§5.5.7) like any other.
+
+A directed standing proposal (§12.1.1) yields no public listing. This
+section says where a listing's claims must come from. It does not say that
+every standing proposal produces a listing, and an offer to one named party
+produces none.
 
 ## 13. Pre-engagement validation
 
@@ -1460,6 +1637,95 @@ actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
 
 ## Changelog
+
+**0.11.0-draft** (2026-08-08). A standing proposal may name its
+counterparty, and a qualification says only what it can prove.
+
+New §12.1.1. A standing proposal MAY name the one party entitled to
+countersign it, in a `parties.offered_to` sub-clause beside the seats. A
+proposal that does is a directed standing proposal: an offer to that party
+rather than to the market. Only the named party may form under it, and a
+runtime completing formation MUST refuse unless the completed instance's
+`parties.client.agent` equals `offered_to.agent`. The specification had no
+way to say this before, and the gap was found from the demand side. Agent
+RFP (https://agentrfp.net) needs a response to a posting to be an offer to
+the party that posted it, and the only construction available under
+0.10.0-draft was an open offer any reader could countersign, which meant a
+responder could not bid below its list price because the bid was the list
+price.
+
+The name sits beside the seats rather than in one, and the client seat stays
+blank. That is what keeps §6 and §12.1 intact: the pre-signature still
+covers template bytes with a blank seat and a null start instant, the
+countersign is still a request to form, and formation still ends with a
+fresh provider signature over the completed bytes. A named counterparty is a
+term of the offer, not an occupant of the seat, and the two-step gate is
+unchanged. Because `offered_to` is inside the signed bytes, the restriction
+is the selling owner's own term and cannot be added afterwards by a platform
+without breaking the signature.
+
+Three consequences are stated with it, because each is a rule some
+implementation would otherwise have to guess. A directed proposal is spent
+by the formation it completes, unlike an open one, which forms as many
+engagements as it draws counterparties. A directed proposal lapses, at its
+own `expires_at`, at the close of an occasion it names, on withdrawal, or on
+forming, and one bounded by neither an expiry nor a named occasion is a
+validation error, because an offer to one party with no end is a price the
+holder can accept after the market has moved. And a directed proposal yields
+no public listing: §12.2 says where a listing's claims must come from and
+never said that every standing proposal produces one. A surface MAY show a
+directed proposal to the party it names, and MAY count it in an aggregate
+figure without disclosing its terms, which is what lets a board publish how
+many offers a solicitation drew while showing the offers only to the party
+they name.
+
+The grade is stated at three levels rather than one. `enforced` where a
+single platform authors and signs the document in its own store and checks
+the countersigning party at formation, both ends required, the same
+condition §5.5.8 puts on the operator fee. `evidence` peer to peer, where
+the named party inside the template signature and the client seat inside the
+instance signature make a wrong formation legible across two documents while
+nothing refuses it. `recorded` for who sees the document, because naming a
+counterparty restricts who may form and does nothing about who may read. The
+text also says outright that `offered_to` inherits the identity binding of
+§5.1 and adds none of its own: a deployment whose transport does not verify
+the countersigning party gains nothing from the field and MUST NOT grade it
+`enforced`.
+
+§12.1 gains a fourth gate rule and a paragraph, both about what a
+qualification can carry. A qualification the counterparty asserts about
+itself, and that no runtime can check, is `evidence` and MUST NOT be
+rendered as `enforced`: a runtime can refuse a countersign that omits the
+assertion and can hold the signed assertion afterwards, and neither act
+establishes that the assertion is true. Jurisdiction of establishment and
+sanctions status are named as exactly that case, being the two a seller is
+most likely to grade wrong. Separately, a qualification in a seller's
+document does not discharge an obligation belonging to the operator: where
+an operator is merchant of record, sanctions screening, customer
+identification, and tax status are that operator's obligations to the
+authorities that impose them, they belong at account admission and at
+settlement, and a runtime MUST NOT treat a met qualification as a completed
+screen. Neither point is new law. Both are §3 rule 1 applied to the two
+places a seller reaches for a qualification that cannot hold the weight.
+
+§2 gains the directed standing proposal as a term and says of the ordinary
+one that the counterparty *seat* is blank, which is the sentence a reader
+would otherwise read as contradicting §12.1.1. §7.1 gains the directed
+document state.
+
+The minor version moves rather than the draft revision, and the choice was
+argued. Documents are additive: `offered_to` is optional, no clause changes
+shape, and a document written against 0.10.0-draft stays conformant
+unchanged. The behaviour is not additive in either direction. A runtime
+built against 0.10.0-draft, handed a document carrying `offered_to`, reads
+an ordinary standing proposal and completes formation for whoever
+countersigns first, which is the failure the field exists to prevent and it
+happens silently. And the qualification rule changes the verdict on existing
+bytes: a standing proposal grading a self-asserted jurisdiction qualification
+`enforced` was conformant under 0.10.0-draft and is refused under this text
+by §3 rule 3. Both are behaviour a counterparty sees, and the version number
+is what tells a buyer, a seller, and a catalog which text a deployment was
+built against.
 
 **0.10.0-draft** (2026-08-07). The fixed fee ceiling bounds what the client
 pays, and the boundary is named.
