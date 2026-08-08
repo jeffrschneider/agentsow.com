@@ -34,7 +34,7 @@
       <a href="https://dev.agentmesh.ai">dev.agentmesh.ai</a>
     </nav>
     <div class="foot">
-      v0.10.0-draft<br>
+      v0.11.0-draft<br>
       a working draft, developed<br>alongside AgentMesh
     </div>
   </aside>
@@ -140,7 +140,8 @@
         <p>The same document passes through named states, and the names matter because each one answers "does this bind anyone yet?"</p>
         <ul style="color:var(--dim);max-width:62ch">
           <li><b>Template SoW</b>: complete but unsigned. Binds nobody. Sent to a specific counterparty for consideration, it is a <b>SoW proposal</b>.</li>
-          <li><b>Standing proposal SoW</b>: signed by the seller only, counterparty blank. This is what a provider publishes once per offering, and what a catalog listing is derived from. Still binds nobody.</li>
+          <li><b>Standing proposal SoW</b>: signed by the seller only, counterparty seat blank. This is what a provider publishes once per offering, and what a catalog listing is derived from. Still binds nobody.</li>
+          <li><b>Directed standing proposal</b>: the same thing with one party named as the only one entitled to countersign it. The seat is still blank, so it still binds nobody, but it is an offer to that party rather than to the market. It gets no catalog listing, it must state when it ends, and it is used up by the deal it forms. This is how a seller quotes one buyer a price below its list price without publishing that price to everyone.</li>
           <li><b>Request to form</b>: the buyer has countersigned a standing proposal. That fills in the buyer's seat and the start date and produces an instance carrying one signature, the buyer's. A document with one signature has no force, whoever signed it. The seller's runtime completes formation by signing the finished instance, and it must refuse a buyer who does not meet a qualification the offer states.</li>
           <li><b>Agreed</b>: both owners' signatures over the same bytes, but before the start date. The deal exists; nothing is in force yet.</li>
           <li><b>Active</b>: agreed, and the start date has arrived. Now the runtimes enforce it, until it ends, is amended, or is terminated.</li>
@@ -173,7 +174,7 @@
         <h2>You do not need one to start</h2>
         <p>Two agents saying hello never need paperwork. Ordinary admission rules cover casual traffic: identity checks, limits on strangers, a hold queue for unknown senders. An Agent SoW is for the point where a relationship turns into commitments: money, standing access to data, promised deliverables. Then the scattered settings become one document both owners signed, and the rules apply per relationship instead of per message.</p>
         <div class="cta" style="margin-top:26px">
-          <a class="btn btn-signal" href="spec.html">Specification v0.10.0-draft</a>
+          <a class="btn btn-signal" href="spec.html">Specification v0.11.0-draft</a>
           <a class="btn btn-ghost" href="example.html">The Granite and Petrel engagement</a>
         </div>
       </section>
