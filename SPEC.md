@@ -1,6 +1,6 @@
 # Agent SoW Specification
 
-**Version:** 0.12.0-draft
+**Version:** 0.13.0-draft
 **Status:** Working Draft
 **Date:** 2026-08-10
 
@@ -1143,6 +1143,104 @@ Sealed transport and retention windows are runtime-checkable. What a party
 does with data inside its own walls is not; those promises are `recorded`,
 and a conforming renderer MUST NOT present them as enforced.
 
+### 5.12 Reporting
+
+Work that runs for a day, or a month, is work the client cannot see. Everything
+else in this specification reports at the end of something: a task completes or
+fails, an engagement lapses or is terminated, a review is written afterwards.
+All of it arrives when it is already too late to act. `reporting` is the clause
+that says what arrives while there is still time.
+
+```json
+"reporting": {
+  "level": "check_ins",
+  "every": "P1W",
+  "additions": ["a named contact for anything blocking"],
+  "grade": "evidence"
+}
+```
+
+**Three levels, ordered, and the order is the point.**
+
+| Level | What the provider owes |
+|---|---|
+| `records_only` | Nothing beyond the mechanical record: task states, deliveries, spend. The honest default for short or cheap work. |
+| `on_change` | A report whenever the expectation moves: the projection slips, the work is blocked, a risk appears or clears. No calendar. |
+| `check_ins` | The above, plus a report on a cadence, carrying evidence of movement, spend against the cap, and any open risks. |
+
+They are ordinal so that two parties can be compared without reading two
+paragraphs, and so that "does this meet what was asked for" is an integer
+comparison rather than an argument. A provider offering `check_ins` against a
+requirement of `on_change` has exceeded it, not violated it: the test is **meets
+or exceeds**, never equals.
+
+**Why a calendar exists at all, given `on_change`.** An agent that is quietly
+stuck reports nothing under a change-triggered rule, because from where it
+stands nothing has changed: its expectation is stable and wrong. Silent
+non-progress is the characteristic failure of long-running work, and it is
+exactly the one an event-driven scheme cannot see. Hence `check_ins`.
+
+**Why a check-in is not a ping.** If a periodic report were a state word, a
+stuck provider would emit "on track" forever and the clause would be a liveness
+probe with extra syllables. A `check_ins` report MUST carry what was completed
+since the previous one, what remains, and what it is waiting on. A provider
+with nothing to point at cannot produce that convincingly, which is what makes
+absence of progress legible without anyone having to detect it.
+
+**Cadence follows the money, not the calendar.** Where the engagement has a cap
+(section 5.5), `every` SHOULD be shorter than the time in which the provider
+could spend what remains of it. Weekly check-ins on an engagement whose whole
+cap can burn in a day are decoration: the money is gone before the second
+report. Where there is no cap there is no burn to derive anything from, and
+`every` is simply what the parties agreed. Stated as SHOULD because the
+derivation rests on a spend rate neither party knows exactly in advance; a
+runtime MAY warn when a declared cadence fails the test, and MUST NOT refuse
+the engagement over it.
+
+**Risk is contents, not a fourth level.** A client who wants risk reporting
+wants check-ins too, and splitting one want across two clauses is how a clause
+goes unfilled. At `check_ins`, an open risk MUST name what would dissolve it,
+an input, a decision, a limit lifted, because a risk with no remedy is anxiety
+rather than information. Risks reuse the failure-attribution vocabulary rather
+than inventing a second one, so a risk that materializes becomes the failure it
+predicted, attributed the same way, instead of two unreconciled records of one
+event.
+
+**Raising a risk is the point of the clause.** A risk raised, recorded and
+unanswered moves responsibility, in the open, before the money is spent. That
+is the only reason a provider will file honest risks rather than flattering
+ones, and it is why this clause is worth more than the status half everyone
+asks for first.
+
+**A missed report is a missed obligation**, detected the way section 5.4's
+interim deliverables are: both runtimes MUST detect and record a report that
+did not arrive within its cadence, and a miss counts for sections 5.9 and 5.10.
+No new machinery. A scheduled thing that did not happen is a shape this
+specification already has, and a second mechanism for it would be a second
+thing to drift.
+
+**How it gets written.** Nothing here requires a form. A party MAY write what
+it wants in prose and derive the structured clause from it, and SHOULD show the
+derivation back before signing. The rule that matters is that **the declaring
+party owns its own structure**: a provider declares the level it offers, a
+client declares the level it requires, and neither party's derivation is ever
+applied to the other's words. Comparison is over two declared fields. Nothing
+that refuses, gates or grades may rest on one party's reading of the other's
+prose.
+
+Grade: `evidence`. The cadence and contents are in the signed document, reports
+are exportable, and a miss is recorded, so a dispute is read rather than
+remembered. Not `enforced`: no runtime can make a provider look honestly at its
+own work, and a report's content is a claim like any other. What is mechanical
+is whether it arrived.
+
+**Scope.** This clause is about the engagement. A single long-running task
+reports progress through the task's own updates in the transport, which is a
+different object on a different clock, and this specification does not oblige
+one. An engagement's check-ins and a task's progress answer different
+questions, and conflating them produces either a chatty engagement or a silent
+task.
+
 ## 6. Signatures
 
 Owners sign, not agents: an engagement binds principals to obligations that
@@ -1755,6 +1853,44 @@ actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
 
 ## Changelog
+
+**0.13.0-draft** (2026-08-10). What arrives while there is still time to act.
+
+New section 5.12. Everything else in this specification reports at the end of
+something: a task fails, an engagement lapses, a review is written. All of it
+arrives too late to change the outcome. Work that runs for a day or a month is
+work the client cannot see, and there was no way for a provider to say "this
+will go wrong next week unless something changes".
+
+Three ordinal levels (`records_only`, `on_change`, `check_ins`), ordered so a
+requirement and an advertisement compare as integers rather than as paragraphs,
+and so the test is MEETS OR EXCEEDS rather than equals: a provider offering more
+than was asked has not violated the requirement.
+
+The calendar earns its place against `on_change` for one reason. An agent that
+is quietly stuck reports nothing under a change-triggered rule, because its own
+expectation is stable and wrong. Silent non-progress is the characteristic
+failure of long-running work and the one an event-driven scheme cannot see. And
+a check-in is not a ping: it MUST carry what was completed, what remains and
+what it waits on, because a state word lets a stuck provider emit "on track"
+forever.
+
+Cadence follows the money. Where there is a cap, the interval SHOULD be shorter
+than the time in which the rest of it could be spent, since weekly reports on a
+cap that burns in a day are decoration. SHOULD rather than MUST, because the
+derivation rests on a spend rate nobody knows exactly in advance.
+
+Risk is contents rather than a fourth level: a client wanting risk wants
+check-ins anyway. An open risk MUST name what would dissolve it, and risks
+reuse the failure-attribution vocabulary so a risk that materializes becomes the
+failure it predicted rather than a second unreconciled record. A risk raised and
+unanswered moves responsibility before the money is spent, which is the whole
+reason a provider files honest ones.
+
+A missed report rides section 5.4's interim-deliverable machinery rather than a
+parallel mechanism. Written prose MAY be derived into the clause, but the
+DECLARING party owns its own structure: nothing that refuses or grades may rest
+on one party's reading of the other's words.
 
 **0.12.0-draft** (2026-08-10). What the client keeps, and what counts as
 done.

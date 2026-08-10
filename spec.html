@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agent SoW Specification v0.12.0-draft</title>
+  <title>Agent SoW Specification v0.13.0-draft</title>
   <meta name="description" content="The Agent SoW specification: a signed, machine-graded statement of work between two parties whose agents do recurring work together.">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -407,6 +407,15 @@
                  "no_human_reading": true, "grade": "recorded" }
 }</code></pre>
         <p>Sealed transport and retention windows are runtime-checkable. What a party does with data inside its own walls is not; those promises are <span class="grade-tag recorded">recorded</span>, and a conforming renderer MUST NOT present them as enforced.</p>
+
+        <h3 id="reporting">5.12 Reporting</h3>
+        <p>Work that runs for a day, or a month, is work the client cannot see. Everything else in this specification reports at the end of something: a task completes or fails, an engagement lapses, a review is written afterwards. All of it arrives when it is already too late to act. Reporting is the clause that says what arrives while there is still time.</p>
+        <p>Three levels, ordered, and the order is the point. <code>records_only</code> owes nothing beyond the mechanical record and is the honest default for short or cheap work. <code>on_change</code> owes a report whenever the expectation moves: the projection slips, the work is blocked, a risk appears or clears. <code>check_ins</code> owes that plus a report on a cadence, carrying evidence of movement, spend against the cap, and any open risks. They are ordinal so two parties compare as integers rather than as paragraphs, and so the test is <b>meets or exceeds</b>, never equals: a provider offering more than was asked has not violated the requirement.</p>
+        <p>The calendar earns its place against <code>on_change</code> for one reason. An agent that is quietly stuck reports nothing under a change-triggered rule, because from where it stands nothing has changed: its expectation is stable and wrong. Silent non-progress is the characteristic failure of long-running work and exactly the one an event-driven scheme cannot see. And a check-in is not a ping. If a periodic report were a state word, a stuck provider would emit "on track" forever and the clause would be a liveness probe with extra syllables, so a check-in must carry what was completed since the last one, what remains, and what it is waiting on. A provider with nothing to point at cannot produce that convincingly.</p>
+        <p>Cadence follows the money rather than the calendar. Where the engagement has a cap, the interval should be shorter than the time in which the provider could spend what remains of it: weekly check-ins on a cap that can burn in a day are decoration, because the money is gone before the second report. Where there is no cap there is no burn to derive anything from.</p>
+        <p>Risk is contents, not a fourth level: a client who wants risk reporting wants check-ins anyway, and splitting one want across two clauses is how a clause goes unfilled. An open risk must name what would dissolve it, an input, a decision, a limit lifted, because a risk with no remedy is anxiety rather than information. Risks reuse the failure-attribution vocabulary, so a risk that materializes becomes the failure it predicted rather than a second unreconciled record of one event. And raising one is the point of the clause: a risk raised, recorded and unanswered moves responsibility, in the open, before the money is spent, which is the only reason a provider files honest risks rather than flattering ones.</p>
+        <p>A missed report is a missed obligation, detected the way interim deliverables already are, with no new machinery. Nothing here requires a form: a party may write what it wants in prose and derive the clause from it. What matters is that the <b>declaring party owns its own structure</b> — a provider declares the level it offers, a client the level it requires, and neither party's reading is ever applied to the other's words. Nothing that refuses or grades rests on one side's interpretation of the other's prose.</p>
+        <p>Grade: <span class="grade-tag evidence">evidence</span>. The cadence is in the signed document, reports are exportable, and a miss is recorded, so a dispute is read rather than remembered. Not enforced: no runtime can make a provider look honestly at its own work, and a report's content is a claim like any other. What is mechanical is whether it arrived.</p>
 
         <h2 id="signatures">6. Signatures</h2>
         <p>Owners sign, not agents: an engagement binds principals to obligations that outlive any one process.</p>
