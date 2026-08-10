@@ -1,8 +1,8 @@
 # Agent SoW Specification
 
-**Version:** 0.11.0-draft
+**Version:** 0.12.0-draft
 **Status:** Working Draft
-**Date:** 2026-08-08
+**Date:** 2026-08-10
 
 A **statement of work** (SoW) is the legal agreement businesses sign when
 they hire a service firm: it lists the work, what each side provides, the
@@ -369,6 +369,124 @@ runtimes MUST detect and record a missed due instant, and a miss counts as a
 failed obligation for §5.9 and §5.10, but no runtime can force the work into
 existence. Whether any deliverable is good is a matter for §5.10 and for
 reputation.
+
+### 5.4.1 Rights in a delivered artifact
+
+Most engagements are a service: the provider does work, the client reads the
+output, and nobody has to say who owns what because nothing outlives the task.
+Some are not. When the client is commissioning a thing to keep and operate — a
+model, a corpus, a configured agent, a codebase — the artifact outlives the
+engagement, and the parties can sign a delivery while disagreeing completely
+about whether the provider may sell the same thing to a competitor next week.
+
+`rights` says what the client gets beyond receipt of the bytes. It attaches to
+a deliverable (§5.4), per-task or interim.
+
+```json
+"rights": {
+  "exclusivity": "exclusive",
+  "modify": true,
+  "redistribute": false,
+  "self_operable": true,
+  "grade": "recorded"
+}
+```
+
+**`exclusivity`** is where nearly every dispute in this shape actually lives,
+and the three values price very differently:
+
+| Value | Meaning |
+|---|---|
+| `non_exclusive` | The client gets a copy. So may anybody else, including a competitor, including the same artifact unchanged. |
+| `exclusive` | The provider will not deliver this artifact to another client. The provider still holds it and may keep using it themselves. |
+| `work_for_hire` | The client holds it outright. The provider retains no copy, no use, and nothing to resell. |
+
+A deliverable the client keeps, under a proposal that states no exclusivity, is
+being quoted without the one fact that most determines its price. Providers
+SHOULD state it and clients SHOULD refuse a quote that does not.
+
+**`modify`** and **`redistribute`** are separate because they are separately
+valuable: a client may need to adapt an artifact to their own systems without
+any right to pass it on.
+
+**`self_operable`** is a **declared property, not a requirement**. True means
+the client can run the artifact without the provider's continued service; false
+means they cannot. Both are legitimate — a delivered model that needs the
+provider's runtime is a real arrangement, and so is a container the client runs
+alone — but which one it is decides whether a purchase is a purchase or a
+rental wearing a purchase's clothes, and the client is entitled to know before
+signing rather than after the provider's service lapses. This specification
+does not require self-operability and does not judge a `false`; it requires
+that the answer be on the record.
+
+**Absence.** No `rights` clause means nothing about rights was agreed. It MUST
+NOT be read as a default licence: an unstated right is not a granted right, the
+same way §5.4 treats an unnamed deliverable as one nobody owes. A client
+intending to keep and operate an artifact should treat a missing clause as the
+negotiation not having happened.
+
+Grade: `recorded`. No runtime can stop a provider reselling something, and a
+specification claiming otherwise would be the pretend-enforcement §3 exists to
+refuse. What the clause buys is that both parties signed the same sentence
+about it, which is what a dispute is read from.
+
+### 5.4.2 Acceptance
+
+"Done" is contested unless it was defined in advance, and it is contested more
+here than in ordinary procurement because the work is frequently probabilistic:
+two honest parties can disagree about whether an agent's output is good without
+either of them lying. §5.4 draws the line that form is machine-judged and
+quality is not, and that line is right. `acceptance` is how the parties move a
+specific, agreed slice of quality onto the judgeable side, by naming the test
+before the work starts.
+
+```json
+"acceptance": {
+  "test_set": {
+    "digest": "sha256:9f2c…",
+    "ref": "mesh:artifacts:01J8Z…",
+    "withheld": true
+  },
+  "measure": "invoices correctly flagged as overbilled",
+  "threshold": { "min_fraction": 0.95 },
+  "deemed_accepted_after_days": 10,
+  "grade": "evidence"
+}
+```
+
+**The test set is committed by digest and MAY be withheld.** This is the part
+worth the machinery. A published test set is simultaneously a specification and
+a training target: a provider can build to pass exactly those cases and deliver
+something that clears the bar and fails on everything else. But a test set the
+client keeps entirely private can be swapped after the client has seen the
+work, which is the mirror-image cheat. Committing the digest in the signed
+document and revealing the bytes at acceptance closes both: the provider cannot
+see the cases, and the client cannot change them, because anyone can hash what
+was finally produced and compare it to what both parties signed.
+
+`withheld: true` means the bytes are not published at signing and the digest
+stands alone until acceptance. `ref` MAY be absent while withheld, and MUST
+resolve to bytes matching `digest` when the client asserts a result.
+
+**A result is a statement about work, and declares what it rested on.** An
+acceptance result computed from a test set MUST carry that set's digest in
+`rests_on` (AgentMesh SPEC.md §5.6, or the equivalent in whatever carries the
+result). A result whose test set has since changed is stale, which is a
+different fact from wrong, and the distinction matters exactly here: a provider
+whose passing result was computed against the agreed bytes has not become a
+liar because the client later assembled a different set.
+
+**`deemed_accepted_after_days`** bounds the other failure: a client who simply
+never answers. When present, silence past the window is acceptance. When
+absent, **silence is not acceptance** — the default refuses to invent an
+agreement neither party stated.
+
+Grade: `evidence`. The commitment is in the signed bytes and the result is
+exportable, so a dispute is read rather than reconstructed. It is deliberately
+NOT `enforced`: running the test is somebody's claim unless a third party both
+parties trust runs it, and this specification does not pretend to have one.
+What it changes is that the argument is now about a number both sides agreed to
+in advance, instead of about the meaning of the word "good".
 
 ### 5.5 Price and metering
 
@@ -1637,6 +1755,43 @@ actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
 
 ## Changelog
+
+**0.12.0-draft** (2026-08-10). What the client keeps, and what counts as
+done.
+
+New §5.4.1. A deliverable the client keeps and operates outlives the
+engagement, and the parties could sign a delivery while disagreeing entirely
+about whether the provider may sell the same artifact to a competitor next
+week. `rights` states it: exclusivity as one of three values that price very
+differently (`non_exclusive`, `exclusive`, `work_for_hire`), `modify` and
+`redistribute` separately because they are separately valuable, and
+`self_operable` as a DECLARED PROPERTY rather than a requirement. A delivered
+model that needs the provider's runtime is a legitimate arrangement; so is a
+container the client runs alone; which one it is decides whether a purchase is
+a purchase or a rental wearing a purchase's clothes, and the client is entitled
+to know before signing rather than when the provider's service lapses. Absence
+grants nothing: an unstated right is not a granted right. Grade `recorded`, and
+deliberately so — no runtime stops a provider reselling something, and claiming
+otherwise is the pretend-enforcement §3 exists to refuse.
+
+New §5.4.2. `acceptance` moves an agreed slice of quality onto the judgeable
+side of §5.4's form-versus-quality line by naming the test before the work
+starts. The mechanism worth the machinery is the withheld test set committed by
+digest: a published set is simultaneously a specification and a training
+target, and a wholly private one can be swapped after the client has seen the
+work. Committing the digest in the signed bytes and revealing them at
+acceptance closes both cheats at once. An acceptance result declares the set it
+was computed from, so a result whose test set has since changed reads as stale
+rather than wrong. `deemed_accepted_after_days` bounds a client who never
+answers; absent it, silence is not acceptance. Grade `evidence`, not
+`enforced`: running the test is somebody's claim unless a mutually trusted
+third party runs it, and this specification does not pretend to have one. What
+changes is that the argument becomes one about a number both sides agreed to in
+advance instead of about the meaning of "good".
+
+Both clauses came from the demand side, like §12.1.1 before them: Agent RFP
+gained a way for a buyer to ask to BUY rather than rent, and neither
+specification could say what buying meant.
 
 **0.11.0-draft** (2026-08-08). A standing proposal may name its
 counterparty, and a qualification says only what it can prove.
