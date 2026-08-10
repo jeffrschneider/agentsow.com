@@ -1,6 +1,6 @@
 # Agent SoW Specification
 
-**Version:** 0.16.0-draft
+**Version:** 0.17.0-draft
 **Status:** Working Draft
 **Date:** 2026-08-10
 
@@ -1263,6 +1263,32 @@ must be no longer than the required ceiling, and every declared processor must
 be acceptable to the requirement. What binds is this clause; where an
 advertisement and the signed document disagree, the signed document wins.
 
+**`dpa` attaches a data processing agreement as a named addendum.** Where the
+work touches regulated data, the parties' obligations usually live in a DPA
+whose text neither this specification nor any closed vocabulary should try to
+swallow. The member commits the addendum's exact bytes inside the signed
+document:
+
+```json
+"confidentiality": {
+  "...": "...",
+  "dpa": {
+    "ref": "mesh:artifacts:01J9A4C7Q2",
+    "digest": "sha256:<64 lowercase hex over the addendum bytes>",
+    "title": "Data Processing Agreement, rev 3"
+  }
+}
+```
+
+`digest` is REQUIRED, the same `sha256:` spelling and exact-comparison rule
+used everywhere refs carry digests; `ref` SHOULD resolve to the addendum for
+both parties; `title` is for the reader. Because the digest sits inside the
+signed bytes, the DPA the parties agreed to is the one whose bytes hash to
+it, and neither can later substitute a friendlier draft. The DPA's CONTENTS
+are graded `recorded`, exactly like §5.13's clauses and for the same reason:
+what a DPA obliges is enforced by regulators and courts, not by any runtime
+here. What is mechanical is which bytes were agreed.
+
 ### 5.12 Reporting
 
 Work that runs for a day, or a month, is work the client cannot see. Everything
@@ -2080,6 +2106,17 @@ actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
 
 ## Changelog
+
+**0.17.0-draft** (2026-08-10). The DPA that was agreed is the one that
+hashes.
+
+Section 5.11 gains `dpa`: a data processing agreement attached as a named
+addendum, its exact bytes committed by digest inside the signed document, the
+same spelling and exact-comparison rule refs with digests carry everywhere
+else. Neither party can later substitute a friendlier draft. The DPA's
+contents are recorded, like liability and for the same reason: regulators and
+courts enforce them, no runtime here does. What is mechanical is which bytes
+were agreed.
 
 **0.16.0-draft** (2026-08-10). What each party can lose, and how slow is too
 slow.
