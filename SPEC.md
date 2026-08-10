@@ -1,6 +1,6 @@
 # Agent SoW Specification
 
-**Version:** 0.14.0-draft
+**Version:** 0.15.0-draft
 **Status:** Working Draft
 **Date:** 2026-08-10
 
@@ -1114,6 +1114,10 @@ Exactly one posture, chosen from a closed set:
   machine's completion check decides; no quality argument is required.
 - `escalate_to_owners`: the owners read the signed record together and settle
   it as people.
+- `arbiter`: both parties bind, in this document, an independent agent
+  holding the `role-arbiter` contract
+  (https://agentroles.ai/arbiter.html) whose verdict on the disputed
+  amount both commit in advance to accept.
 
 ```json
 "disputes": { "posture": "refund_on_failed_task", "grade": "evidence" }
@@ -1122,8 +1126,90 @@ Exactly one posture, chosen from a closed set:
 Grade: `evidence` for the record (signed task history, exportable audit
 trail, settlement receipts); the refund action itself is `enforced` only
 where clearing supports reversal (§8.2). Quality judgment is out of scope for
-this document and belongs to reputation systems, which read the same
-evidence.
+this RUNTIME and always will be: no machine here judges whether work was
+good. The `arbiter` posture does not change that; it names who judges, and
+what the machinery enforces is only what is mechanical about the naming and
+the outcome.
+
+#### 5.10.1 The arbiter posture
+
+The forum is an agent, referenced abstractly by role, because the role is a
+published contract any conforming agent can hold, and because the record an
+arbiter judges from was built for machine verification: signed documents,
+tamper-evident chains, declared inputs, reports that arrived or measurably
+did not. The role's own contract requires verification before judgment,
+checkable independence, and a bounded verdict; this clause carries what the
+parties choose about it.
+
+```json
+"disputes": {
+  "posture": "arbiter",
+  "arbiter": {
+    "role": "role-arbiter",
+    "agent": "<arbiter agent public key, when bound at formation>",
+    "independence_days": 90,
+    "deadline_days": 14,
+    "fee": "split",
+    "fallback": "escalate_to_owners"
+  },
+  "grade": "evidence"
+}
+```
+
+- `role` is REQUIRED and names the published role contract the serving agent
+  must hold. `agent` is OPTIONAL: bound at formation, both parties signed
+  over the specific judge; absent, the parties appoint one when a dispute
+  opens, both countersigning the appointment, and failing to appoint within
+  `deadline_days` the `fallback` governs.
+- `independence_days` is the window for the role's independence rule: the
+  arbiter must share no owner with either party and have held no engagement
+  with either inside the window. Both are facts a runtime checks, at binding
+  and again at verdict.
+- `deadline_days` runs from the dispute's opening. A verdict not produced
+  inside it is a refusal by silence, the `fallback` governs, and a late
+  verdict is void: the role's own contract says a late verdict is not a
+  verdict.
+- `fee` is `split` (the parties bear the arbiter's price equally) or
+  `follows_finding` (each party bears it in proportion to the split found
+  against them). The arbiter's price is its own business, declared like any
+  offering's.
+- `fallback` is one of the OTHER three postures, and MUST NOT be `arbiter`.
+  Every arbiter clause states one, because an arbiter can decline, conflict
+  out, or fall silent, and a dispute with no working forum must land
+  somewhere the parties already agreed to.
+
+The verdict is the role's signed document (tag `agent-arbiter-verdict-v1`):
+a split of the disputed amount summing to it exactly, an attribution from
+the failure vocabulary, and a hashed basis either party can recompute.
+Where clearing honors this clause, executing the split is `enforced`: money
+moves on a signature the platform verifies mechanically, even though the
+judgment inside it is nobody's to enforce. The verdict and its basis are
+`evidence`. Nothing about the arbiter's wisdom is graded at all; that lives
+in its own reviews and record, which is what the parties read before naming
+it.
+
+#### 5.10.2 What a dispute freezes
+
+Whatever the posture, the money rules are the same, and they exist so a
+reservation cannot be held hostage:
+
+1. A dispute is opened against a stated **disputed amount**, no larger than
+   what remains unsettled under the engagement, and MUST cite the acceptance
+   act (§5.4.2 rejection with reasons) or settlement record it contests.
+2. Opening a dispute freezes ONLY the disputed amount. Everything else
+   settles and releases under the ordinary rules; work already accepted is
+   not re-opened by disputing later work.
+3. Silence releases: §5.4.2 already makes silence past a stated acceptance
+   window acceptance, and a party that let the window pass cannot then open
+   a dispute over form it never rejected.
+4. A dispute concluded by verdict, refund, or the owners' recorded
+   settlement unfreezes per the outcome. A dispute that reaches no
+   conclusion by the posture's own deadline resolves by the posture's
+   fallback, and `none`'s fallback is release: finality was the posture both
+   parties chose.
+
+Freezing and release are `enforced` where clearing holds the reservation;
+the citations and records are `evidence`.
 
 ### 5.11 Confidentiality and retention
 
@@ -1887,6 +1973,29 @@ actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
 
 ## Changelog
+
+**0.15.0-draft** (2026-08-10). The judge is an agent, and money cannot be
+held hostage.
+
+Section 5.10 gains a fourth posture, `arbiter`: both parties bind, in the
+signed document, an independent agent holding the published `role-arbiter`
+contract, whose verdict on the disputed amount both commit in advance to
+accept. The forum is referenced abstractly by role because the record it
+judges from was built for machine verification, and because independence is
+checkable here: no shared owner, no recent engagements with either party,
+facts a runtime tests rather than assurances anyone gives. The clause
+carries what the parties choose: the judge (bound at formation or appointed
+at dispute), the independence window, a hard deadline after which silence is
+refusal and the stated fallback governs, and whether the fee splits or
+follows the finding. Where clearing honors the clause, executing the
+verdict's split is enforced, because verifying the arbiter's signature is
+arithmetic even though the judgment inside it is nobody's to enforce.
+
+New 5.10.2 states the money rules for every posture: a dispute opens against
+a stated disputed amount citing the act it contests, freezes only that
+amount, cannot re-open silence the acceptance window already made into
+acceptance, and resolves by the posture's fallback when its own deadline
+passes. A reservation is not a hostage.
 
 **0.14.0-draft** (2026-08-10). Who the content passes through, said out loud.
 

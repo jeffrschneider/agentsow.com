@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agent SoW Specification v0.14.0-draft</title>
+  <title>Agent SoW Specification v0.15.0-draft</title>
   <meta name="description" content="The Agent SoW specification: a signed, machine-graded statement of work between two parties whose agents do recurring work together.">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -394,9 +394,28 @@
           <li><code>none</code>: settlements are final; disagreement ends the engagement at most.</li>
           <li><code>refund_on_failed_task</code>: a task that fails, including failure by the deliverable-form rule of 5.4, is refunded in full through clearing. The machine's completion check decides; no quality argument is required.</li>
           <li><code>escalate_to_owners</code>: the owners read the signed record together and settle it as people.</li>
+          <li><code>arbiter</code>: both parties bind, in this document, an independent agent holding the <code>role-arbiter</code> contract at <a href="https://agentroles.ai/arbiter.html">https://agentroles.ai/arbiter.html</a>, whose verdict on the disputed amount both commit in advance to accept.</li>
         </ul>
         <pre><code>"disputes": { "posture": "refund_on_failed_task", "grade": "evidence" }</code></pre>
-        <p>Grade: <span class="grade-tag evidence">evidence</span> for the record (signed task history, exportable audit trail, settlement receipts); the refund action itself is <span class="grade-tag enforced">enforced</span> only where clearing supports reversal (see 8.2). Quality judgment is out of scope for this document and belongs to reputation systems, which read the same evidence.</p>
+        <p>Grade: <span class="grade-tag evidence">evidence</span> for the record (signed task history, exportable audit trail, settlement receipts); the refund action itself is <span class="grade-tag enforced">enforced</span> only where clearing supports reversal (see 8.2). Quality judgment is out of scope for this runtime and always will be: no machine here judges whether work was good. The arbiter posture does not change that; it names who judges, and the machinery enforces only what is mechanical about the naming and the outcome.</p>
+        <h4>5.10.1 The arbiter posture</h4>
+        <p>The forum is an agent, referenced abstractly by role, because the role is a published contract any conforming agent can hold, and because the record an arbiter judges from was built for machine verification: signed documents, tamper-evident chains, declared inputs, reports that arrived or measurably did not. Independence is checkable here, not asserted: the arbiter must share no owner with either party and have held no engagement with either inside the clause's window, both facts a runtime tests at binding and again at verdict.</p>
+        <pre><code>"disputes": {
+  "posture": "arbiter",
+  "arbiter": {
+    "role": "role-arbiter",
+    "agent": "&lt;arbiter agent public key, when bound at formation&gt;",
+    "independence_days": 90,
+    "deadline_days": 14,
+    "fee": "split",
+    "fallback": "escalate_to_owners"
+  },
+  "grade": "evidence"
+}</code></pre>
+        <p>The judge is bound at formation, or appointed by both parties when a dispute opens; failing appointment inside <code>deadline_days</code>, the fallback governs. A verdict not produced inside the deadline is a refusal by silence, and a late verdict is void. The fee splits equally or follows the finding, in proportion to the split found against each party. Every arbiter clause states a fallback from the other three postures, because an arbiter can decline, conflict out, or fall silent, and a dispute with no working forum must land somewhere the parties already agreed to.</p>
+        <p>The verdict is the role's signed document (tag <code>agent-arbiter-verdict-v1</code>): a split of the disputed amount summing to it exactly, an attribution from the failure vocabulary, and a hashed basis either party can recompute. Where clearing honors this clause, executing the split is <span class="grade-tag enforced">enforced</span>: money moves on a signature the platform verifies mechanically, even though the judgment inside it is nobody's to enforce. The arbiter's wisdom is graded by nothing here; it lives in its reviews and record, which is what the parties read before naming it.</p>
+        <h4>5.10.2 What a dispute freezes</h4>
+        <p>Whatever the posture, the money rules are the same, and they exist so a reservation cannot be held hostage. A dispute opens against a stated disputed amount, no larger than what remains unsettled, citing the acceptance act or settlement record it contests. It freezes only that amount; everything else settles and releases under the ordinary rules, and work already accepted is not re-opened by disputing later work. Silence releases: 5.4.2 already makes silence past a stated acceptance window acceptance, and a party that let the window pass cannot then dispute form it never rejected. A dispute that reaches no conclusion by its posture's own deadline resolves by the posture's fallback, and the fallback of <code>none</code> is release, because finality was the posture both parties chose. Freezing and release are <span class="grade-tag enforced">enforced</span> where clearing holds the reservation; the citations and records are <span class="grade-tag evidence">evidence</span>.</p>
 
         <h3>5.11 Confidentiality and retention</h3>
         <p>The canonical split clause. Sub-clauses are graded separately and MUST NOT be merged:</p>
