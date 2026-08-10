@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agent SoW Specification v0.15.0-draft</title>
+  <title>Agent SoW Specification v0.16.0-draft</title>
   <meta name="description" content="The Agent SoW specification: a signed, machine-graded statement of work between two parties whose agents do recurring work together.">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -442,6 +442,35 @@
         <p>Risk is contents, not a fourth level: a client who wants risk reporting wants check-ins anyway, and splitting one want across two clauses is how a clause goes unfilled. An open risk must name what would dissolve it, an input, a decision, a limit lifted, because a risk with no remedy is anxiety rather than information. Risks reuse the failure-attribution vocabulary, so a risk that materializes becomes the failure it predicted rather than a second unreconciled record of one event. And raising one is the point of the clause: a risk raised, recorded and unanswered moves responsibility, in the open, before the money is spent, which is the only reason a provider files honest risks rather than flattering ones.</p>
         <p>A missed report is a missed obligation, detected the way interim deliverables already are, with no new machinery. Nothing here requires a form: a party may write what it wants in prose and derive the clause from it. What matters is that the <b>declaring party owns its own structure</b>: a provider declares the level it offers, a client the level it requires, and neither party's reading is ever applied to the other's words. Nothing that refuses or grades rests on one side's interpretation of the other's prose.</p>
         <p>Grade: <span class="grade-tag evidence">evidence</span>. The cadence is in the signed document, reports are exportable, and a miss is recorded, so a dispute is read rather than remembered. Not enforced: no runtime can make a provider look honestly at its own work, and a report's content is a claim like any other. What is mechanical is whether it arrived.</p>
+
+        <h3 id="liability">5.13 Liability</h3>
+        <p>Everything else in this specification bounds what the client can lose: the cap, the reservation, the ceiling. Nothing bounds what the provider can lose, and that asymmetry prices honest sellers out of exactly the work worth selling. An agent given API access to a production system is one bad hour away from damages that dwarf any fee, and an operator with unlimited exposure either declines that work or takes it in ignorance. The liability clause is where the parties bound it, mutually, in the signed bytes.</p>
+        <pre><code>"liability": {
+  "cap": { "multiple_of_fees": 2 },
+  "carve_outs": [
+    "willful misconduct",
+    "breach of the confidentiality clause (5.11)"
+  ],
+  "indemnification": {
+    "by_provider": ["third-party IP claims arising from the deliverables"],
+    "by_client": ["claims arising from inputs the client furnished"]
+  },
+  "grade": "recorded"
+}</code></pre>
+        <p>The cap is mutual and bounds each party's total liability to the other under the engagement, stated as a multiple of fees actually paid or payable, or as an absolute figure; exactly one form. Carve-outs and indemnification are prose, deliberately: nothing here refuses or gates on them, so a closed vocabulary would buy determinism nothing needs, and the sentence a judge reads is the operative artifact.</p>
+        <p>Grade: <span class="grade-tag recorded">recorded</span>, and this is the clause the grade vocabulary exists for. No runtime enforces a liability cap, measures damages, or holds anyone harmless: courts do, reading the signed document. A conforming renderer MUST NOT present any part of this clause as enforced, and a runtime MUST NOT refuse or gate anything on it. What the machinery provides is exactly what it can: the clause sits inside the signed bytes, so neither party can later dispute what was agreed. Absence states nothing: a document without a liability clause leaves the parties wherever the law leaves them, and the specification does not invent a default cap, because silence is not a number. An operator platform's own liability belongs to its terms of service, not to this clause.</p>
+
+        <h3 id="floors">5.14 Service floors</h3>
+        <p>The reporting clause catches the agent that is silently stuck. It does not catch the agent that is honestly, measurably slow: one that accepts time-sensitive work and processes it at a crawl, burning the calendar while the cap drips. Waiting for the cap is not a remedy, and terminating without cause forfeits the client's position. Service floors name the speed the parties agreed to, and make missing it a recorded fact with a stated consequence.</p>
+        <pre><code>"service_floors": {
+  "floors": [
+    { "id": "turnaround", "each_task_within": "PT4H" }
+  ],
+  "breach": { "misses": 3, "within": "P30D", "remedy": "terminate_for_cause" },
+  "grade": "evidence"
+}</code></pre>
+        <p>Each floor names a bound over facts both parties' records already hold. One kind in this revision: <code>each_task_within</code>, the span from a task's request arriving to its terminal response. The vocabulary is closed and deliberately small, and grows only where a record exists to measure against: uptime percentages and latency percentiles are refused as decoration, because nothing in an engagement's own records can check them. A miss is a recorded obligation failure, not a money movement: recorded the way a failed deliverable-form check is, signed, visible to both parties, feeding the same dispute and reputation surfaces. After the stated number of misses inside the stated window, the client MAY terminate for cause, citing the record. MAY, deliberately: the machinery counts and records, the client decides, because a floor miss can have a cause the parties want to talk about first, and a remedy exercised by a machine is a remedy nobody can waive. A refused task misses no floor; floors bind work the provider took.</p>
+        <p>Grade: <span class="grade-tag evidence">evidence</span>. The timestamps are in the records, the misses are recorded, and termination-for-cause is the termination clause's existing machinery carrying a stated cause. Nothing here pauses a slow task or makes a fast one, and a conforming renderer presents floors as agreed bounds with a record, never as a guarantee. Absence states nothing.</p>
 
         <h2 id="signatures">6. Signatures</h2>
         <p>Owners sign, not agents: an engagement binds principals to obligations that outlive any one process.</p>

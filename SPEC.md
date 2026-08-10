@@ -1,6 +1,6 @@
 # Agent SoW Specification
 
-**Version:** 0.15.0-draft
+**Version:** 0.16.0-draft
 **Status:** Working Draft
 **Date:** 2026-08-10
 
@@ -1361,6 +1361,113 @@ one. An engagement's check-ins and a task's progress answer different
 questions, and conflating them produces either a chatty engagement or a silent
 task.
 
+### 5.13 Liability
+
+Everything else in this specification bounds what the CLIENT can lose: the
+cap, the reservation, the ceiling. Nothing bounds what the PROVIDER can lose,
+and that asymmetry prices honest sellers out of exactly the work worth
+selling. An agent given API access to a production system is one bad hour
+away from damages that dwarf any fee, and an operator with unlimited exposure
+either declines that work or takes it in ignorance. The liability clause is
+where the parties bound it, mutually, in the signed bytes.
+
+```json
+"liability": {
+  "cap": { "multiple_of_fees": 2 },
+  "carve_outs": [
+    "willful misconduct",
+    "breach of the confidentiality clause (5.11)"
+  ],
+  "indemnification": {
+    "by_provider": ["third-party IP claims arising from the deliverables"],
+    "by_client": ["claims arising from inputs the client furnished"]
+  },
+  "grade": "recorded"
+}
+```
+
+- `cap` is MUTUAL and bounds each party's total liability to the other under
+  the engagement. It is stated as `multiple_of_fees` (a positive integer,
+  applied to fees actually paid or payable) or as `{ "amount": n,
+  "currency": "XCR" }`, an absolute figure. Exactly one form.
+- `carve_outs` lists what the cap does NOT cover, in words a court reads.
+  Prose entries, deliberately: nothing here refuses or gates on a carve-out,
+  so a closed vocabulary would buy determinism nothing needs, and the
+  sentence a judge reads is the operative artifact.
+- `indemnification` carries each party's hold-harmless statements, prose
+  again, same reasoning.
+- **Grade: `recorded`, and this is the clause the grade vocabulary exists
+  for.** No runtime enforces a liability cap, measures damages, or holds
+  anyone harmless: courts do, reading the signed document. A conforming
+  renderer MUST NOT present any part of this clause as enforced, and a
+  runtime MUST NOT refuse or gate anything on it. What the machinery
+  provides is exactly what it can: the clause sits inside the signed bytes,
+  so neither party can later dispute what was agreed.
+
+**Absence states nothing.** A document without a liability clause leaves the
+parties wherever the law leaves them, which for the provider usually means
+unbounded. The specification does not invent a default cap: silence is not a
+number, and a party that wants a bound writes one. Storefronts and postings
+MAY note that a provider's standing proposals carry a liability clause, the
+same pre-admission-shadow pattern as 5.11 and 5.12, but the clause itself
+binds only where it is signed.
+
+Where an operator platform is merchant of record, its OWN liability to
+either party is not this clause's subject: that belongs to the operator's
+terms of service, which bind account-to-platform, not party-to-party.
+
+### 5.14 Service floors
+
+The reporting clause (§5.12) catches the agent that is silently stuck. It
+does not catch the agent that is honestly, measurably slow: one that accepts
+time-sensitive work and processes it at a crawl, burning the calendar while
+the cap drips. Waiting for the cap is not a remedy, and terminating without
+cause forfeits the client's position. The service floors clause names the
+speed the parties agreed to, and makes missing it a recorded fact with a
+stated consequence.
+
+```json
+"service_floors": {
+  "floors": [
+    { "id": "turnaround", "each_task_within": "PT4H" }
+  ],
+  "breach": { "misses": 3, "within": "P30D", "remedy": "terminate_for_cause" },
+  "grade": "evidence"
+}
+```
+
+- Each floor names a bound over facts BOTH parties' records already hold.
+  One kind in this revision: `each_task_within`, the span from a task's
+  request arriving to its terminal response, in the §5.12 duration grammar.
+  The vocabulary is closed and deliberately small, and it grows only where a
+  record exists to measure against, for the §12.1 reason: a floor written
+  over something neither party's records can check is not a floor, it is
+  decoration. Uptime percentages and latency percentiles are exactly that
+  here: nothing in an engagement's own records measures them, so this
+  clause does not offer them.
+- **A miss is a recorded obligation failure, not a money movement.** A task
+  that ran past its floor is recorded on the engagement the way a failed
+  deliverable-form check is (§5.4): signed evidence, visible to both
+  parties, feeding the same dispute and reputation surfaces. Detection is
+  mechanical, from timestamps, with no new machinery: the §5.4 record is
+  the carrier.
+- `breach` states the consequence: after `misses` floor misses inside
+  `within`, the client MAY terminate for cause (§5.9), citing the recorded
+  misses as the cause. MAY, deliberately: the machinery counts and records,
+  and the client decides. Nothing terminates anyone automatically, because
+  a floor miss can have a cause the parties want to talk about first, and a
+  remedy exercised by a machine is a remedy nobody can waive.
+- A refused task misses no floor: refusal is its own record, priced by its
+  own rules. Floors bind work the provider took.
+- Grade: `evidence`. The timestamps are in the records, the misses are
+  recorded, and the termination-for-cause path is §5.9's existing machinery
+  carrying a stated cause. Nothing here pauses a slow task or makes a fast
+  one, and a conforming renderer presents floors as agreed bounds with a
+  record, never as a guarantee.
+
+Absence states nothing: no floors were agreed, and no speed is implied
+either way.
+
 ## 6. Signatures
 
 Owners sign, not agents: an engagement binds principals to obligations that
@@ -1973,6 +2080,29 @@ actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
 
 ## Changelog
+
+**0.16.0-draft** (2026-08-10). What each party can lose, and how slow is too
+slow.
+
+Two clauses, drafted together because they are neighbors: the terms that
+bound exposure. Section 5.13, liability: everything else in this
+specification bounds what the client can lose, and nothing bounded the
+provider, an asymmetry that prices honest sellers out of exactly the work
+worth selling. A mutual cap (a multiple of fees or an absolute figure),
+carve-outs and indemnification in prose because the sentence a judge reads
+is the operative artifact, grade recorded with the vocabulary's plainest
+statement: courts enforce this, no runtime does, and nothing may render it
+otherwise. Absence states nothing; silence is not a number.
+
+Section 5.14, service floors: reporting catches the agent that is silently
+stuck, not the one that is honestly, measurably slow. Floors are bounds over
+facts both parties' records already hold (one kind in this revision: each
+task completing within a stated span), a miss is a recorded obligation
+failure like a failed form check rather than a money movement, and after a
+stated number of misses in a stated window the client MAY terminate for
+cause, citing the record. The vocabulary grows only where a record exists to
+measure against: uptime and latency percentiles are refused as decoration,
+because nothing in an engagement's own records can check them.
 
 **0.15.0-draft** (2026-08-10). The judge is an agent, and money cannot be
 held hostage.
