@@ -1,6 +1,6 @@
 # Agent SoW Specification
 
-**Version:** 0.13.0-draft
+**Version:** 0.14.0-draft
 **Status:** Working Draft
 **Date:** 2026-08-10
 
@@ -1134,6 +1134,10 @@ merged:
 "confidentiality": {
   "transport": { "sealed": true, "grade": "enforced" },
   "retention": { "max_days": 30, "grade": "enforced" },
+  "processors": [
+    { "service": "Anthropic API", "domain": "anthropic.com",
+      "purpose": "model inference, zero-retention tier" }
+  ],
   "promises":  { "no_training": true, "no_third_party_sharing": true,
                  "no_human_reading": true, "grade": "recorded" }
 }
@@ -1142,6 +1146,36 @@ merged:
 Sealed transport and retention windows are runtime-checkable. What a party
 does with data inside its own walls is not; those promises are `recorded`,
 and a conforming renderer MUST NOT present them as enforced.
+
+**`processors` names the services the client's content passes through so the
+work can happen**: the model API behind the agent, a transcription service,
+any host that can read what it holds. Each entry carries `service` (REQUIRED),
+`domain` so a reader knows which service of that name is meant, and `purpose`,
+the narrowest true statement of what it is used for. The list is what makes
+the promises honest for the way agents are actually built. Nearly every agent
+sends content to somebody's model API, so `no_third_party_sharing` quantifies
+over everything EXCEPT the declared processors: it is the promise that content
+goes nowhere beyond this list, not the fiction that it goes nowhere at all.
+Content transiting an undeclared service breaks the clause even while every
+promise boolean is true. Declaring a processor is neither endorsement nor a
+transfer of obligation; what a processor does is governed by its own terms,
+and the client is owed the name so it can go read them.
+
+**Absence carries the weak meaning throughout.** A promise left out of
+`promises` is a promise not made, and a reader MUST NOT infer it. An empty
+`processors` list is itself a statement: content leaves the provider for
+nowhere. Omitting the member entirely states nothing, and a reader MUST NOT
+mistake silence for either answer.
+
+Like reporting (§5.12), this clause casts a pre-admission shadow. A provider
+MAY advertise the confidentiality terms it is prepared to bind (the promises,
+the retention ceiling, the processor list) on a storefront or listing,
+self-declared and graded `recorded` there, so a client can compare providers
+before anything forms. The comparison is deterministic without anyone reading
+prose: every required promise must be declared, a declared retention window
+must be no longer than the required ceiling, and every declared processor must
+be acceptable to the requirement. What binds is this clause; where an
+advertisement and the signed document disagree, the signed document wins.
 
 ### 5.12 Reporting
 
@@ -1853,6 +1887,27 @@ actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
 
 ## Changelog
+
+**0.14.0-draft** (2026-08-10). Who the content passes through, said out loud.
+
+Section 5.11 gains `processors`: the named services a client's content
+transits so the work can happen, each with its domain and the narrowest true
+purpose. The list is what makes the confidentiality promises honest for the
+way agents are actually built. Nearly every agent sends content to somebody's
+model API, so `no_third_party_sharing` now quantifies over everything except
+the declared processors: the promise that content goes nowhere beyond the
+list, not the fiction that it goes nowhere at all. Content transiting an
+undeclared service breaks the clause even while every promise boolean is
+true.
+
+Absence keeps the weak meaning throughout the clause, stated explicitly: a
+promise left out is a promise not made, an empty processor list says content
+leaves for nowhere, and an omitted list says nothing at all. And like
+reporting, the clause now casts a pre-admission shadow: a provider may
+advertise the terms it is prepared to bind on a storefront, self-declared and
+recorded, compared deterministically (promises by implication, retention by
+ceiling, processors by acceptability), with the signed document winning
+wherever an advertisement disagrees.
 
 **0.13.0-draft** (2026-08-10). What arrives while there is still time to act.
 
