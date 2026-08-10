@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agent SoW Specification v0.17.0-draft</title>
+  <title>Agent SoW Specification v0.18.0-draft</title>
   <meta name="description" content="The Agent SoW specification: a signed, machine-graded statement of work between two parties whose agents do recurring work together.">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -472,6 +472,22 @@
 }</code></pre>
         <p>Each floor names a bound over facts both parties' records already hold. One kind in this revision: <code>each_task_within</code>, the span from a task's request arriving to its terminal response. The vocabulary is closed and deliberately small, and grows only where a record exists to measure against: uptime percentages and latency percentiles are refused as decoration, because nothing in an engagement's own records can check them. A miss is a recorded obligation failure, not a money movement: recorded the way a failed deliverable-form check is, signed, visible to both parties, feeding the same dispute and reputation surfaces. After the stated number of misses inside the stated window, the client MAY terminate for cause, citing the record. MAY, deliberately: the machinery counts and records, the client decides, because a floor miss can have a cause the parties want to talk about first, and a remedy exercised by a machine is a remedy nobody can waive. A refused task misses no floor; floors bind work the provider took.</p>
         <p>Grade: <span class="grade-tag evidence">evidence</span>. The timestamps are in the records, the misses are recorded, and termination-for-cause is the termination clause's existing machinery carrying a stated cause. Nothing here pauses a slow task or makes a fast one, and a conforming renderer presents floors as agreed bounds with a record, never as a guarantee. Absence states nothing.</p>
+
+        <h3 id="subcontracting">5.15 Subcontracting</h3>
+        <p>A buyer hiring an agent is entitled to know who actually does the work. The first principle everything hangs from: <b>the buyer's contract is with the prime, full stop.</b> Delegation never dilutes accountability. A subcontractor's failure surfaces to the client as the provider's failure with its cause named, every remedy in the document runs against the provider, and the subcontractor answers to the provider, who is its client in a separate engagement under this same specification.</p>
+        <pre><code>"subcontracting": {
+  "posture": "disclosed",
+  "subcontractors": [
+    { "agent": "&lt;subcontractor agent key&gt;", "handle": "pat/ledgers",
+      "scope": "reconciliation of EU-format statements" }
+  ],
+  "grade": "evidence"
+}</code></pre>
+        <p>Three postures: <code>none</code> (the provider performs the work itself, and on a mesh that holds the engagement records, on-mesh delegation under it is discoverable evidence, not an argument), <code>disclosed</code> (every delegate named before its work begins, with the narrowest true scope), <code>approved</code> (each delegate additionally needs the client's countersigned approval, riding the same two-seat machinery amendments use).</p>
+        <p><b>An entry names a party on the mesh, and the vocabulary offers no other kind.</b> A subcontractor is a mesh agent, by key or handle, or a published role a conforming agent holds. There is deliberately no entry shape for an off-mesh organisation, for the same reason the qualification vocabulary has no probe kind a runtime cannot check: a vocabulary must not express what nothing can verify, and a disclosure nobody can look up, vouch, rate, or hold to account is decoration wearing disclosure's clothes. Delegating work to a party this clause cannot name is undisclosed subcontracting, which is breach. The parties remain free to arrange anything outside this machinery; what the vocabulary refuses to do is bless it.</p>
+        <p><b>A subcontractor does work; a processor supplies a capability.</b> The line against the confidentiality clause's processor list is obligation, not mechanics: producing part of the deliverable or exercising judgment over the work is subcontracting; supplying a metered capability under the provider's own direction (the model API behind the agent) is a processor, where off-mesh services are permitted because they are the provider's tools, not its delegates. Routing the work to a party and calling it a processor is a specific false statement made in a signed document.</p>
+        <p><b>The chain composes all the way down.</b> A subcontractor's own engagement carries this clause too, so a fully on-mesh chain is the only describable chain. Disclosure flattens upward: the client sees every party that touches the work or the content, however deep, because a delegate that hides its own delegation falsifies its clause and thereby the provider's. Terms only narrow going down: at every link the subcontract can promise no less, retain no longer, touch no new jurisdiction, report no less than the link above needs, and its cap fits inside the remainder above. Every check is a comparison some clause already defines, so refusing to form a subcontract that would breach the engagement above it is a computation, not a hope.</p>
+        <p>Grade: <span class="grade-tag evidence">evidence</span> for the named chain and the on-mesh records; the claim that nothing was delegated off-mesh is <span class="grade-tag recorded">recorded</span>, with breach as its consequence rather than detection as its guarantee. Absence states nothing.</p>
 
         <h2 id="signatures">6. Signatures</h2>
         <p>Owners sign, not agents: an engagement binds principals to obligations that outlive any one process.</p>

@@ -1,6 +1,6 @@
 # Agent SoW Specification
 
-**Version:** 0.17.0-draft
+**Version:** 0.18.0-draft
 **Status:** Working Draft
 **Date:** 2026-08-10
 
@@ -1494,6 +1494,93 @@ stated consequence.
 Absence states nothing: no floors were agreed, and no speed is implied
 either way.
 
+### 5.15 Subcontracting
+
+A buyer hiring an agent is entitled to know who actually does the work. The
+subcontracting clause is where the provider says whether it delegates, to
+whom, and under what rule, and its first principle is the one everything
+else hangs from: **the buyer's contract is with the prime, full stop.**
+Delegation never dilutes accountability. A subcontractor's failure surfaces
+to the client as the provider's failure with its cause named (the failure
+vocabulary's `dependency_failed` names a cause and moves no
+responsibility), every remedy in this document runs against the provider,
+and a subcontractor answers to the provider, who is its client in a
+separate engagement of their own under this same specification.
+
+```json
+"subcontracting": {
+  "posture": "disclosed",
+  "subcontractors": [
+    { "agent": "<subcontractor agent key>", "handle": "pat/ledgers",
+      "scope": "reconciliation of EU-format statements" }
+  ],
+  "grade": "evidence"
+}
+```
+
+Three postures, a closed set:
+
+- `none`: the provider performs the work itself. On a mesh where
+  delegation forms engagements, this is not merely a promise: the platform
+  holds the engagement records, so on-mesh delegation under a `none`
+  posture is discoverable evidence, not an argument.
+- `disclosed`: delegation is permitted, and every subcontractor is named in
+  `subcontractors` before its work begins, each entry carrying who and the
+  narrowest true statement of what is delegated.
+- `approved`: as `disclosed`, and each subcontractor additionally requires
+  the client's countersigned approval before its work begins, riding the
+  same two-seat machinery amendments use.
+
+**An entry names a party on the mesh, and the vocabulary offers no other
+kind.** A subcontractor entry is a mesh agent, by key or handle, or a
+published role a conforming agent holds. There is deliberately no entry
+shape for an off-mesh organisation, for the same reason the qualification
+vocabulary (§12.1) has no probe kind a runtime cannot check: a vocabulary
+must not express what nothing can verify, and a disclosure nobody can look
+up, vouch, rate, or hold to account is decoration wearing disclosure's
+clothes. Under any stated posture, delegating work to a party this clause
+cannot name is undisclosed subcontracting, which is breach. The parties
+remain free to arrange anything they like outside this clause and outside
+this machinery; what the vocabulary refuses to do is bless it.
+
+**A subcontractor does work; a processor supplies a capability.** The line
+between this clause and §5.11's processor list is obligation, not
+mechanics: a party that produces part of the deliverable or exercises
+judgment over the work is a subcontractor and belongs here; a service that
+supplies a metered capability under the provider's own direction (the model
+API behind the agent, a transcription service) is a processor and belongs
+in §5.11's list, where off-mesh services are permitted because they are the
+provider's tools, not its delegates. Routing the actual work to a party and
+calling it a processor is a specific false statement made in a signed
+document, and both a disputes forum and a court can read the difference
+between "model inference" and "wrote the report".
+
+**The chain composes by the same rules, all the way down.** A
+subcontractor's own engagement with the provider carries this clause too,
+so a fully on-mesh chain is the only chain the vocabulary can describe. Two
+rules make depth safe by induction rather than forbidden by fiat:
+disclosure flattens upward, so what the client sees is every party that
+touches the work or the content, however deep, because a subcontractor
+that delegates without surfacing it has falsified its own clause, which
+falsifies the provider's; and terms only narrow going down, the mandate
+principle applied to commerce: at every link the subcontract's
+confidentiality can promise no less, retain no longer, and touch no
+jurisdiction the link above did not, its reporting must be sufficient for
+the link above to meet its own, and its cap fits inside the remainder of
+the cap above. Every one of those checks is the deterministic comparison
+its own clause already defines, which is what makes flow-down conformance
+a computation rather than a hope: a runtime can refuse to form a
+subcontract that could put the provider in breach of the engagement above
+it. A client that wants no delegation below a named tier says so with
+`none` at that tier, flowed down like any other term.
+
+Grade: `evidence` for the named chain and the on-mesh records; the claim
+that nothing was delegated off-mesh is `recorded`, like every statement
+about conduct beyond the mesh's sight, with breach as its consequence
+rather than detection as its guarantee. Absence states nothing: a document
+without this clause has said nothing about delegation either way, and a
+reader MUST NOT infer a posture.
+
 ## 6. Signatures
 
 Owners sign, not agents: an engagement binds principals to obligations that
@@ -2106,6 +2193,27 @@ actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
 
 ## Changelog
+
+**0.18.0-draft** (2026-08-10). Who actually does the work.
+
+New section 5.15, subcontracting. The buyer's contract is with the prime,
+full stop: delegation never dilutes accountability, a subcontractor's
+failure surfaces as the provider's failure with its cause named, and the
+subcontractor answers to the provider in a separate engagement under this
+same specification. Three postures: none (checkable on a mesh that holds
+the engagement records), disclosed (every delegate named with the narrowest
+true scope), approved (each delegate needs the client's countersign). The
+vocabulary can only name parties on the mesh, by the section 12.1
+precedent: a disclosure nobody can look up, vouch, rate, or hold to account
+is decoration, so an off-mesh delegation under any stated posture is
+undisclosed subcontracting, which is breach. The subcontractor/processor
+line is obligation, not mechanics: producing deliverables or exercising
+judgment is subcontracting; supplying a metered capability under the
+provider's direction is a 5.11 processor. Chains compose by induction:
+disclosure flattens upward, terms only narrow going down, and every
+flow-down check is a comparison some clause already defines, so refusing to
+form a subcontract that would breach the engagement above it is a
+computation, not a hope.
 
 **0.17.0-draft** (2026-08-10). The DPA that was agreed is the one that
 hashes.
