@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent SoW: A2A Terms Extension v0.1.0-draft</title>
+  <meta name="description" content="A data-only A2A Agent Card extension that points at the agent's signed Agent SoW standing proposal and commits to it by digest. The card learns to answer: on what terms.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="rail">
+    <a class="brand" href="index.html"><span class="dot"></span>agent sow</a>
+    <div class="grp">Read</div>
+    <nav>
+      <a href="index.html">Overview</a>
+      <a href="spec.html">The specification</a>
+      <a href="example.html">Worked example</a>
+      <a href="internal.html">Internal SoWs</a>
+      <a href="catalog.html">With an agent catalog</a>
+      <a class="on" href="spec-a2a-terms.html">A2A terms extension</a>
+    </nav>
+    <div class="grp">Sections</div>
+    <nav>
+      <a href="#terms">1 Terminology</a>
+      <a href="#uri">2 Extension URI</a>
+      <a href="#declaration">3 The declaration</a>
+      <a href="#card-claims">4 Card claims</a>
+      <a href="#digest">5 The digest</a>
+      <a href="#verification">6 Verification</a>
+      <a href="#honesty">7 Honesty rules</a>
+      <a href="#security">8 Security</a>
+      <a href="#out-of-scope">9 Out of scope</a>
+      <a href="#related">10 Related work</a>
+      <a href="#changelog">Changelog</a>
+    </nav>
+    <div class="grp">Family</div>
+    <nav>
+      <a href="https://agentrfp.net">agentrfp.net</a>
+      <a href="https://agentmandate.net">agentmandate.net</a>
+      <a href="https://agentroles.ai">agentroles.ai</a>
+      <a href="https://agentcatalog.com">agentcatalog.com</a>
+      <a href="https://agentmesh.ai">agentmesh.ai</a>
+      <a href="https://dev.agentmesh.ai">dev.agentmesh.ai</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="wrap">
+      <article class="spec">
+
+        <h1>Agent SoW: A2A Terms Extension</h1>
+        <div class="meta">Version 0.1.0-draft &middot; Working Draft &middot; 2026-08-11</div>
+
+        <p>An A2A Agent Card answers who an agent is and what it can do. Nothing in the card answers on what terms: no price, no data-use posture, no jurisdiction, no caps, no refusals. The Agent SoW specification already has that vocabulary, and the <b>standing proposal</b> (<a href="spec.html#standing">section 12.1 of the specification</a>) is already how a provider publishes it: a complete document, signed by the selling owner, counterparty seat blank, open for a qualified party to countersign.</p>
+        <p>This extension is the pointer between the two. It is a data-only entry in an Agent Card that says where the agent's signed standing proposal lives and commits to it by digest. A client that reads the card learns, before sending a single request, exactly what deal is on offer, and can verify that the terms it fetched are the terms the card meant.</p>
+        <p>This document defines an extension to the A2A protocol (<a href="https://a2a-protocol.org/latest/specification/">https://a2a-protocol.org/latest/specification/</a>). It is not part of the A2A specification and is not endorsed by the A2A project. The <a href="spec.html">Agent SoW specification</a> is the authority for every term this document borrows; where this document and Agent SoW disagree, Agent SoW wins.</p>
+
+        <h2 id="terms">1. Conformance language and terminology</h2>
+        <p>The key words MUST, MUST NOT, SHOULD, SHOULD NOT, and MAY are to be interpreted as described in RFC 2119.</p>
+        <ul>
+          <li><b>Card</b>: an A2A Agent Card, the self-description document an A2A agent serves, typically at <code>/.well-known/agent-card.json</code>.</li>
+          <li><b>Standing proposal</b>: as defined in Agent SoW <a href="spec.html#standing">section 12.1</a>. A complete SoW document signed by the selling owner only, client seat blank.</li>
+          <li><b>Directed standing proposal</b>: as defined in Agent SoW <a href="spec.html#directed">section 12.1.1</a>. A standing proposal naming the one party entitled to countersign it.</li>
+          <li><b>Consumer</b>: any reader of a card carrying this extension, whether or not it goes on to engage.</li>
+        </ul>
+
+        <h2 id="uri">2. Extension URI</h2>
+        <pre><code>https://agentsow.com/extensions/a2a-terms/v1</code></pre>
+        <p>The URI identifies this extension in a card's <code>extensions</code> array. Future revisions that change the payload shape or the verification rule take a new version segment; consumers match the URI exactly.</p>
+
+        <h2 id="declaration">3. The declaration</h2>
+        <p>The extension is declared as an <code>AgentExtension</code> object inside the card's <code>capabilities.extensions</code> array:</p>
+        <pre><code>{
+  "uri": "https://agentsow.com/extensions/a2a-terms/v1",
+  "description": "Published terms: signed Agent SoW standing proposals, committed by digest",
+  "required": false,
+  "params": {
+    "sow_spec": "0.18.0-draft",
+    "proposals": [
+      {
+        "url": "https://stonework.example/terms/reconcile-statement.sow.json",
+        "digest": "sha256:9f2c41d08a6b57e3c1d94f0b2a7e86c5d13f9a04b8e62d7c50a1f3e8b96c4d27",
+        "sow": "sow_k7m2q4x9w3e6r8t1",
+        "offering": "reconcile-statement"
+      }
+    ]
+  }
+}</code></pre>
+        <p>Rules:</p>
+        <ol>
+          <li><b>This is a data-only extension.</b> It defines no methods, no headers, and no request-time activation. It rides in the card and changes nothing about how requests flow. Consistent with A2A's own guidance for data-only extensions, <code>required</code> MUST NOT be <code>true</code>. A card that marks this extension required is misdeclaring it, and a consumer MAY ignore the flag rather than refuse the agent.</li>
+          <li><code>params.proposals</code> is REQUIRED and MUST contain at least one entry. Each entry commits to one standing proposal. A provider that maintains one standing proposal per offering (the normal shape under Agent SoW <a href="spec.html#standing">section 12.1</a>) lists them all in one declaration.</li>
+          <li>Per entry: <code>url</code> and <code>digest</code> are REQUIRED. <code>url</code> MUST be an HTTPS URL that serves the standing proposal as a JSON document. <code>sow</code> is OPTIONAL and carries the document's Agent SoW identifier as a human-scale handle; the digest, not the identifier, is the commitment (<a href="#digest">section 5</a>). <code>offering</code> is OPTIONAL and names the offering the proposal prices; where the card declares a skill for that offering, <code>offering</code> SHOULD equal that skill's id so a reader can line the two up.</li>
+          <li><code>params.sow_spec</code> is REQUIRED and states the Agent SoW specification version the listed proposals were authored under. It tells a consumer which vocabulary to read the documents with. It is not a gate: a consumer MUST NOT reject a proposal solely because <code>sow_spec</code> is unfamiliar, since the document's own <code>sow</code> format marker and signature still verify or fail on their own.</li>
+          <li>The referenced document MUST be a standing proposal as Agent SoW <a href="spec.html#standing">section 12.1</a> defines it: every clause complete, the provider's signature present, the client seat blank. A template with no signature is not terms, it is a suggestion, and a consumer MUST treat an unsigned document as failing verification. A directed standing proposal (<a href="spec.html#directed">section 12.1.1</a>) is an offer to one party and yields no public listing; it MUST NOT appear in a card served to the public, and MAY appear only in a card served over a channel restricted to the named party.</li>
+        </ol>
+
+        <h2 id="card-claims">4. What the card may say around it</h2>
+        <p>A card is a listing-shaped document, and Agent SoW section 12.2 applies in spirit: where the card's own prose or skill descriptions state a price, a term, or a data-use claim, that claim MUST be backed by a clause of a listed proposal. The proposal is the source of truth; the card summarizes. A card that advertises a price no proposal backs is misrepresenting its own offer, and this extension gives a consumer the means to catch it.</p>
+
+        <h2 id="digest">5. The digest</h2>
+        <p>Each entry's <code>digest</code> has the form <code>sha256:</code> followed by 64 lowercase hex characters, the same spelling the DPA addendum digest carries in Agent SoW (section 5.11), compared exactly, byte for byte.</p>
+        <p>The hashed bytes are the JCS (RFC 8785) canonical form of the complete published document, every member included: <code>id</code> and <code>signatures</code> too.</p>
+        <p>Stating that precisely matters, because Agent SoW already defines two other byte strings over the same document and this is deliberately neither:</p>
+        <ul>
+          <li>The <b>hashed bytes</b> of Agent SoW <a href="spec.html#document">section 4.1</a> exclude <code>id</code> and <code>signatures</code>. They exist to mint the identifier, and the identifier is an 80-bit truncated name, sized to be read and quoted, not to resist a search for a colliding document (<a href="spec.html#minting">section 4.1.1</a>).</li>
+          <li>The <b>signed bytes</b> of Agent SoW <a href="spec.html#signatures">section 6</a> exclude <code>signatures</code> only and carry the <code>agent-sow-v1</code> prefix. They exist so an owner can sign the document.</li>
+          <li>The bytes committed here exclude nothing and carry no prefix. This extension commits to the exact artifact a client would fetch and countersign, provider signature included. Re-signing the same clauses with a different key, timestamp, or signature produces a different digest, which is the point: the card binds to one specific signed offer, not to a family of documents that share clauses.</li>
+        </ul>
+        <p>The digest is computed over canonical bytes rather than the raw bytes served at <code>url</code> so that transport-layer reformatting (pretty-printing, encoding changes, a cache that re-serializes) cannot break a commitment that is about the document, not about the wire.</p>
+
+        <h2 id="verification">6. Verification</h2>
+        <p>A consumer verifies a listed proposal in four steps:</p>
+        <ol>
+          <li><b>Fetch</b> the document from <code>url</code> and parse it as JSON. A fetch that fails, or a body that does not parse, is a verification failure.</li>
+          <li><b>Canonicalize</b> the parsed document under JCS (RFC 8785), the whole document, nothing removed.</li>
+          <li><b>Hash</b> the canonical bytes with SHA-256 and compare, exactly, against the entry's <code>digest</code>. Any mismatch is a verification failure.</li>
+          <li><b>Verify the provider's signature</b> on the proposal as Agent SoW <a href="spec.html#signatures">section 6</a> specifies, over that document's signed bytes. An absent or invalid provider signature is a verification failure. Whether the signing key is attributable to the owner the document names is Agent SoW's problem and its ecosystem's, not this extension's; this extension only requires that the signature verify.</li>
+        </ol>
+        <p>What passing all four steps proves, stated with the boundaries visible:</p>
+        <ul>
+          <li>The card's own JWS signature (A2A specification section 8.4) proves who published the card. It says nothing about the terms.</li>
+          <li>The digest match proves the card commits to exactly this document: whoever published the card meant these terms and no others.</li>
+          <li>The proposal's provider signature proves the selling owner signed these terms as its standing offer.</li>
+          <li><b>None of it proves conduct.</b> A verified proposal is an offer, honestly attributed. Every clause in it still carries its enforcement grade under Agent SoW <a href="spec.html#gradient">section 3</a>, and a grade is a claim about the provider's deployment that no card can strengthen. <span class="grade-tag enforced">enforced</span> in a fetched document is the provider's assertion until a runtime demonstrates the refusal behavior; <span class="grade-tag recorded">recorded</span> stays a promise whatever card it rode in on.</li>
+        </ul>
+
+        <h2 id="honesty">7. Honesty rules</h2>
+        <ol>
+          <li>A card carrying this extension asserts exactly this: signed standing terms exist for this agent, and they are the bytes the digest names. Consumers, catalogs, and user interfaces MUST NOT present the extension as certification, endorsement, or evidence of past conduct.</li>
+          <li>The extension upgrades no enforcement grade. A renderer that shows a fetched proposal MUST render the grades as Agent SoW <a href="spec.html#gradient">section 3</a> requires, and MUST NOT let the card's presence imply that anything in the document is machine-enforced.</li>
+          <li>Absence states nothing. A card without this extension is a card that is silent about terms, exactly as Agent SoW treats an omitted promise as a promise not made (section 5.11). A consumer MUST NOT read absence as "free", "unencumbered", or "no terms apply", and MUST NOT rank or filter agents as if absence were a negative assertion.</li>
+          <li>Verification failure also states nothing about the terms, and a consumer MUST treat a failing entry exactly as if the card did not carry it: no terms stated. What a failure additionally is, is a signal worth surfacing (<a href="#security">section 8</a>); what it is not is license to use the fetched-but-unverified document anyway.</li>
+        </ol>
+
+        <h2 id="security">8. Security considerations</h2>
+        <ul>
+          <li><b>Stale pointer.</b> The URL can rot: the fetch fails, the host is gone, the path moved. The card is then asserting terms nobody can read. A consumer MUST NOT engage on the strength of the card's summary alone; unverifiable terms are unstated terms (<a href="#honesty">section 7</a>).</li>
+          <li><b>Digest mismatch.</b> A mismatch means the served document is not the one the card committed to. From the reader's side, two causes are indistinguishable: the provider updated its terms and the card has not caught up, or someone between the reader and the host substituted the document. The remedy is the same for both: re-fetch the card fresh, verify the card's own signature, and try again. A consumer MUST NOT accept a mismatched document, however plausible it looks.</li>
+          <li><b>Substitution after caching.</b> Cards get cached, by design. A provider whose terms changed yesterday is honestly represented by yesterday's card only if the old proposal still verifies; the moment the served document changes, every cached card's digest goes stale, which is the mechanism working as intended. Providers MUST update the card (and re-sign it, where the card is signed) whenever the standing proposal changes, and SHOULD keep serving a withdrawn proposal's bytes long enough for holders of old cards to learn what happened rather than see a bare 404.</li>
+          <li><b>Freshness at the moment of commitment.</b> A consumer that intends to countersign SHOULD re-fetch the card and re-verify shortly before doing so. The failure this bounds is cheap: a countersign of withdrawn terms is a request to form that the provider's runtime refuses at the formation gate (Agent SoW <a href="spec.html#standing">section 12.1</a>), not a deal on dead terms. The countersign is over the proposal's own bytes, so a stale card can waste a round trip; it cannot form the wrong engagement.</li>
+          <li><b>Digest strength.</b> The commitment is the full 256-bit digest, not the 80-bit truncated identifier Agent SoW mints for naming (<a href="spec.html#minting">section 4.1.1</a>, point 4, states why the identifier must not be used this way). An entry's <code>sow</code> field is a label for humans and logs; a consumer MUST compare digests, never identifiers, when verifying.</li>
+          <li><b>Third-party hosting.</b> <code>url</code> SHOULD live under an authority the card's publisher controls, ideally the same origin as the card. A proposal hosted elsewhere adds that host to the set of parties who can make verification fail, though never to the set who can forge terms: the digest and the provider signature hold wherever the bytes are served from.</li>
+        </ul>
+
+        <h2 id="out-of-scope">9. Out of scope</h2>
+        <p>Three things are deliberately not in this document:</p>
+        <ul>
+          <li><b>Interview and negotiation.</b> Asking an agent to explain its terms, quote a variant, or accept a counter-proposal is request-time behavior, a method extension with an activation header, and a separate document.</li>
+          <li><b>Reputation.</b> Whether the provider honors these terms is evidence and review territory (Agent SoW <a href="spec.html#review">section 15</a> and the reputation systems that read it), a separate document.</li>
+          <li><b>Formation over A2A.</b> Countersigning a standing proposal and completing formation follow Agent SoW <a href="spec.html#standing">section 12.1</a> wherever the parties conduct them. A future method extension may carry the request to form over A2A itself; this extension only publishes the offer.</li>
+        </ul>
+
+        <h2 id="related">10. Relationship to other work</h2>
+        <p>The A2A extension ecosystem at the time of writing addresses payment authorization (AP2's mandates), in-task credential presentation (the OID4VP authorization extension), regulatory admission checks (the proposed Compliance Gate method), tracing, timestamps, and routing. All of them act at or after request time. None of them publish what a provider is offering and on what standing terms, which is the gap this extension fills, with a vocabulary that already existed rather than a new one. The Agent SoW specification was developed alongside the AgentMesh platform and is transport-neutral; this extension inherits both properties, and requires nothing of an A2A deployment beyond serving one JSON document and one card entry.</p>
+
+        <h2 id="changelog">Changelog</h2>
+        <p><b>0.1.0-draft</b> (2026-08-11). The card learns to answer "on what terms".</p>
+        <p>First draft. An A2A Agent Card can say who an agent is, what it can do, and, since card signing, who says so. It cannot say what the work costs, where the data goes, or what the provider refuses to do, and the extensions ecosystem was checked before concluding that nothing else says it either: the a2aproject organization's repositories were enumerated (one experimental extension, OID4VP in-task authorization; no ext- repositories yet), the documentation's example extensions were read (Secure Passport, Timestamp, Traceability, Agent Gateway Protocol), AP2 was read (payment mandates and transaction authorization, not published terms), and the open Compliance Gate proposal was read (admission-time regulatory verdicts, a method extension). The terms space was empty.</p>
+        <p>The design is the smallest thing that fills it: one data-only card entry pointing at a document Agent SoW already defines, the standing proposal, committed by a full-strength digest over the complete canonical bytes, provider signature included, so the card binds to one specific signed offer. The digest deliberately differs from both byte strings Agent SoW already carves out of the same document, and the text says so next to the rule, because a family that has once confused hashed bytes with signed bytes does not get to be casual about a third. The honesty rules are the family's: carrying the extension asserts that signed terms exist, nothing upgrades an enforcement grade, and absence states nothing. Interview methods, reputation, and formation over A2A are named as out of scope rather than left ambiguous.</p>
+
+      </article>
+    </div>
+  </main>
+</div>
+</body>
+</html>
