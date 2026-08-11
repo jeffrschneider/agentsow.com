@@ -119,8 +119,8 @@ this extension gives a consumer the means to catch it.
 ## 5. The digest
 
 Each entry's `digest` has the form `sha256:` followed by 64 lowercase hex
-characters, the same spelling and exact-comparison rule that refs with
-digests carry throughout Agent SoW (§5.11 is the canonical statement).
+characters, the same spelling the DPA addendum digest carries in Agent SoW
+(§5.11), compared exactly, byte for byte.
 
 The hashed bytes are the JCS (RFC 8785) canonical form of the complete
 published document, every member included: `id` and `signatures` too.
