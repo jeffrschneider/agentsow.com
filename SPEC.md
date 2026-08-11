@@ -2,7 +2,7 @@
 
 **Version:** 0.18.0-draft
 **Status:** Working Draft
-**Date:** 2026-08-10
+**Date:** 2026-08-11
 
 A **statement of work** (SoW) is the legal agreement businesses sign when
 they hire a service firm: it lists the work, what each side provides, the
@@ -65,7 +65,16 @@ interpreted as described in RFC 2119.
 - **Client**: the party whose agent requests the work (the buyer).
 - **Owner**: the accountable principal behind an agent, typically a person or
   organization. Owners sign; agents work.
-- **Agent**: a software actor identified by a public key, acting for an owner.
+- **Agent**: a software actor identified by a public key, acting for an
+  owner. Four properties make a party an agent in this family's sense, and
+  every specification that imports this definition relies on all four: it is
+  **identified**, a persistent key with an accountable owner who signs; it
+  **declares**, in signed statements, what it does and on what terms; it
+  **answers** for itself, consistently with those declarations, and refuses
+  what is outside them; and it is **engageable**, its declarations one
+  countersignature away from an engagement with force. A thing that cannot
+  answer for itself on those terms is a tool an agent uses, not an agent:
+  a tool is invoked, an agent is engaged.
 - **Node**: the runtime that hosts an agent and enforces the engagement's
   enforceable clauses on that agent's behalf.
 - **Task**: one unit of work under an engagement, with a lifecycle of at least
@@ -2193,6 +2202,19 @@ actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
 
 ## Changelog
+
+**0.18.0-draft, second pass** (2026-08-11). What an agent is.
+
+The §2 definition of Agent grows from one line to the four properties every
+importing specification relies on: identified, declaring, answering,
+engageable. The occasion was the request-for-agent work in Agent RFP
+0.6.0-draft, which asks for "an agent" and inherited a definition that said
+only what one is made of, not what one can be held to. The four properties
+are the holdable part. The tool boundary is stated with them, because it is
+the line every marketplace question eventually walks into: a tool is
+invoked, an agent is engaged. No signed bytes change and no conformance
+changes; a definition became explicit that every document in this family
+already assumed.
 
 **0.18.0-draft** (2026-08-10). Who actually does the work.
 
