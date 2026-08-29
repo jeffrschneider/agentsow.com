@@ -1,8 +1,8 @@
 # Agent SoW Specification
 
-**Version:** 0.18.0-draft
+**Version:** 0.19.0-draft
 **Status:** Working Draft
-**Date:** 2026-08-11
+**Date:** 2026-08-29
 
 A **statement of work** (SoW) is the legal agreement businesses sign when
 they hire a service firm: it lists the work, what each side provides, the
@@ -1256,6 +1256,28 @@ promise boolean is true. Declaring a processor is neither endorsement nor a
 transfer of obligation; what a processor does is governed by its own terms,
 and the client is owed the name so it can go read them.
 
+**`processed_in` names the jurisdictions the content may be processed in**,
+as a list of short tokens the parties agree between them (`"eu"`, `"us"`,
+`"de"`). This specification defines no vocabulary of places and no mapping
+from a place to a body of law: which tokens mean what is the parties'
+question, and a closed list maintained here would be wrong somewhere within a
+week of being written. What the member does define is the comparison, and the
+comparison is a subset test.
+
+An unstated `processed_in` states nothing, and specifically does NOT state
+that anywhere is acceptable: an unstated jurisdiction may be any
+jurisdiction, so silence FAILS a requirement that names jurisdictions rather
+than passing it. That is the same reading §5.15 already applies going down a
+subcontract chain, where a subcontract stating no jurisdictions against a
+prime that states some is a violation; this member is the one that rule means
+by "touch no jurisdiction the link above did not".
+
+The validators model the member no further than that: a list whose entries
+are all non-empty strings has stated jurisdictions, and anything else has
+stated none. Comparisons read declared structure, because whether a document
+validates is asked once, at document validation, and never smuggled into a
+comparison that was asked something else.
+
 **Absence carries the weak meaning throughout.** A promise left out of
 `promises` is a promise not made, and a reader MUST NOT infer it. An empty
 `processors` list is itself a statement: content leaves the provider for
@@ -1264,13 +1286,24 @@ mistake silence for either answer.
 
 Like reporting (§5.12), this clause casts a pre-admission shadow. A provider
 MAY advertise the confidentiality terms it is prepared to bind (the promises,
-the retention ceiling, the processor list) on a storefront or listing,
-self-declared and graded `recorded` there, so a client can compare providers
-before anything forms. The comparison is deterministic without anyone reading
-prose: every required promise must be declared, a declared retention window
-must be no longer than the required ceiling, and every declared processor must
-be acceptable to the requirement. What binds is this clause; where an
-advertisement and the signed document disagree, the signed document wins.
+the retention ceiling, the jurisdictions, the processor list) on a storefront
+or listing, self-declared and graded `recorded` there, so a client can compare
+providers before anything forms. The requirement side is also what a
+solicitation states when it names its terms up front, so a document can be
+compared against a published requirement before either party has written
+anything the other will read. The comparison is deterministic without anyone
+reading prose: every required promise must be declared, a declared retention
+window must be no longer than the required ceiling, a declared jurisdiction
+set must be stated and a subset of the required one, and every declared
+processor must be acceptable to the requirement. What binds is this clause;
+where an advertisement and the signed document disagree, the signed document
+wins.
+
+The comparison says nothing about how the content travelled to the party
+being compared. A jurisdiction requirement constrains what the PARTIES do
+with the content; the network that carried it is the deployment's problem and
+its own disclosure, and an implementation MUST NOT present a met requirement
+as a statement about the route.
 
 **`dpa` attaches a data processing agreement as a named addendum.** Where the
 work touches regulated data, the parties' obligations usually live in a DPA
@@ -2202,6 +2235,36 @@ actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
 
 ## Changelog
+
+**0.19.0-draft** (2026-08-29). The jurisdiction member, said out loud.
+
+Section 5.11 defines `processed_in`, the jurisdictions content may be
+processed in. The member is not new to this family: §5.15's chain rule has
+meant it since 0.18.0-draft, where a subcontract may "touch no jurisdiction
+the link above did not", and the flow-down comparator has read it from the
+day it shipped. What was missing was the sentence saying what it is, so an
+implementer reading §5.11 alone found a clause whose most consequential
+member was invisible.
+
+Nothing about the shape changes and no signed bytes change. The section
+states what was already true and true in both SDKs: tokens the parties agree
+rather than a vocabulary of places this specification would be wrong about
+within a week; silence FAILS a requirement that names jurisdictions, because
+an unstated jurisdiction may be any jurisdiction; declared structure is what
+comparisons read, since whether a document validates is asked once, at
+validation.
+
+The pre-admission comparison gains the same test on the requirement side,
+which is what makes a solicitation able to state its terms before anybody
+writes an offer against them: a declared jurisdiction set must be stated and
+a subset of the required one. Conformance gains ten shortfall cases for it in
+`sow-data-use.json`, byte-identical across the SDKs like every other sentence
+that comparison shows.
+
+One caution is now written down rather than assumed: the comparison
+constrains what the PARTIES do with the content and says nothing about the
+network that carried it, and an implementation must not let a met requirement
+read as a claim about the route.
 
 **0.18.0-draft, second pass** (2026-08-11). What an agent is.
 
