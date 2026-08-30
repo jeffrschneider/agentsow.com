@@ -21,13 +21,22 @@
       <a class="on" href="index.html">Overview</a>
       <a href="spec.html">The specification</a>
       <a href="example.html">Worked example</a>
+    </nav>
+    <div class="grp">In depth</div>
+    <nav>
+      <a href="pricing.html">Pricing</a>
+      <a href="signing.html">Who can sign</a>
+      <a href="lifecycle.html">How it becomes binding</a>
+    </nav>
+    <div class="grp">Alongside</div>
+    <nav>
       <a href="internal.html">Internal SoWs</a>
       <a href="catalog.html">With an agent catalog</a>
       <a href="spec-a2a-terms.html">A2A terms extension</a>
     </nav>
     <div class="foot">
       <a href="https://agentmesh.ai/standards.html">The family of standards</a><br><br>
-      v0.11.0-draft<br>
+      v0.20.0-draft<br>
       a working draft, developed<br>alongside AgentMesh
     </div>
   </aside>
@@ -96,78 +105,34 @@
           <tr><td>Disputes</td><td>One posture from a closed set; signed evidence decides</td><td><span class="grade-tag evidence">evidence</span></td></tr>
           <tr><td>Confidentiality</td><td>Sealed transport and retention enforced; conduct promises recorded</td><td><span class="grade-tag enforced">split</span></td></tr>
         </table>
-        <p style="margin-top:26px">The approval row is the newest field in the format, and it exists because of something a signature cannot tell you. A signature proves control of a key. It does not prove who used it: a person at a terminal and unattended software holding the same key produce identical bytes. So the document says, separately for forming the deal and for amending it, what the other side is entitled to expect. <b>Agent</b> means a valid signature is enough, which is the honest name for what an unadorned signature already meant. <b>Person</b> means the runtime holds the approval pending until the account's human confirms it, with a credential that attests they were present, and records that confirmation beside the signature. There is a third value for parties who want both fingerprints, the agent's signature first and the person's confirmation second.</p>
-        <p>Unstated, forming defaults to agent and amending defaults to person: a published offer at a published price is a bounded commitment, while a change to a live engagement is exactly where an auto-approving agent is a standing target. The grade follows the deployment, as always. Where formation completes somewhere that can hold it pending, <b>person</b> is enforced; where it cannot, the confirmation is only a record and the honest grade is evidence. And what the ceremony proves is bounded too: a verified human was present and confirmed. <b>It does not prove they read the document or understood it</b>, and nothing that renders one of these documents may suggest otherwise. The rules are in <a href="spec.html#approval-authority" style="color:var(--paper)">section 6.1 of the specification</a>.</p>
-        <p>A document may also say which organization a party is engaging for, and which mandate the approving person was acting under. Both are optional fields, both sit inside the signed bytes, and both are read against the Agent Mandate standard at <a href="https://agentmandate.net" style="color:var(--paper)">https://agentmandate.net</a>. A person-grade approval on its own proves a verified human was present. With a mandate beside it, the other side can also see that the human held current, unrevoked, traceable authority to commit the organization to this much money for this kind of work. What a court would make of it is still outside the system, and nothing here claims otherwise. Documents that carry neither field remain conformant, and this is set out in <a href="spec.html#organizational-authority" style="color:var(--paper)">section 6.2 of the specification</a>.</p>
+        <p style="margin-top:26px">The approval row is the newest field in the format. A signature proves control of a key, but not who used it, because a person at a terminal and unattended software holding the same key produce identical bytes. So the document states separately, for forming the deal and for amending it, whether a valid signature is enough or the account's human must also confirm. <a href="signing.html" style="color:var(--paper)">Who is allowed to sign</a> covers the three values, what a confirmation does and does not prove, and the optional fields that name the organization a party is acting for.</p>
       </section>
 
       <section class="band">
         <h2>Three ways to price the work</h2>
         <p>Every engagement declares one pricing arrangement, and there is no default. A document that does not say how the work is priced is not a conformant document.</p>
-        <p><b>Fixed fee</b> is the simple one. Each offering has a price per task, the buyer knows the number before the task runs, and a monthly ceiling stops the spend when it is reached.</p>
-        <p><b>Time and materials</b> is for work whose size is not knowable in advance: an investigation, a migration, a research pass over a corpus nobody has counted. It is priced as a <b>rate schedule</b>, which is a short list of lines. Each line names something the provider counts, the unit it counts in, and what one unit costs. It is not a list of hours and parts.</p>
-        <div class="figure">
-          <div class="bar"><span class="lamp"></span> a rate schedule, four priced meters <span class="grow">spec section 5.5.2</span></div>
-          <pre><span class="k">tokens_out</span>    1,500 XCR   <span class="x">per 1,000 tokens the agent generates</span>
-<span class="k">tool_calls</span>    2,000 XCR   <span class="x">per call the agent makes to a tool or API</span>
-<span class="k">items</span>         40,000 XCR  <span class="x">per invoice processed</span>
-<span class="k">elapsed</span>       12,000 XCR  <span class="x">per minute, for jobs that genuinely run long</span>
-
-<span class="g">cap</span>           40,000,000 XCR  <span class="x">not to exceed. Work stops here.</span>
-<span class="g">reservation</span>   30 days         <span class="x">funds held, unused remainder released</span></pre>
-          <div class="cap"><b>Elapsed time is one line, not the definition.</b> What agent work actually consumes is tokens, tool calls, and items processed. Billing wall-clock time alone pays a slow agent more than a fast one for the same result, and a provider can arrange that on purpose.</div>
-        </div>
-        <p><b>The cap is required.</b> There is no uncapped time and materials engagement in this specification, and a runtime refuses a document that omits the cap. Two reasons. An open account is what makes an owner refuse to delegate spending at all. And an approval ceiling needs a single number to test against: the committed price of a time and materials engagement is its cap, so an organization's spending limits (<a href="https://agentmandate.net" style="color:var(--paper)">https://agentmandate.net</a>) can be checked before the deal forms rather than after the money is gone.</p>
-        <p><b>What reserving does to your balance.</b> When the engagement forms, the cap amount is reserved, the way a purchase order commits a budget before any invoice exists. The reservation carries a window, 30 days in the example above. Billing happens inside that window against what was actually metered, and whatever is left over is released back to you when the window closes. While it is held, it is held: reserved funds are not available for other work. A cap set far above what the job will really cost is not free, it is money you cannot spend elsewhere for a month.</p>
-        <p><b>Work stops at the cap.</b> Reaching the cap ends the engagement in a state the specification calls <b>exhausted</b>, which sits beside lapsed and terminated as a way an engagement ends. It is not a failure and no runtime may record it as one: lapsed means the term ran out, exhausted means the cap ran out. Nothing is billed past the cap; units the provider spends after that point are the provider's to absorb.</p>
-        <p>There is a real trade here and the specification does not hide it. Time and materials buys best effort, not guaranteed deliverables, so there is nothing to accept or reject at the end the way you would accept a fixed-fee report. Your protection moves from acceptance to the honesty of the meter, which is why the units billed should be ones you can count yourself, tokens and calls and items, rather than effort the provider declares. Anything the provider bought elsewhere and passed on to you, including work it hired another agent to do, is marked as a pass-through line, billed at cost, and evidenced by the upstream receipt. The full rules are in <a href="spec.html#price" style="color:var(--paper)">section 5.5 of the specification</a>.</p>
-        <p><b>No charge</b> is the third arrangement, for work the provider gives away. The clause carries no rates, no schedule, no cap, and no reservation, only the declaration that the work is free, and a document that puts a price field of any kind into a no-charge clause is refused. Nothing is rated, nothing is drawn from your balance, and no receipt is produced, so free work does not fill either side's records with entries worth zero.</p>
-        <p>It exists because a fixed fee of zero says the same thing in a way nobody can read. A rate of zero and a rate somebody forgot to fill in look identical in the document, and the reader cannot tell which one they are looking at. A declared no-charge arrangement says the provider chose to charge nothing. Everything else about the engagement is ordinary: it forms the same way, it can be amended and terminated, it leaves the same record, and it can be reviewed, so an agent that works for nothing still earns a reputation from the work.</p>
-        <p>Changing arrangement later is an ordinary amendment, and it takes effect going forward. Work already done stays priced under the version it ran under, so amending to no charge refunds nothing and amending away from it bills nothing retroactively. Reserving follows the price clause: moving into time and materials reserves the new cap when the amendment is approved, and moving out of it releases what is still held. The rules are in <a href="spec.html#no-charge" style="color:var(--paper)">section 5.5.7 of the specification</a>.</p>
-        <p><b>An operator's cut is a line you can see.</b> Some prices are quoted or settled by a party that sits between you and the provider: a platform that hosts one of the agents, builds the quote, or moves the money. Where that party takes a fee out of what you pay, the fee is stated on its own line, carrying the amount and the basis it was computed from, which is the percentage or the fixed charge behind it, and the base that basis was applied to. You see it in the quote before you agree, and again in the settlement record afterwards, so the arithmetic can be checked. A settlement record whose operator line is missing, or whose amount does not follow from its stated basis, is refused by your own node rather than accepted and argued about later. The cap keeps its meaning when an operator is in the path: it limits what you pay in total, so the operator's cut comes out of the cap instead of being added on top of it, and the provider's own billable work stops that much sooner.</p>
-        <p>This has a consequence the specification states rather than leaving you to find it. Showing the operator's cut also shows what the provider receives, because the total minus the cut is the provider's net. That trade was made deliberately. The alternative is one blended number you cannot check against anything, and the silence protected less than it appeared to: an operator that publishes its fee schedule at all has already made the rate public, so the split was recoverable by arithmetic anyway. What the silence bought was not privacy. It was that you did not know a fee was in there. Where no operator sits in the path at all, and a price is quoted and settled directly between two agents, nothing can refuse an omission, so the specification grades that case <span class="grade-tag recorded">recorded</span> and says so. The rules are in <a href="spec.html#operator-fee" style="color:var(--paper)">section 5.5.8 of the specification</a>.</p>
+        <p><b>Fixed fee</b> sets a price per task with a monthly ceiling. <b>Time and materials</b> is for work whose size is not knowable in advance, priced as a rate schedule of counted units, and it must carry a not-to-exceed cap. <b>No charge</b> declares the work free, and carries no price field of any kind.</p>
+        <p><a href="pricing.html" style="color:var(--paper)">How the work is priced</a> covers all three, plus what reserving the cap does to your balance, what happens when the cap is reached, and how a fee taken by a party in the middle is disclosed.</p>
       </section>
 
       <section class="band">
         <h2>How a document becomes binding</h2>
-        <p>The same document passes through named states, and the names matter because each one answers "does this bind anyone yet?"</p>
-        <ul style="color:var(--dim);max-width:62ch">
-          <li><b>Template SoW</b>: complete but unsigned. Binds nobody. Sent to a specific counterparty for consideration, it is a <b>SoW proposal</b>.</li>
-          <li><b>Standing proposal SoW</b>: signed by the seller only, counterparty seat blank. This is what a provider publishes once per offering, and what a catalog listing is derived from. Still binds nobody.</li>
-          <li><b>Directed standing proposal</b>: the same thing with one party named as the only one entitled to countersign it. The seat is still blank, so it still binds nobody, but it is an offer to that party rather than to the market. It gets no catalog listing, it must state when it ends, and it is used up by the deal it forms. This is how a seller quotes one buyer a price below its list price without publishing that price to everyone.</li>
-          <li><b>Request to form</b>: the buyer has countersigned a standing proposal. That fills in the buyer's seat and the start date and produces an instance carrying one signature, the buyer's. A document with one signature has no force, whoever signed it. The seller's runtime completes formation by signing the finished instance, and it must refuse a buyer who does not meet a qualification the offer states.</li>
-          <li><b>Agreed</b>: both owners' signatures over the same bytes, but before the start date. The deal exists; nothing is in force yet.</li>
-          <li><b>Active</b>: agreed, and the start date has arrived. Now the runtimes enforce it, until it ends, is amended, or is terminated.</li>
-          <li><b>Amendment proposed</b>: a full replacement at the next version number is open with one signature on it. It has no force either. The current version keeps governing every task until the replacement is approved, denied, withdrawn, or lapses.</li>
-        </ul>
-        <p>The start and end are first-order fields of the document, not fine print: a signed deal that has not started yet grants nothing.</p>
-      </section>
-
-      <section class="band">
-        <h2>What happens before and after the signatures</h2>
-        <p>Those states describe the paper. The work has a shape of its own, and the two stages at its edges are the ones most easily skipped and most easily faked.</p>
-        <p>Before anyone signs, the buyer can send real sample files as a marked trial run and find out whether the fit is there at all, at the one moment walking away costs nothing. After the work is delivered, the buyer can put a judgment on the record: accepted, or rejected with a stated reason. Neither stage is required.</p>
-        <div class="figure">
-          <div class="bar"><span class="lamp"></span> the working lifecycle <span class="grow">spec section 7.2</span></div>
-          <pre><span class="a">validate</span>   <span class="x">(13)</span>   before signatures: probe the fit with real files, walk away for free
-<span class="g">agree</span>      <span class="x">(7.1)</span>  countersign; the seller's runtime completes formation (12.1)
-<span class="g">deliver</span>           tasks run; problems are raised and resolved in place (14)
-<span class="a">review</span>     <span class="x">(15)</span>   at completion: acceptance or rejection, with reasons, on the record</pre>
-          <div class="cap"><b>The bookends are optional; pretending you did them is not.</b> An engagement that skipped validation has no probe record to cite, and one that was never reviewed has no acceptance to advertise. Neither absence may be dressed up as its presence. The stages are set out in <a href="spec.html#working-lifecycle" style="color:var(--paper)">section 7.2 of the specification</a>.</div>
-        </div>
+        <p>The same document passes through named states, and each name answers one question: does this bind anyone yet? An unsigned template binds nobody. A standing proposal carries the seller's signature with the buyer's seat blank, and still binds nobody. A countersigned instance carries one signature and has no force until the seller's runtime completes formation. Only when both signatures sit over the same bytes, and the start date has arrived, do the runtimes enforce anything.</p>
+        <p>The work has its own stages around those signatures. Before anyone signs, a buyer can send real sample files as a marked trial run. After delivery, the buyer can record an acceptance or a rejection with a reason. Neither is required, and neither absence may be presented as its presence.</p>
+        <p><a href="lifecycle.html" style="color:var(--paper)">How a document becomes binding</a> lists all seven states and both bookends.</p>
       </section>
 
       <section class="band">
         <h2>Who enforces what</h2>
         <p>The clauses that protect the seller (scope, volume, spend ceilings) run on the seller's own machine, guarding the seller's own interests. That works. The clauses that protect the buyer (deliverables, refunds) are checked by software the seller runs, and a seller checking its own work is trust, not enforcement.</p>
-        <p>The spec does not hide this. The buyer's runtime must verify deliverables independently when they arrive. And <b>refund-on-failed-task may only be labeled enforced where a neutral clearing service will reverse the payment on signed evidence, without the seller's cooperation</b>. Where clearing cannot do that yet, the label is evidence, and it is shown that way. That is the honest state of most deployments today, and section 8 of the spec is written so nobody can pretend otherwise.</p>
+        <p>The spec does not hide this. The buyer's runtime must verify deliverables independently when they arrive. And <b>refund-on-failed-task may only be labeled enforced where a neutral clearing service will reverse the payment on signed evidence, without the seller's cooperation</b>. Where clearing cannot do that yet, the label is evidence, and it is shown that way. That is the state of most deployments today, and section 8 of the spec is written so nobody can pretend otherwise.</p>
       </section>
 
       <section class="band">
         <h2>You do not need one to start</h2>
         <p>Two agents saying hello never need paperwork. Ordinary admission rules cover casual traffic: identity checks, limits on strangers, a hold queue for unknown senders. An Agent SoW is for the point where a relationship turns into commitments: money, standing access to data, promised deliverables. Then the scattered settings become one document both owners signed, and the rules apply per relationship instead of per message.</p>
         <div class="cta" style="margin-top:26px">
-          <a class="btn btn-signal" href="spec.html">Specification v0.11.0-draft</a>
+          <a class="btn btn-signal" href="spec.html">Specification v0.20.0-draft</a>
           <a class="btn btn-ghost" href="example.html">The Granite and Petrel engagement</a>
         </div>
       </section>

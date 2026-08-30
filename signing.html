@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Who is allowed to sign</title>
+  <meta name="description" content="A signature proves control of a key, not who used it. An Agent SoW states separately, for forming a deal and for amending it, whether a valid signature is enough or the account's human must also confirm.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="rail">
+    <a class="brand" href="index.html"><span class="dot"></span>agent sow</a>
+    <div class="grp">Read</div>
+    <nav>
+      <a href="index.html">Overview</a>
+      <a href="spec.html">The specification</a>
+      <a href="example.html">Worked example</a>
+    </nav>
+    <div class="grp">In depth</div>
+    <nav>
+      <a href="pricing.html">Pricing</a>
+      <a class="on" href="signing.html">Who can sign</a>
+      <a href="lifecycle.html">How it becomes binding</a>
+    </nav>
+    <div class="grp">Alongside</div>
+    <nav>
+      <a href="internal.html">Internal SoWs</a>
+      <a href="catalog.html">With an agent catalog</a>
+      <a href="spec-a2a-terms.html">A2A terms extension</a>
+    </nav>
+    <div class="foot">
+      <a href="https://agentmesh.ai/standards.html">The family of standards</a><br><br>
+      v0.20.0-draft<br>
+      a working draft, developed<br>alongside AgentMesh
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="wrap">
+
+      <section class="hero">
+        <span class="eyebrow"><span class="tag">agent-sow-v1</span> // sections 6.1 and 6.2 of the specification</span>
+        <h1>Who is allowed to sign</h1>
+        <p class="lede">A signature proves control of a key. It does not prove who used it: a person at a terminal and unattended software holding the same key produce identical bytes. So the document says, separately for forming the deal and for amending it, what the other side is entitled to expect.</p>
+      </section>
+
+      <section class="band">
+        <h2>Three values, and what each one means</h2>
+        <p><b>Agent</b> means a valid signature is enough, which is the plain name for what an unadorned signature already meant.</p>
+        <p><b>Person</b> means the runtime holds the approval pending until the account's human confirms it, with a credential that attests they were present, and records that confirmation beside the signature.</p>
+        <p>There is a third value for parties who want both fingerprints, the agent's signature first and the person's confirmation second.</p>
+      </section>
+
+      <section class="band">
+        <h2>What the defaults are, and why</h2>
+        <p>Unstated, forming defaults to agent and amending defaults to person. A published offer at a published price is a bounded commitment, while a change to a live engagement is exactly where an auto-approving agent is a standing target.</p>
+        <p>The grade follows the deployment, as always. Where formation completes somewhere that can hold it pending, <b>person</b> is enforced; where it cannot, the confirmation is only a record and the grade is evidence.</p>
+        <p>What the confirmation proves is bounded too: a verified human was present and confirmed. <b>It does not prove they read the document or understood it</b>, and nothing that renders one of these documents may suggest otherwise. The rules are in <a href="spec.html#approval-authority" style="color:var(--paper)">section 6.1 of the specification</a>.</p>
+      </section>
+
+      <section class="band">
+        <h2>Naming the organization behind the person</h2>
+        <p>A document may also say which organization a party is engaging for, and which mandate the approving person was acting under. Both are optional fields, both sit inside the signed bytes, and both are read against the Agent Mandate standard at <a href="https://agentmandate.net" style="color:var(--paper)">https://agentmandate.net</a>.</p>
+        <p>A person-grade approval on its own proves a verified human was present. With a mandate beside it, the other side can also see that the human held current, unrevoked, traceable authority to commit the organization to this much money for this kind of work. What a court would make of it is still outside the system, and nothing here claims otherwise. Documents that carry neither field remain conformant, and this is set out in <a href="spec.html#organizational-authority" style="color:var(--paper)">section 6.2 of the specification</a>.</p>
+
+        <div class="cta" style="margin-top:30px">
+          <a class="btn btn-signal" href="spec.html#approval-authority">Section 6.1 of the specification</a>
+          <a class="btn btn-ghost" href="index.html">Back to the overview</a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>

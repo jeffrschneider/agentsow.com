@@ -95,6 +95,15 @@
       <a href="index.html">Overview</a>
       <a href="spec.html">The specification</a>
       <a class="on" href="example.html">Worked example</a>
+    </nav>
+    <div class="grp">In depth</div>
+    <nav>
+      <a href="pricing.html">Pricing</a>
+      <a href="signing.html">Who can sign</a>
+      <a href="lifecycle.html">How it becomes binding</a>
+    </nav>
+    <div class="grp">Alongside</div>
+    <nav>
       <a href="internal.html">Internal SoWs</a>
       <a href="catalog.html">With an agent catalog</a>
       <a href="spec-a2a-terms.html">A2A terms extension</a>
@@ -276,7 +285,7 @@
         <aside class="machine">
           <div class="machine-title">What the machine does</div>
           <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Propose-and-adopt: nothing changes on a node until its own side signs. A runtime never applies a version its owner has not signed.</div>
-          <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>An amendment approval is held pending on the approving side's node, Marisol's when Granite proposes a new rate, until the human confirms it. Unconfirmed, it lapses with the same 7-day window. Where a deployment cannot hold an approval pending, the confirmation is only a record and the honest grade drops to evidence.</div>
+          <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>An amendment approval is held pending on the approving side's node, Marisol's when Granite proposes a new rate, until the human confirms it. Unconfirmed, it lapses with the same 7-day window. Where a deployment cannot hold an approval pending, the confirmation is only a record and the grade drops to evidence.</div>
         </aside>
       </section>
 
@@ -310,7 +319,7 @@
         <aside class="machine">
           <div class="machine-title">What the machine does</div>
           <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Every envelope is signed, task history is intact, and each agent keeps a tamper-evident audit chain with an offline-verifiable export. A dispute gets settled by reading the records, not from memory.</div>
-          <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Per spec 8.2: the refund is graded enforced only where clearing executes reversals on signed evidence without the provider's cooperation. This deployment's clearing does not yet, so the honest grade is evidence.</div>
+          <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Per spec 8.2: the refund is graded enforced only where clearing executes reversals on signed evidence without the provider's cooperation. This deployment's clearing does not yet, so the grade is evidence.</div>
         </aside>
       </section>
 
@@ -334,7 +343,7 @@
       <section class="clause">
         <div>
           <h2><span class="num">12</span>Confidentiality and retention</h2>
-          <p>Two kinds of protection apply, and this document is honest about the difference.</p>
+          <p>Two kinds of protection apply, and this document states which is which.</p>
           <p><b>The runtime enforces:</b> all traffic under this engagement is sealed between the two agents; intermediaries carry bytes they cannot read. Both parties retain task content for at most <b>30 days</b> after task completion; retention beyond the default must be declared, and here neither party declares it.</p>
           <p><b>The provider promises:</b> client data is not used to train models, is not shared with any third party, and is not read by any person except during a dispute under section 10. These promises cannot be checked by the machine. They are recorded in the signed document, and a broken recorded promise is what reputation exists to punish.</p>
         </div>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How a document becomes binding</title>
+  <meta name="description" content="The named states an Agent SoW passes through, from unsigned template to active engagement, and the stages the work itself goes through around the signatures.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="rail">
+    <a class="brand" href="index.html"><span class="dot"></span>agent sow</a>
+    <div class="grp">Read</div>
+    <nav>
+      <a href="index.html">Overview</a>
+      <a href="spec.html">The specification</a>
+      <a href="example.html">Worked example</a>
+    </nav>
+    <div class="grp">In depth</div>
+    <nav>
+      <a href="pricing.html">Pricing</a>
+      <a href="signing.html">Who can sign</a>
+      <a class="on" href="lifecycle.html">How it becomes binding</a>
+    </nav>
+    <div class="grp">Alongside</div>
+    <nav>
+      <a href="internal.html">Internal SoWs</a>
+      <a href="catalog.html">With an agent catalog</a>
+      <a href="spec-a2a-terms.html">A2A terms extension</a>
+    </nav>
+    <div class="foot">
+      <a href="https://agentmesh.ai/standards.html">The family of standards</a><br><br>
+      v0.20.0-draft<br>
+      a working draft, developed<br>alongside AgentMesh
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="wrap">
+
+      <section class="hero">
+        <span class="eyebrow"><span class="tag">agent-sow-v1</span> // sections 7.1, 7.2 and 12.1 of the specification</span>
+        <h1>How a document becomes binding</h1>
+        <p class="lede">The same document passes through named states, and the names matter because each one answers "does this bind anyone yet?" The work has its own stages around those signatures, and the two at the edges are the ones most often skipped.</p>
+      </section>
+
+      <section class="band">
+        <h2>The states a document passes through</h2>
+        <ul style="color:var(--dim);max-width:62ch">
+          <li><b>Template SoW</b>: complete but unsigned. Binds nobody. Sent to a specific counterparty for consideration, it is a <b>SoW proposal</b>.</li>
+          <li><b>Standing proposal SoW</b>: signed by the seller only, counterparty seat blank. This is what a provider publishes once per offering, and what a catalog listing is derived from. Still binds nobody.</li>
+          <li><b>Directed standing proposal</b>: the same thing with one party named as the only one entitled to countersign it. The seat is still blank, so it still binds nobody, but it is an offer to that party rather than to the market. It gets no catalog listing, it must state when it ends, and it is used up by the deal it forms. This is how a seller quotes one buyer a price below its list price without publishing that price to everyone.</li>
+          <li><b>Request to form</b>: the buyer has countersigned a standing proposal. That fills in the buyer's seat and the start date and produces an instance carrying one signature, the buyer's. A document with one signature has no force, whoever signed it. The seller's runtime completes formation by signing the finished instance, and it must refuse a buyer who does not meet a qualification the offer states.</li>
+          <li><b>Agreed</b>: both owners' signatures over the same bytes, but before the start date. The deal exists; nothing is in force yet.</li>
+          <li><b>Active</b>: agreed, and the start date has arrived. Now the runtimes enforce it, until it ends, is amended, or is terminated.</li>
+          <li><b>Amendment proposed</b>: a full replacement at the next version number is open with one signature on it. It has no force either. The current version keeps governing every task until the replacement is approved, denied, withdrawn, or lapses.</li>
+        </ul>
+        <p>The start and end are first-order fields of the document, not fine print: a signed deal that has not started yet grants nothing.</p>
+      </section>
+
+      <section class="band">
+        <h2>What happens before and after the signatures</h2>
+        <p>Those states describe the paper. Before anyone signs, the buyer can send real sample files as a marked trial run and find out whether the fit is there at all, at the one moment walking away costs nothing. After the work is delivered, the buyer can put a judgment on the record: accepted, or rejected with a stated reason. Neither stage is required.</p>
+        <div class="figure">
+          <div class="bar"><span class="lamp"></span> the working lifecycle <span class="grow">spec section 7.2</span></div>
+          <pre><span class="a">validate</span>   <span class="x">(13)</span>   before signatures: probe the fit with real files, walk away for free
+<span class="g">agree</span>      <span class="x">(7.1)</span>  countersign; the seller's runtime completes formation (12.1)
+<span class="g">deliver</span>           tasks run; problems are raised and resolved in place (14)
+<span class="a">review</span>     <span class="x">(15)</span>   at completion: acceptance or rejection, with reasons, on the record</pre>
+          <div class="cap"><b>Both stages are optional.</b> An engagement that skipped validation has no probe record to cite, and one that was never reviewed has no acceptance to advertise. Neither absence may be dressed up as its presence. The stages are set out in <a href="spec.html#working-lifecycle" style="color:var(--paper)">section 7.2 of the specification</a>.</div>
+        </div>
+
+        <div class="cta" style="margin-top:30px">
+          <a class="btn btn-signal" href="spec.html#lifecycle">Section 7 of the specification</a>
+          <a class="btn btn-ghost" href="index.html">Back to the overview</a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>
