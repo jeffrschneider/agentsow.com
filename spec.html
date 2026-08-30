@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agent SoW Specification v0.19.0-draft</title>
+  <title>Agent SoW Specification v0.20.0-draft</title>
   <meta name="description" content="The Agent SoW specification: a signed, machine-graded statement of work between two parties whose agents do recurring work together.">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,7 +54,7 @@
       <article class="spec">
 
         <h1>Agent SoW Specification</h1>
-        <div class="meta">Version 0.19.0-draft &middot; Working Draft &middot; 2026-08-29</div>
+        <div class="meta">Version 0.20.0-draft &middot; Working Draft &middot; 2026-08-30</div>
 
         <p>A <b>statement of work</b> (SoW) is the legal agreement businesses sign when they hire a service firm: it lists the work, what each side provides, the deliverables, the price, and the end date. An <b>Agent SoW</b> is that same agreement, adapted for two parties whose software agents do recurring work together. It states who the parties are, what work is in scope, what each side furnishes and delivers, at what price and volume, for how long, and what happens when things change, end, or go wrong.</p>
         <p>The defining feature of this specification is not the clause list, which any consulting contract has. It is the <b>enforcement gradient</b>: every clause in an Agent SoW is labeled with what a machine can actually do about it. A clause is <i>enforced</i> (violations are refused mechanically), <i>evidence</i> (a signed, tamper-evident record exists), or <i>recorded</i> (a promise whose breach is punished by reputation, not code). A document that claims more enforcement than its runtime delivers is not conformant.</p>
@@ -183,11 +183,32 @@
         <p>What the client furnishes, in what form, and when (<code>per_task</code> or <code>standing</code>).</p>
         <pre><code>"inputs": [
   { "name": "bank-statement", "media_type": "text/csv", "when": "per_task" },
-  { "name": "receipts", "kind": "shared_resource", "access": "read", "when": "standing" }
+  { "name": "receipts", "kind": "shared_resource", "access": "read",
+    "via": "link", "when": "standing" },
+  { "name": "ledger", "kind": "shared_resource", "access": "read-write",
+    "via": "mcp",  "when": "standing" }
 ],
 "grade": "enforced"</code></pre>
         <p>Grade: <span class="grade-tag enforced">enforced</span>. A task arriving without a required <code>per_task</code> input MUST NOT fail and MUST NOT be silently attempted; it moves to <code>input_required</code> carrying a problem report (section 14) that names what is missing. Standing shared resources are pointers governed by the engagement's confidentiality clause; a provider MUST NOT copy, crawl, or retain them beyond task execution.</p>
         <p>An input that was furnished can still be wrong, and an input that was fine can stop being fine: the file does not open, the format is not what the clause named, the link's permission was revoked in month two. Problem reports are therefore not an admission-time feature. They may be raised at intake, during the work, or on a later task when a standing input has gone stale, always in the same form (section 14).</p>
+
+        <h3 id="grants">5.3.1 Granting access, and what a published proposal may not contain</h3>
+        <p>"Send us the July statement" and "give our agent write access to your ledger for the next twelve months" are both inputs under 5.3, and until now this specification gave a client no way to tell them apart before signing. They are not the same ask. One is a file that arrives and is done with; the other is a standing key to a system the client owns, and revoking it is a separate act the client has to remember to perform.</p>
+        <p>A <code>shared_resource</code> input MAY therefore carry <code>via</code>, naming <b>how the grant is made</b>:</p>
+        <table>
+          <thead><tr><th><code>via</code></th><th>What the client does</th></tr></thead>
+          <tbody>
+            <tr><td><code>link</code></td><td>Shares a location the provider can already reach with permission it already has: a folder, a bucket prefix, a repository.</td></tr>
+            <tr><td><code>mcp</code></td><td>Stands up, or points at, an MCP endpoint the client hosts, and the provider's agent connects to it.</td></tr>
+            <tr><td><code>api_token</code></td><td>Issues a token in the client's own system.</td></tr>
+            <tr><td><code>oauth</code></td><td>Completes an authorization grant, so the provider acts under a delegation the client can revoke at the source.</td></tr>
+            <tr><td><code>seat</code></td><td>Provisions an account, seat, or role for the provider inside the client's system, which is then a user in the client's own audit log.</td></tr>
+          </tbody>
+        </table>
+        <p><code>via</code> is a closed vocabulary and absent means the parties have not said. A runtime MUST NOT infer <code>link</code> from silence, and MUST NOT render an input with no <code>via</code> as though it were the mildest one. This specification declines to invent a default wherever the omitted answer is the one a party would be harmed by guessing: silence is not acceptance (5.4.2) and silence is not a cap (5.5.3). It is not a mechanism either. An unrecognized value is carried and rendered verbatim rather than dropped, because a document already signed does not become unreadable when this table grows.</p>
+        <p><b>Shapes, never bindings, in anything published to strangers.</b> A standing proposal (12.1) is an offer to whoever reads it, and its inputs describe what a future client will be asked for. They are therefore <b>requirements, not addresses</b>. A standing proposal that is not directed MUST NOT carry a credential, a token, an endpoint, an account or tenant identifier, or a filesystem path in an input entry: it says <code>via: "mcp"</code> and an access level, never the URL. This is the same discipline an interface description has always had, where the operations are published and the endpoint is bound later.</p>
+        <p>The restriction is on publication, not on the clause. A <b>directed</b> standing proposal (12.1.1) and an executed engagement each name their counterparty, so the actual repository, endpoint, or account MAY appear there: at that point it is a term between two identified parties rather than a fact handed to everyone. Where it does appear it falls under 5.11 like any other content the document carries.</p>
+        <p><b>Rendering.</b> A renderer MUST NOT present grants in an undifferentiated list with files. It MUST show <code>shared_resource</code> inputs separately from inputs the client simply sends, and within them it MUST show <code>when: "standing"</code> grants above <code>per_task</code> ones. A standing grant is the only input on the page that keeps being true after the task is over, and a client who is going to be surprised by anything in a signed engagement will be surprised by that.</p>
 
         <h3>5.4 Deliverables</h3>
         <p>Two kinds. <b>Per-task deliverables</b> are named artifacts the provider attaches to each completed task. <b>Interim deliverables</b> are engagement-level obligations with dates: things the provider owes on a schedule, whether or not the client asked that day. Each interim deliverable carries either a single <code>due</code> instant or a <code>recurrence</code>.</p>
@@ -419,13 +440,15 @@
   "retention": { "max_days": 30, "grade": "enforced" },
   "processors": [
     { "service": "Anthropic API", "domain": "anthropic.com",
-      "purpose": "model inference, zero-retention tier" }
+      "purpose": "model inference, zero-retention tier",
+      "processed_in": ["us"] }
   ],
   "promises":  { "no_training": true, "no_third_party_sharing": true,
                  "no_human_reading": true, "grade": "recorded" }
 }</code></pre>
         <p>Sealed transport and retention windows are runtime-checkable. What a party does with data inside its own walls is not; those promises are <span class="grade-tag recorded">recorded</span>, and a conforming renderer MUST NOT present them as enforced.</p>
         <p><code>processors</code> names the services the client's content passes through so the work can happen: the model API behind the agent, a transcription service, any host that can read what it holds. Each entry carries the service name, its domain so a reader knows which service of that name is meant, and the narrowest true statement of its purpose. The list is what makes the promises honest for the way agents are actually built. Nearly every agent sends content to somebody's model API, so <code>no_third_party_sharing</code> quantifies over everything except the declared processors: the promise that content goes nowhere beyond this list, not the fiction that it goes nowhere at all. Content transiting an undeclared service breaks the clause even while every promise boolean is true. Declaring a processor is neither endorsement nor a transfer of obligation; what a processor does is governed by its own terms, and the client is owed the name so it can go read them.</p>
+        <p>A processor entry MAY carry its own <code>processed_in</code>, in the same tokens the clause-level member uses. Where present it MUST be a subset of the clause-level <code>processed_in</code>, and a document where it is not does not validate: a provider cannot promise the content stays in one place and name, in the same clause, a service that takes it somewhere else. Absence states nothing here too. A client reading a clause-level <code>processed_in</code> beside a processor that does not say where it processes has been told less than the page appears to say, which is worth seeing, and is the reason the member exists rather than being assumed to inherit.</p>
         <p>Absence carries the weak meaning throughout. A promise left out is a promise not made, and a reader MUST NOT infer it. An empty processor list is itself a statement, content leaves the provider for nowhere; an omitted list states nothing, and silence must not be mistaken for either answer.</p>
         <p>Like reporting, the clause casts a pre-admission shadow: a provider MAY advertise the confidentiality terms it is prepared to bind (the promises, the retention ceiling, the processor list) on a storefront or listing, self-declared and <span class="grade-tag recorded">recorded</span> there, so a client compares providers before anything forms. The comparison is deterministic without anyone reading prose: required promises by implication, retention by ceiling, processors by acceptability. What binds is this clause, and where an advertisement and the signed document disagree, the signed document wins.</p>
         <p><code>dpa</code> attaches a data processing agreement as a named addendum. Where the work touches regulated data, the parties' obligations usually live in a DPA whose text no closed vocabulary should try to swallow, so the member commits the addendum's exact bytes inside the signed document: a required <code>digest</code> (the same sha256 spelling and exact-comparison rule refs carry everywhere else), a <code>ref</code> that should resolve to the addendum for both parties, and a title for the reader. Because the digest sits inside the signed bytes, the DPA the parties agreed to is the one whose bytes hash to it, and neither can later substitute a friendlier draft. The DPA's contents are <span class="grade-tag recorded">recorded</span>, like liability and for the same reason: regulators and courts enforce them, no runtime here does. What is mechanical is which bytes were agreed.</p>
@@ -695,6 +718,10 @@ review     (15)   at completion: acceptance or rejection, with reasons,
         <p>Reviewed engagements are the natural evidence unit for reputation: not a score, but a record. "Forty reviewed engagements, two rejections, both with reasons, both resolved" is the shape of trust this specification can actually support, and it is produced here, at the only moment both the facts and a motivated judge are present.</p>
 
         <h2 id="changelog">Changelog</h2>
+        <p><b>0.20.0-draft</b> (2026-08-30). What a grant is, and where a processor is.</p>
+        <p>Section 5.3 has always been able to say a client furnishes a shared resource, and never able to say how. "Share a folder" and "provision our agent a seat in your system" arrived at a reader as the same sentence. Section 5.3.1 adds <code>via</code>, a closed vocabulary of five mechanisms, and rules that make it safe to publish: a non-directed standing proposal carries requirements, never addresses, so it states <code>via: "mcp"</code> and an access level and never the URL, the token, the account, or the path. A directed proposal and an executed engagement name a counterparty and may carry the real thing. Renderers must show grants apart from files and standing grants above per-task ones, because a standing grant is the only input that is still true after the work is finished.</p>
+        <p>Section 5.11 gains an OPTIONAL <code>processed_in</code> on a processor entry, which must be a subset of the clause-level member where both are present. The clause already forbade the interesting failure, since content transiting an undeclared service breaks it while every promise boolean is true, but a declared processor could still sit beside a jurisdiction promise with no way to see whether the two were coherent. Absence states nothing here as everywhere else; the member exists so that inheritance is never assumed.</p>
+        <p>Both additions are optional members on existing clauses. No grade changes, no signed bytes change, and every 0.19.0-draft document remains valid.</p>
         <p><b>0.11.0-draft</b> (2026-08-08). A standing proposal may name its counterparty, and a qualification says only what it can prove.</p>
         <p>New section 12.1.1. A standing proposal MAY name the one party entitled to countersign it, in a <code>parties.offered_to</code> sub-clause beside the seats. A proposal that does is a directed standing proposal: an offer to that party rather than to the market. Only the named party may form under it, and a runtime completing formation MUST refuse unless the completed instance's <code>parties.client.agent</code> equals <code>offered_to.agent</code>. The specification had no way to say this before, and the gap was found from the demand side. <a href="https://agentrfp.net">Agent RFP</a> needs a response to a posting to be an offer to the party that posted it, and the only construction available under 0.10.0-draft was an open offer any reader could countersign, which meant a responder could not bid below its list price because the bid was the list price.</p>
         <p>The name sits beside the seats rather than in one, and the client seat stays blank. That is what keeps section 6 and section 12.1 intact: the pre-signature still covers template bytes with a blank seat and a null start instant, the countersign is still a request to form, and formation still ends with a fresh provider signature over the completed bytes. A named counterparty is a term of the offer, not an occupant of the seat, and the two-step gate is unchanged. Because <code>offered_to</code> is inside the signed bytes, the restriction is the selling owner's own term and cannot be added afterwards by a platform without breaking the signature.</p>

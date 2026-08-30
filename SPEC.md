@@ -1,8 +1,8 @@
 # Agent SoW Specification
 
-**Version:** 0.19.0-draft
+**Version:** 0.20.0-draft
 **Status:** Working Draft
-**Date:** 2026-08-29
+**Date:** 2026-08-30
 
 A **statement of work** (SoW) is the legal agreement businesses sign when
 they hire a service firm: it lists the work, what each side provides, the
@@ -328,7 +328,10 @@ What the client furnishes, in what form, and when (`per_task` or `standing`).
 ```json
 "inputs": [
   { "name": "bank-statement", "media_type": "text/csv", "when": "per_task" },
-  { "name": "receipts",       "kind": "shared_resource", "access": "read", "when": "standing" }
+  { "name": "receipts",       "kind": "shared_resource", "access": "read",
+    "via": "link", "when": "standing" },
+  { "name": "ledger",         "kind": "shared_resource", "access": "read-write",
+    "via": "mcp",  "when": "standing" }
 ],
 "grade": "enforced"
 ```
@@ -345,6 +348,58 @@ clause named, the link's permission was revoked in month two. Problem
 reports are therefore not an admission-time feature. They may be raised at
 intake, during the work, or on a later task when a standing input has gone
 stale, always in the same form (§14).
+
+### 5.3.1 Granting access, and what a published proposal may not contain
+
+"Send us the July statement" and "give our agent write access to your ledger
+for the next twelve months" are both inputs under §5.3, and until now this
+specification gave a client no way to tell them apart before signing. They are
+not the same ask. One is a file that arrives and is done with; the other is a
+standing key to a system the client owns, and revoking it is a separate act
+the client has to remember to perform.
+
+A `shared_resource` input MAY therefore carry `via`, naming **how the grant is
+made**:
+
+| `via` | What the client does |
+|-------|----------------------|
+| `link` | Shares a location the provider can already reach with permission it already has: a folder, a bucket prefix, a repository. |
+| `mcp` | Stands up, or points at, an MCP endpoint the client hosts, and the provider's agent connects to it. |
+| `api_token` | Issues a token in the client's own system. |
+| `oauth` | Completes an authorization grant, so the provider acts under a delegation the client can revoke at the source. |
+| `seat` | Provisions an account, seat, or role for the provider inside the client's system, which is then a user in the client's own audit log. |
+
+`via` is a closed vocabulary and absent means the parties have not said. A
+runtime MUST NOT infer `link` from silence, and MUST NOT render an input with
+no `via` as though it were the mildest one. This specification declines to
+invent a default wherever the omitted answer is the one a party would be
+harmed by guessing: silence is not acceptance (§5.4.2) and silence is not a
+cap (§5.5.3). It is not a mechanism either. An unrecognized value is carried
+and rendered verbatim rather than dropped, because a document already signed
+does not become unreadable when this table grows.
+
+**Shapes, never bindings, in anything published to strangers.** A standing
+proposal (§12.1) is an offer to whoever reads it, and its inputs describe what
+a future client will be asked for. They are therefore **requirements, not
+addresses**. A standing proposal that is not directed MUST NOT carry a
+credential, a token, an endpoint, an account or tenant identifier, or a
+filesystem path in an input entry: it says `via: "mcp"` and an access level,
+never the URL. This is the same discipline an interface description has always
+had, where the operations are published and the endpoint is bound later.
+
+The restriction is on publication, not on the clause. A **directed** standing
+proposal (§12.1.1) and an executed engagement each name their counterparty, so
+the actual repository, endpoint, or account MAY appear there: at that point it
+is a term between two identified parties rather than a fact handed to
+everyone. Where it does appear it falls under §5.11 like any other content the
+document carries.
+
+**Rendering.** A renderer MUST NOT present grants in an undifferentiated list
+with files. It MUST show `shared_resource` inputs separately from inputs the
+client simply sends, and within them it MUST show `when: "standing"` grants
+above `per_task` ones. A standing grant is the only input on the page that
+keeps being true after the task is over, and a client who is going to be
+surprised by anything in a signed engagement will be surprised by that.
 
 ### 5.4 Deliverables
 
@@ -1231,7 +1286,8 @@ merged:
   "retention": { "max_days": 30, "grade": "enforced" },
   "processors": [
     { "service": "Anthropic API", "domain": "anthropic.com",
-      "purpose": "model inference, zero-retention tier" }
+      "purpose": "model inference, zero-retention tier",
+      "processed_in": ["us"] }
   ],
   "promises":  { "no_training": true, "no_third_party_sharing": true,
                  "no_human_reading": true, "grade": "recorded" }
@@ -1255,6 +1311,16 @@ Content transiting an undeclared service breaks the clause even while every
 promise boolean is true. Declaring a processor is neither endorsement nor a
 transfer of obligation; what a processor does is governed by its own terms,
 and the client is owed the name so it can go read them.
+
+A processor entry MAY carry its own `processed_in`, in the same tokens the
+clause-level member uses. Where present it MUST be a subset of the
+clause-level `processed_in`, and a document where it is not does not validate:
+a provider cannot promise the content stays in one place and name, in the same
+clause, a service that takes it somewhere else. Absence states nothing here
+too. A client reading a clause-level `processed_in` beside a processor that
+does not say where it processes has been told less than the page appears to
+say, which is worth seeing, and is the reason the member exists rather than
+being assumed to inherit.
 
 **`processed_in` names the jurisdictions the content may be processed in**,
 as a list of short tokens the parties agree between them (`"eu"`, `"us"`,
@@ -2235,6 +2301,30 @@ actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
 
 ## Changelog
+
+**0.20.0-draft** (2026-08-30). What a grant is, and where a processor is.
+
+Section 5.3 has always been able to say a client furnishes a shared resource,
+and never able to say how. "Share a folder" and "provision our agent a seat in
+your system" arrived at a reader as the same sentence. §5.3.1 adds `via`, a
+closed vocabulary of five mechanisms, and rules that make it safe to publish:
+a non-directed standing proposal carries requirements, never addresses, so it
+states `via: "mcp"` and an access level and never the URL, the token, the
+account, or the path. A directed proposal and an executed engagement name a
+counterparty and may carry the real thing. Renderers must show grants apart
+from files and standing grants above per-task ones, because a standing grant
+is the only input that is still true after the work is finished.
+
+Section 5.11 gains an OPTIONAL `processed_in` on a processor entry, which must
+be a subset of the clause-level member where both are present. The clause
+already forbade the interesting failure — content transiting an undeclared
+service breaks it while every promise boolean is true — but a declared
+processor could still sit beside a jurisdiction promise with no way to see
+whether the two were coherent. Absence states nothing here as everywhere else;
+the member exists so that inheritance is never assumed.
+
+Both additions are optional members on existing clauses. No grade changes, no
+signed bytes change, and every 0.19.0-draft document remains valid.
 
 **0.19.0-draft** (2026-08-29). The jurisdiction member, said out loud.
 
