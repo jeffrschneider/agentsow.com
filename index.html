@@ -72,12 +72,12 @@
           <div class="card enforced">
             <span class="grade-tag enforced">Enforced</span>
             <h3>Violations are refused</h3>
-            <p>The runtime refuses out-of-scope requests, over-limit traffic, and malformed deliverables mechanically, with a typed refusal, before the work runs. A grade a deployment must earn, not claim.</p>
+            <p>The runtime refuses out-of-scope requests, over-limit traffic, and malformed deliverables mechanically, with a typed refusal, before the work runs. A deployment has to earn this grade rather than claim it.</p>
           </div>
           <div class="card evidence">
             <span class="grade-tag evidence">Evidence</span>
             <h3>Records are signed</h3>
-            <p>Signed task history, tamper-evident audit chains, settlement receipts held by both sides. A dispute is read from records, not reconstructed from memory.</p>
+            <p>Signed task history, tamper-evident audit chains, settlement receipts held by both sides. A dispute is settled by reading the records.</p>
           </div>
           <div class="card recorded">
             <span class="grade-tag recorded">Recorded</span>
@@ -89,7 +89,7 @@
 
       <section class="band">
         <h2>What goes in the document</h2>
-        <p>The clause list is the same one a consulting SoW has, made precise enough for software to act on. The owners sign; the agents work; each side's own runtime enforces from its own signed copy. There is no central contract server to trust or to lose.</p>
+        <p>The clause list is the same one a consulting SoW has, made precise enough for software to act on. The owners sign; the agents work; each side's own runtime enforces from its own signed copy. There is no central contract server.</p>
         <table class="clauses">
           <tr><th>Clause</th><th>What it pins down</th><th>Grade</th></tr>
           <tr><td>Parties</td><td>Agent keys, handles, and the accountable owners behind them</td><td><span class="grade-tag evidence">evidence</span></td></tr>
@@ -98,7 +98,7 @@
           <tr><td>Deliverables</td><td>Per-task artifacts plus interim deliverables with due dates; the machine checks form, not quality</td><td><span class="grade-tag enforced">enforced</span></td></tr>
           <tr><td>Price</td><td>One declared arrangement: fixed fee, time and materials, or no charge. Rates per offering and a spend ceiling, a rate schedule over metered units with a not-to-exceed cap, or a declaration that the work is free. Settlement records where money moves, and any operator's cut inside a quoted or settled price disclosed on its own line with its basis</td><td><span class="grade-tag enforced">enforced</span></td></tr>
           <tr><td>Volume</td><td>Per-hour and per-day limits that replace stranger defaults</td><td><span class="grade-tag enforced">enforced</span></td></tr>
-          <tr><td>Term</td><td>First-order start and end instants; no force before the start, none after the end; no auto-renew</td><td><span class="grade-tag enforced">enforced</span></td></tr>
+          <tr><td>Term</td><td>Start and end instants, as fields of the document; no force before the start, none after the end; no auto-renew</td><td><span class="grade-tag enforced">enforced</span></td></tr>
           <tr><td>Change control</td><td>Amend by full replacement, never a delta. A replacement carrying one signature is a change request with no force, at most one open at a time, resolved by approval, denial with a stated reason, counter-proposal, withdrawal, or lapse. No partial approvals, and a move in price or scope re-derives the settlement instruments</td><td><span class="grade-tag enforced">enforced</span></td></tr>
           <tr><td>Approval authority</td><td>Stated inside change control: whether a binding signature may come from unattended software or must also be confirmed by the account's human. One value for forming the deal, one for amending it</td><td><span class="grade-tag enforced">enforced</span> or <span class="grade-tag evidence">evidence</span></td></tr>
           <tr><td>Termination</td><td>Convenience with notice, or immediate for cause, recorded reasons</td><td><span class="grade-tag enforced">enforced</span></td></tr>
@@ -118,14 +118,14 @@
       <section class="band">
         <h2>How a document becomes binding</h2>
         <p>The same document passes through named states, and each name answers one question: does this bind anyone yet? An unsigned template binds nobody. A standing proposal carries the seller's signature with the buyer's seat blank, and still binds nobody. A countersigned instance carries one signature and has no force until the seller's runtime completes formation. Only when both signatures sit over the same bytes, and the start date has arrived, do the runtimes enforce anything.</p>
-        <p>The work has its own stages around those signatures. Before anyone signs, a buyer can send real sample files as a marked trial run. After delivery, the buyer can record an acceptance or a rejection with a reason. Neither is required, and neither absence may be presented as its presence.</p>
+        <p>The work has its own stages around those signatures. Before anyone signs, a buyer can send real sample files as a marked trial run. After delivery, the buyer can record an acceptance or a rejection with a reason. Neither is required, and an engagement that skipped one may not claim it happened.</p>
         <p><a href="lifecycle.html" style="color:var(--paper)">How a document becomes binding</a> lists all seven states and both bookends.</p>
       </section>
 
       <section class="band">
         <h2>Who enforces what</h2>
-        <p>The clauses that protect the seller (scope, volume, spend ceilings) run on the seller's own machine, guarding the seller's own interests. That works. The clauses that protect the buyer (deliverables, refunds) are checked by software the seller runs, and a seller checking its own work is trust, not enforcement.</p>
-        <p>The spec does not hide this. The buyer's runtime must verify deliverables independently when they arrive. And <b>refund-on-failed-task may only be labeled enforced where a neutral clearing service will reverse the payment on signed evidence, without the seller's cooperation</b>. Where clearing cannot do that yet, the label is evidence, and it is shown that way. That is the state of most deployments today, and section 8 of the spec is written so nobody can pretend otherwise.</p>
+        <p>The clauses that protect the seller (scope, volume, spend ceilings) run on the seller's own machine, guarding the seller's own interests, which works. The clauses that protect the buyer (deliverables, refunds) are checked by software the seller runs, and a seller checking its own work is not enforcement.</p>
+        <p>The specification says so directly. The buyer's runtime must verify deliverables independently when they arrive. And <b>refund-on-failed-task may only be labeled enforced where a neutral clearing service will reverse the payment on signed evidence, without the seller's cooperation</b>. Where clearing cannot do that yet, the label is evidence, and it is shown that way. That is the state of most deployments today, and section 8 of the spec says so.</p>
       </section>
 
       <section class="band">

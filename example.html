@@ -186,11 +186,11 @@
             <tr><td>Receipts folder</td><td>shared resource, <code>read</code> access</td><td>standing, for the term</td></tr>
             <tr><td>Chart of accounts</td><td><code>application/json</code></td><td>once, at engagement start</td></tr>
           </table>
-          <p>All four inputs were exercised before either owner signed. On 2026-07-29 Petrel sent its real July statement, ledger export, and chart of accounts as a marked probe, and Granite tried the receipts folder: not delivery, no obligations under any clause, no charge beyond a token. Granite's runtime signed the outcome. Three inputs passed; the receipts folder failed with <code>no_permission</code> until Marisol widened the share, and the probe was re-run. Both parties hold that record, and it is the kind of thing a published offer can require before it accepts a countersign (<a href="spec.html#validation" style="color:var(--paper)">section 13 of the specification</a>).</p>
+          <p>All four inputs were exercised before either owner signed. On 2026-07-29 Petrel sent its real July statement, ledger export, and chart of accounts as a marked probe, and Granite tried the receipts folder: it was not delivery, so no obligations arose under any clause and there was no charge beyond a token. Granite's runtime signed the outcome. Three inputs passed; the receipts folder failed with <code>no_permission</code> until Marisol widened the share, and the probe was re-run. Both parties hold that record, and it is the kind of thing a published offer can require before it accepts a countersign (<a href="spec.html#validation" style="color:var(--paper)">section 13 of the specification</a>).</p>
           <p>A request arriving without its per-task inputs does not fail and does not burn tokens guessing. The task parks in <code>input_required</code> carrying a <b>problem report</b>: which input, what kind of problem, and a description Petrel's agent can act on. The same report covers an input that arrived but cannot be used, and a standing input that stops working in month two.</p>
           <div class="example-box"><span class="verdict out">PROBLEM REPORT</span>input <code>bank-statement</code>, problem <code>wrong_format</code>, expected <code>text/csv</code>. "The file arrived as an .xlsx workbook with three sheets; the engagement names text/csv. I could not find a sheet that matches the columns the reconciliation needs."</div>
           <p>The code comes from a set of five: <code>missing</code>, <code>unreadable</code>, <code>wrong_format</code>, <code>no_permission</code>, and <code>other</code>. The codes are there for routing and for the record. The description is the field the other agent actually reasons from, and it is required on every report, including the four specific codes. Granite says what is wrong; it does not tell Petrel how to fix it, and Petrel's runtime hands the report to Petrel's agent as written, with no resend loop of its own invention.</p>
-          <p class="sub">A report nobody answers is not a stalemate that runs forever. Petrel's runtime raises it to Marisol as the task's deadline nears, and a report still unresolved at the deadline makes the task a failed obligation, which is what sections 9 and 10 act on.</p>
+          <p class="sub">A report nobody answers does not sit open forever. Petrel's runtime raises it to Marisol as the task's deadline nears, and a report still unresolved at the deadline makes the task a failed obligation, which is what sections 9 and 10 act on.</p>
         </div>
         <aside class="machine">
           <div class="machine-title">What the machine does</div>
@@ -246,7 +246,7 @@
       <section class="clause">
         <div>
           <h2><span class="num">6</span>Volume</h2>
-          <p>Petrel may submit up to <b>2 tasks per hour</b> and <b>8 tasks per day</b> under this engagement. These limits replace, for Petrel only, the general limits Granite applies to unknown senders. Traffic beyond them is refused politely with a retry time, not held.</p>
+          <p>Petrel may submit up to <b>2 tasks per hour</b> and <b>8 tasks per day</b> under this engagement. These limits replace, for Petrel only, the general limits Granite applies to unknown senders. Traffic beyond them is refused with a retry time rather than held.</p>
         </div>
         <aside class="machine">
           <div class="machine-title">What the machine does</div>
@@ -258,7 +258,7 @@
       <section class="clause">
         <div>
           <h2><span class="num">7</span>Term and renewal</h2>
-          <p>This engagement runs from <b>2026-08-04</b> through <b>2027-02-01</b>. It does not renew automatically. When it lapses, nothing breaks and nothing lingers: Petrel simply reverts to whatever Granite's general admission rules say about registered strangers.</p>
+          <p>This engagement runs from <b>2026-08-04</b> through <b>2027-02-01</b>. It does not renew automatically. When it lapses, Petrel simply reverts to whatever Granite's general admission rules say about registered strangers.</p>
           <p class="sub">Renewal is an amendment under section 8, proposed by either owner before or after the end date.</p>
         </div>
         <aside class="machine">
@@ -318,7 +318,7 @@
         </div>
         <aside class="machine">
           <div class="machine-title">What the machine does</div>
-          <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Every envelope is signed, task history is intact, and each agent keeps a tamper-evident audit chain with an offline-verifiable export. A dispute gets settled by reading the records, not from memory.</div>
+          <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Every envelope is signed, task history is intact, and each agent keeps a tamper-evident audit chain with an offline-verifiable export. A dispute gets settled by reading the records.</div>
           <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Per spec 8.2: the refund is graded enforced only where clearing executes reversals on signed evidence without the provider's cooperation. This deployment's clearing does not yet, so the grade is evidence.</div>
         </aside>
       </section>
@@ -330,12 +330,12 @@
           <p>Section 10 covers failure. This section covers judgment, which is a different thing: a task can arrive complete and on time, with both artifacts in the agreed formats, and still be wrong about the business.</p>
           <p>At the end of any task, and at the end of the engagement, Marisol may record a <b>review</b>: acceptance, or rejection with a stated reason. A review is signed, it names the task or engagement it judges, and it is append-only. Changing her mind is a second review, not an edit to the first. An unreasoned rejection is not a review and carries no weight anywhere.</p>
           <p>A review never stands in for the facts. "Rejected, but both artifacts arrived on the 3rd in the agreed formats" is a legible state, and anything that renders this engagement shows both halves.</p>
-          <p class="sub">Petrel is not obliged to review anything, and silence is not acceptance. An unreviewed month is an unreviewed month, and no runtime may count it as a satisfied one. The specification keeps review outside the clause list (<a href="spec.html#review" style="color:var(--paper)">section 15 of the specification</a>) because the judgment is made after the work rather than agreed before it. It appears here because these two parties said they would use it.</p>
+          <p class="sub">Petrel is not obliged to review anything, and silence is not acceptance. An unreviewed month has not been accepted, and no runtime may count it as a satisfied one. The specification keeps review outside the clause list (<a href="spec.html#review" style="color:var(--paper)">section 15 of the specification</a>) because the judgment is made after the work rather than agreed before it. It appears here because these two parties said they would use it.</p>
         </div>
         <aside class="machine">
           <div class="machine-title">What the machine does</div>
           <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Reviews are signed by the owner and appended to the same evidence chain as the task history, so a later reader sees the judgment next to the form check that preceded it.</div>
-          <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>Absence of review is absence of evidence. A conforming runtime must not turn Petrel's silence into implied acceptance, and settlement under section 10 is unaffected either way.</div>
+          <div class="note evidence"><span class="grade-tag evidence">Evidence</span><br>A missing review is not evidence of anything. A conforming runtime must not turn Petrel's silence into implied acceptance, and settlement under section 10 is unaffected either way.</div>
         </aside>
       </section>
 
@@ -349,15 +349,15 @@
         </div>
         <aside class="machine">
           <div class="machine-title">What the machine does</div>
-          <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Pairwise sealing is on for this pair; ephemerality is the default, so 30-day retention is the declared exception, not the loophole.</div>
-          <div class="note recorded"><span class="grade-tag recorded">Recorded</span><br>no-training, no-third-party-sharing, no-human-reading. Signed, timestamped, and citable, but enforced by consequence, not by code.</div>
+          <div class="note enforced"><span class="grade-tag enforced">Enforced</span><br>Pairwise sealing is on for this pair; ephemerality is the default, so the 30-day retention is a declared exception.</div>
+          <div class="note recorded"><span class="grade-tag recorded">Recorded</span><br>no-training, no-third-party-sharing, no-human-reading. Signed, timestamped, and citable, but enforced by consequence rather than by code.</div>
         </aside>
       </section>
 
       <!-- 13 Signatures -->
       <div class="signatures">
         <h2><span class="num" style="font-family:var(--wire);font-size:.8rem;font-weight:500;color:var(--faint);margin-right:10px">13</span>Signatures</h2>
-        <p class="sub">The owners sign the canonical form of this document with their account keys. Each agent's node holds the countersigned copy and enforces from it; there is no central contract server to trust or to lose.</p>
+        <p class="sub">The owners sign the canonical form of this document with their account keys. Each agent's node holds the countersigned copy and enforces from it; there is no central contract server.</p>
         <div class="sig-grid">
           <div class="sig">
             <div class="who">D. Okafor, for Stonework Analytics (provider)</div>
@@ -378,7 +378,7 @@
         </div>
       </div>
 
-      <p class="foot-note">This page is an illustrative example of the Agent SoW shape: a statement of work between two agents where every clause is labeled with what the runtime can actually do about it. Enforced clauses are refused mechanically when violated. Evidence clauses leave signed records. Recorded clauses are promises whose breach reputation punishes. The parties, keys, amounts, and signatures above are invented.</p>
+      <p class="foot-note">This page is an illustrative example of an Agent SoW: a statement of work between two agents where every clause is labeled with what the runtime can actually do about it. Enforced clauses are refused mechanically when violated. Evidence clauses leave signed records. Recorded clauses are promises whose breach reputation punishes. The parties, keys, amounts, and signatures above are invented.</p>
 
     </div>
   </main>
