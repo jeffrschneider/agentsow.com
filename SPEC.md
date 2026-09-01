@@ -1,6 +1,6 @@
 # Agent SoW Specification
 
-**Version:** 0.20.0-draft
+**Version:** 0.21.0-draft
 **Status:** Working Draft
 **Date:** 2026-08-30
 
@@ -368,6 +368,7 @@ made**:
 | `api_token` | Issues a token in the client's own system. |
 | `oauth` | Completes an authorization grant, so the provider acts under a delegation the client can revoke at the source. |
 | `seat` | Provisions an account, seat, or role for the provider inside the client's system, which is then a user in the client's own audit log. |
+| `proxy` | Grants nothing that leaves: the client's own agent answers the provider's requests against the resource. Access is metered per request, every ask is a message the client's side can screen and log, and revoking is ceasing to answer. |
 
 `via` is a closed vocabulary and absent means the parties have not said. A
 runtime MUST NOT infer `link` from silence, and MUST NOT render an input with
@@ -386,6 +387,15 @@ credential, a token, an endpoint, an account or tenant identifier, or a
 filesystem path in an input entry: it says `via: "mcp"` and an access level,
 never the URL. This is the same discipline an interface description has always
 had, where the operations are published and the endpoint is bound later.
+
+**A grant SHOULD be bound to the engagement where its mechanism allows.** A
+mechanism that supports scoping a grant to an audience and an expiry (an
+`oauth` delegation, commonly an `api_token`) SHOULD issue it bound to this
+engagement and expiring with its term, so that revocation at the engagement's
+end is a property of the grant rather than a task somebody remembers. A
+mechanism that supports neither (`link` and `seat` often do not) leaves a
+standing door the client must close by hand, and that difference is a fact a
+client weighs when the parties choose the `via`.
 
 The restriction is on publication, not on the clause. A **directed** standing
 proposal (§12.1.1) and an executed engagement each name their counterparty, so
