@@ -1,8 +1,8 @@
 # Agent SoW Specification
 
-**Version:** 0.21.0-draft
+**Version:** 0.22.0-draft
 **Status:** Working Draft
-**Date:** 2026-08-30
+**Date:** 2026-09-08
 
 A **statement of work** (SoW) is the legal agreement businesses sign when
 they hire a service firm: it lists the work, what each side provides, the
@@ -561,6 +561,91 @@ NOT `enforced`: running the test is somebody's claim unless a third party both
 parties trust runs it, and this specification does not pretend to have one.
 What it changes is that the argument is now about a number both sides agreed to
 in advance, instead of about the meaning of the word "good".
+
+### 5.4.3 Revisions
+
+A delivered piece of work is revised more often than it is redone. A client
+who wants one paragraph rewritten or one recording made again is not asking
+for a new job, and is not asking to amend the contract. §5.8 is for changing
+scope, price, and term, and it stays what it is. This clause is how a client
+asks for a change to delivered work without amending the document.
+
+`revisions` states three things: how many revisions are included, and within
+what window after the task completed; which delivery steps of the offering
+may be redone and what each costs, as a per-step price, or as one flat
+revision price where the provider does not decompose its work; and that a
+rejection with reasons under §15 MAY open an included revision at no charge.
+
+```json
+"revisions": {
+  "included": { "count": 1, "window_days": 14 },
+  "steps": [
+    { "id": "record-the-narration", "price": { "model": "flat", "amount_micro": 400000, "currency": "USD" } }
+  ],
+  "flat": { "model": "flat", "amount_micro": 1000000, "currency": "USD" },
+  "grade": "enforced"
+}
+```
+
+`steps` and `flat` are alternatives, and a conforming document carries one
+of them; the block above shows both shapes. `steps` lists the delivery steps
+of the offering that may be redone, each `id` naming a step the offering
+declares, each with its price. `flat` is one price for any revision, for a
+provider that does not decompose its work. A document carrying neither, with
+`included` present, means every revision beyond the included count is
+refused: there is no price to quote. A document with `included` absent
+includes no revision, and every revision is priced. A document with no
+`revisions` clause at all means revisions are not offered: a request naming
+a prior task is an ordinary new task at the offering's price.
+
+**A revision is a new task.** It runs under the same engagement, and its
+request names the prior task: a `revises` member carrying the prior task's
+identifier, and the prior task's job manifest, the signed record the
+provider attached to the prior completion listing every delivered piece
+with its artifact reference and its SHA-256 digest. The manifest format is
+defined by the Common Agent Specification (https://agentdoc.net); this
+clause cites it and does not restate it. The prior task stays completed.
+Nothing about it is edited: its record, its settlement, and any review it
+carries are untouched.
+
+**The request names the steps it asks to have redone.** The price of the
+revision is the sum of the named steps' prices where the clause carries
+`steps`, or the flat price where it carries `flat`, and zero while an
+included revision remains and the request arrives within `window_days` of
+the prior task's completion. Included revisions are counted per original
+task: a revision of a revision draws on the original task's count and
+window, not on a fresh one. A rejection with reasons under §15 MAY open an
+included revision at no charge.
+
+**The provider's runtime applies the arithmetic.** It counts included
+revisions per original task, and it MUST refuse a revision beyond the count
+whose request carries no budget covering the price, with a typed refusal
+that carries the price as a quote, the same refusal §5.5.1 uses at the
+ceiling. A request that carries a covering budget is admitted and rated at
+that price, and it settles like any other task under §5.5.
+
+**Reuse is evidence.** The revision's completion attaches a new job manifest
+in which every piece the provider did not redo carries the same artifact
+reference and digest as before, and every piece it redid carries a new one.
+The completion carries every named per-task deliverable, so the form check
+of §5.4 applies to it unchanged. A runtime on either side MAY compare the
+two manifests and record how many pieces were reused. That count is
+evidence, computed from digests, not the provider's claim. Whether the
+change satisfied the client is a review under §15 and never a runtime's
+verdict.
+
+**Time and materials.** Under `time_and_materials` (§5.5.2) there is no
+revision arithmetic. A change to delivered work is ordinary metered work,
+rated by the schedule and bounded by the cap, and this clause does not
+apply.
+
+Grade: `enforced` for the count, the window, and the price arithmetic,
+which a conforming provider runtime MUST apply: a revision beyond the count
+without a covering budget is refused with a quote, and one inside the count
+and the window is admitted at no charge. The reuse count is `evidence`: two
+signed manifests, compared by digest. The quality of the change is neither.
+It is review (§15), and a runtime that presented a reuse count as a verdict
+on the work would be claiming what §3 forbids.
 
 ### 5.5 Price and metering
 
@@ -2009,6 +2094,10 @@ offer itself is wrong: prospective only, archived, and it withdraws the
 offer from everyone rather than one party. On a directed proposal (§12.1.1),
 everyone is the one party the offer names.
 
+A standing proposal MAY carry a `revisions` clause (§5.4.3) exactly as an
+engagement does, so a listing derived from it shows what a change to
+delivered work costs before anyone signs.
+
 #### 12.1.1 The named counterparty
 
 A standing proposal MAY name the one party entitled to countersign it. A
@@ -2311,6 +2400,19 @@ actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
 
 ## Changelog
+
+**0.22.0-draft** (2026-09-08). Revisions to delivered work.
+
+Section 5.4.3 lets a client ask for a change to a completed task without
+amending the contract: included revisions with a count and a window,
+per-step or flat prices for the rest, a new task that names the prior task
+and its signed job manifest, the count and price arithmetic enforced at the
+provider's runtime, the reuse of unchanged pieces recorded from digests as
+evidence, and the quality of the change left to review. Section 12.1 lets a
+standing proposal carry the same clause.
+
+The clause is optional. No grade changes, no signed bytes change, and every
+0.21.0-draft document remains valid.
 
 **0.20.0-draft** (2026-08-30). What a grant is, and where a processor is.
 
