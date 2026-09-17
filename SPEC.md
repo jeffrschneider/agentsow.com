@@ -1,8 +1,8 @@
 # Agent SoW Specification
 
-**Version:** 0.22.0-draft
+**Version:** 0.23.0-draft
 **Status:** Working Draft
-**Date:** 2026-09-08
+**Date:** 2026-09-17
 
 A **statement of work** (SoW) is the legal agreement businesses sign when
 they hire a service firm: it lists the work, what each side provides, the
@@ -320,6 +320,62 @@ Grade: `enforced`. A conforming provider node MUST refuse, with a typed
 refusal, any request under the engagement that names an offering not listed.
 Requests are matched on offering, not on prose; the examples guide humans and
 agents drafting requests, and dispute readers after the fact.
+
+#### 5.2.1 A process as the scope
+
+Scope MAY instead name one published process at one version. A document MUST
+carry `offerings` or `process`, never both: an engagement whose scope is a
+process is an agreement to run that process, and a list of offerings beside it
+would be a second, quieter answer to what was agreed.
+
+```json
+"scope": {
+  "process": { "id": "acme/video-to-explainer", "version": "sha256:9f2a…" },
+  "examples": {
+    "in_scope": ["Turn this product launch recording into a two minute explainer."],
+    "out_of_scope": ["Write the launch announcement itself."]
+  },
+  "grade": "enforced"
+}
+```
+
+The version is the digest of the process document's text, not its version
+label. A label is not unique: a document commonly carries the same label
+through every edit while it is being written, so an engagement pinned to a
+label is pinned to nothing. A conforming node MUST refuse a request that names
+a different process or a different digest.
+
+WHY A PROCESS IS NOT AN OFFERING. A process is work that crosses several
+parties: phases held by different owners' agents, and phases a person does. It
+has no single agent standing behind it, which is what an offering is. Wrapping
+one as a pretend offering would hide exactly the two things this document
+exists to disclose, the other owners' agents involved and the steps a person
+must take, so it is a scope of its own instead.
+
+THE PROVIDER SEAT. §5.1 requires an agent that answers for the provider. For a
+process scope that agent is whichever one runs the process for its owner: the
+owner's own engine, or a process runner they hold. It answers for the whole
+engagement, including for phases held by other owners' agents, which is what
+§5.15 means by the prime being accountable.
+
+INPUTS AND DELIVERABLES follow the document rather than being listed twice.
+The engagement's §5.3 inputs are what the process's trigger asks for, and its
+§5.4 deliverables are what the process hands back at its end. A phase's own
+output on the way through is working material and MUST NOT be listed as a
+deliverable: it is the process showing how it got there, and acceptance under
+§5.4.2 is owed on the result, not on the workings.
+
+A PHASE THE CLIENT HOLDS. A process may name the client as the holder of a
+phase. That is a client obligation arising mid-task, which §5.3 does not
+otherwise contemplate: its inputs arrive before work starts. Such a phase MUST
+carry a response window, and silence MUST pause the engagement rather than
+count as acceptance. A provider MUST NOT treat an unanswered phase as approval
+of anything, and time spent waiting MUST NOT be billed as work.
+
+CHANGING THE VERSION. An engagement is pinned to the digest it names. A new
+version of the process is an amendment under §11, which the client approves;
+until they do, the engagement continues on the version they agreed. A provider
+MUST NOT run a request against a version the client has not agreed.
 
 ### 5.3 Inputs
 
@@ -1734,6 +1790,17 @@ Three postures, a closed set:
   the client's countersigned approval before its work begins, riding the
   same two-seat machinery amendments use.
 
+**A process scope makes most of this explicit before the work starts.** When
+the scope is a process (§5.2.1), the document already names every phase and
+its holder, so who does what is not a matter of later disclosure. Each phase
+held by an agent belonging to an owner other than the provider MUST appear in
+`subcontractors`, and the posture MUST NOT be `none` when any such phase
+exists: a provider cannot claim to perform work itself while the document it
+is running hands a phase to somebody else. A phase held by the provider's own
+agents is not subcontracting, and listing it would make the disclosure harder
+to read while telling the client nothing. A phase held by the client is not
+subcontracting either; it is a client obligation under §5.2.1.
+
 **An entry names a party on the mesh, and the vocabulary offers no other
 kind.** A subcontractor entry is a mesh agent, by key or handle, or a
 published role a conforming agent holds. There is deliberately no entry
@@ -2400,6 +2467,41 @@ actually support, and it is produced here, at the only moment both the
 facts and a motivated judge are present.
 
 ## Changelog
+
+**0.23.0-draft** (2026-09-17). A process as the scope.
+
+Section 5.2.1 lets scope name one published process at one version instead of
+a list of the provider's offerings, so that "you may run this thing I built"
+is something this document can say. A document carries one or the other and
+never both.
+
+The version pinned is the digest of the document's text, not its version
+label, because a label is not unique: a document commonly carries the same
+label through every edit while it is being written, so an engagement pinned to
+a label is pinned to nothing.
+
+A process is not wrapped as a pretend offering, and that is the point of the
+clause. A process crosses parties: phases held by other owners' agents, and
+phases a person does. Wrapping it as one offering would hide exactly the two
+things this specification exists to disclose. So the clause says instead who
+answers for it (the agent that runs it for its owner), that inputs and
+deliverables follow the document rather than being listed twice, that a phase's
+working output is never a deliverable, and that a phase naming the client is a
+client obligation arising mid-task, which MUST carry a response window and
+where silence pauses the engagement rather than counting as acceptance.
+
+Section 5.15 gains the matching rule: under a process scope, every phase held
+by another owner's agent MUST be disclosed as a subcontractor, and the posture
+MUST NOT be `none` while any such phase exists. A phase held by the provider's
+own agents is not subcontracting and is not listed; a phase held by the client
+is a client obligation, not subcontracting.
+
+Changing the process version under a live engagement is an amendment under
+§11, which the client approves; until then the engagement continues on the
+version they agreed.
+
+The clause is optional. No grade changes, no signed bytes change, and every
+0.22.0-draft document remains valid.
 
 **0.22.0-draft** (2026-09-08). Revisions to delivered work.
 
