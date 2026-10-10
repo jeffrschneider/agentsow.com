@@ -1813,6 +1813,43 @@ cannot name is undisclosed subcontracting, which is breach. The parties
 remain free to arrange anything they like outside this clause and outside
 this machinery; what the vocabulary refuses to do is bless it.
 
+**An entry MAY pin the engagement it runs under, and a bound offer built on
+other people's work MUST.** An entry names who, and `scope` names what, but
+neither says *under what terms*. Without a pin, flow-down conformance can only
+be computed against whatever the delegate happens to be offering when somebody
+asks, so a chain that conformed at signature drifts the moment a delegate
+reprices, loosens its retention or adds a jurisdiction — and the prime is then
+in breach of terms it never agreed to change. The optional `engagement` member
+carries the §4.1 identifier of the countersigned engagement between the
+provider and that delegate:
+
+```json
+{ "handle": "pat/ledgers",
+  "scope": "reconciliation of EU-format statements",
+  "engagement": "eng_01J9Z3KQ7V8YB4N6M2X5TCFHRD" }
+```
+
+Where it is present, a runtime computing flow-down MUST compare against that
+document rather than against the delegate's current offer, and the pin changes
+only by amendment (§6.1). It is optional because this clause also serves plain
+disclosure: naming who you delegate to, with no engagement of your own to point
+at, is a true and useful statement, and a vocabulary that refused it would push
+honest providers into saying nothing. What requires pins is a particular kind
+of offer — one party promising terms for work it does not perform — and the
+runtime publishing such an offer states that requirement itself rather than the
+document carrying a flag about it. A provider cannot promise terms it does not
+hold, and it holds a delegate's terms exactly when it holds a countersigned
+engagement with that delegate.
+
+**The provider's own people are the provider, not delegates.** This clause
+describes delegation to another *party*; work the provider's own staff perform
+under its direction is the provider performing the work, and it belongs in the
+scope clause like any other thing the provider does. This is the same rule the
+process-scope paragraph above already applies to the provider's own agents, said
+once for people so nobody reaches for a subcontractor entry that cannot name
+them and concludes the clause has a gap. It does not. A step no agent performs
+is still the provider's, and the provider answers for it.
+
 **A subcontractor does work; a processor supplies a capability.** The line
 between this clause and §5.11's processor list is obligation, not
 mechanics: a party that produces part of the deliverable or exercises
