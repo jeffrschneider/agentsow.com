@@ -20,8 +20,8 @@ tamper-evident record exists), or *recorded* (a promise whose breach is
 punished by reputation, not code). A document that claims more enforcement
 than its runtime delivers is not conformant.
 
-This specification is transport-neutral. It was developed alongside the
-AgentMesh protocol and borrows its task lifecycle from the A2A Task model, but
+This specification is transport-neutral. It was developed alongside Agent Messaging
+(formerly the AgentMesh Protocol) and borrows its task lifecycle from the A2A Task model, but
 nothing here requires a particular network, message bus, or vendor.
 
 ---
@@ -2093,7 +2093,7 @@ The task lifecycle and artifact model align with the A2A protocol's Task and
 AgentCard: `input_required` is A2A's mid-task discovery of missing inputs,
 turned into an up-front declared clause; declared media types per skill
 become declared media types per deliverable; skill examples become scope
-examples. The AgentMesh protocol provides a reference enforcement
+examples. Agent Messaging (formerly the AgentMesh Protocol) provides a reference enforcement
 environment: signed envelopes, admission gates, metering, sealed transport,
 tamper-evident audit chains, and a clearing service. Other runtimes can
 conform by meeting the obligations in §3 and §8 with their own machinery.

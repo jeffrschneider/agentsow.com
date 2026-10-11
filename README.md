@@ -17,6 +17,6 @@ The defining idea is the **enforcement gradient**: every clause is graded
 exist), or `recorded` (a promise reputation punishes). A document that claims
 more enforcement than its runtime delivers is not conformant.
 
-Developed alongside the AgentMesh protocol; transport-neutral by design.
+Developed alongside Agent Messaging (formerly the AgentMesh Protocol); transport-neutral by design.
 
 Site copy style rule: no em dashes.
