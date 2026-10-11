@@ -21,31 +21,45 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="site.css">
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/theme.js"></script>
 </head>
 <body>
 <div class="layout">
 
-  <aside class="rail">
-    <a class="brand" href="index.html"><span class="dot"></span>agent sow</a>
-    <div class="grp">Read</div>
-    <nav>
-      <a href="index.html">Overview</a>
-      <a href="spec.html">The specification</a>
-      <a href="example.html">Worked example</a>
+  <aside class="rail sidenav" id="sidenav">
+    <div class="sn-head">
+      <a class="sn-brand" href="index.html"><span class="dot"></span>agent sow</a>
+      <button class="sn-btn" id="theme-toggle" type="button" aria-label="Switch between light and dark"><span class="sn-to-dark"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 9.6A5.6 5.6 0 0 1 6.4 2.5a5.6 5.6 0 1 0 7.1 7.1z" fill="currentColor"/></svg></span><span class="sn-to-light"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3.2" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 1v1.8M8 13.2V15M1 8h1.8M13.2 8H15M3 3l1.3 1.3M11.7 11.7L13 13M3 13l1.3-1.3M11.7 4.3L13 3"/></g></svg></span><span class="sn-to-dark">Dark</span><span class="sn-to-light">Light</span></button>
+      <button class="sn-btn sn-menu" id="menu-toggle" type="button" aria-expanded="false" aria-controls="sidenav"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Menu</button>
+    </div>
+    <nav class="sn-nav" aria-label="agentsow.com">
+        <details class="sn-sec" open>
+          <summary>Read<svg class="sn-chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+          <div class="sn-items">
+          <a href="index.html">Overview</a>
+          <a href="spec.html">The specification</a>
+          <a href="example.html">Worked example</a>
+          </div>
+        </details>
+        <details class="sn-sec" open>
+          <summary>In depth<svg class="sn-chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+          <div class="sn-items">
+          <a href="pricing.html">Pricing</a>
+          <a class="on" href="signing.html">Who can sign</a>
+          <a href="lifecycle.html">How it becomes binding</a>
+          </div>
+        </details>
+        <details class="sn-sec" open>
+          <summary>Alongside<svg class="sn-chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+          <div class="sn-items">
+          <a href="internal.html">Internal SoWs</a>
+          <a href="catalog.html">With an agent catalog</a>
+          <a href="spec-a2a-terms.html">A2A terms extension</a>
+          </div>
+        </details>
     </nav>
-    <div class="grp">In depth</div>
-    <nav>
-      <a href="pricing.html">Pricing</a>
-      <a class="on" href="signing.html">Who can sign</a>
-      <a href="lifecycle.html">How it becomes binding</a>
-    </nav>
-    <div class="grp">Alongside</div>
-    <nav>
-      <a href="internal.html">Internal SoWs</a>
-      <a href="catalog.html">With an agent catalog</a>
-      <a href="spec-a2a-terms.html">A2A terms extension</a>
-    </nav>
-    <div class="foot">
+    <div class="sn-foot">
       <a href="https://agentmesh.ai/standards.html">The family of standards</a><br><br>
       v0.20.0-draft<br>
       a working draft, developed<br>alongside AgentMesh

@@ -1,0 +1,142 @@
+/* The family palette, the left menu and the light/dark switch, shared by the
+   AgentMesh standards sites. Every page loads this after its own styles, so
+   the tokens here replace the page's. Light is the default; dark only when
+   the reader presses the switch (theme.js). Ratios are WCAG 2 contrast,
+   measured: body text 7:1 or more, every other piece of text 4.5:1 or more at
+   any size, and deploy.sh refuses to publish below that
+   (tools/contrast-gate.mjs). No text is faded with opacity or a translucent
+   colour. Only the block marked "this site" differs between the sites. */
+
+/* ── Light ── */
+:root{
+  --bg:#FFFFFF;          /* page */
+  --surface:#F6F4EF;     /* menu, cards, panels */
+  --surface-2:#EEEBE3;   /* a panel inside a panel */
+  --line:#DCD8CF; --f-line:#DCD8CF;  /* borders only, never text */
+  --text:#14211F;        /* 16.57 on bg, 15.08 on surface, 13.91 on surface-2 */
+  --text-2:#3B4A48;      /*  9.30 on bg,  8.46 on surface */
+  --text-3:#4F5F5C;      /*  6.72 on bg,  6.12 on surface,  5.64 on surface-2 */
+  --amber:#8A4B00;  --amber-tint:#FDF1E0;   /* 6.80 on bg, 6.10 on tint, 5.71 on surface-2 */
+  --gold:#6B5400;   --gold-tint:#FBF3D9;    /* 7.26 on bg, 6.54 on tint, 6.09 on surface-2 */
+  --blue:#1D5BC2;   --blue-tint:#EAF1FD;    /* 6.31 on bg, 5.56 on tint, 5.30 on surface-2 */
+  --violet:#6340C4; --violet-tint:#F1ECFC;  /* 6.86 on bg, 5.93 on tint */
+  --mint:#0A5E49;   --mint-tint:#E3F1EB;    /* 7.75 on bg, 6.66 on tint */
+  --slate:#46596B;  --slate-tint:#EDF1F5;   /* 7.24 on bg, 6.38 on tint */
+  --red:#B3261E;    --red-tint:#FCEBEA;     /* 6.54 on bg, 5.67 on tint, 5.49 on surface-2 */
+  --on-accent:#FFFFFF;   /* text on an accent fill: 6.31 on blue, the lowest */
+}
+
+/* ── Dark (the switch) ── */
+:root[data-theme="dark"]{
+  --bg:#10191C; --surface:#16232A; --surface-2:#1C2B32; --line:#2A3B40; --f-line:#2A3B40;
+  --text:#E9F0EE;       /* 15.42 on bg, 13.89 on surface */
+  --text-2:#C3D0CD;      /* 11.23 on bg, 10.11 on surface */
+  --text-3:#A7B6B2;      /*  8.47 on bg,  7.63 on surface, 6.92 on surface-2 */
+  --amber:#F2A93B;  --amber-tint:#2A2418;   /* 8.93 on bg, 7.71 on tint */
+  --gold:#E9C46A;   --gold-tint:#29240F;    /* 10.67 on bg, 9.29 on tint */
+  --blue:#8AB8FF;   --blue-tint:#172636;    /* 8.81 on bg, 7.59 on tint, 7.20 on surface-2 */
+  --violet:#C2AEFF; --violet-tint:#221F35;  /* 9.16 on bg, 8.20 on tint */
+  --mint:#4FD9AB;   --mint-tint:#15302A;    /* 10.06 on bg, 7.96 on tint */
+  --slate:#9FB4C8;  --slate-tint:#1A2530;   /* 8.35 on bg, 7.28 on tint */
+  --red:#F2726B;    --red-tint:#2E1A1A;     /* 6.28 on bg, 5.78 on tint */
+  --on-accent:#10191C;   /* 8.81 on blue, the lowest */
+  color-scheme:dark;
+}
+
+/* ── The names the site's own CSS was written with, mapped onto the palette ── */
+:root, :root[data-theme="dark"]{
+  --ink:var(--bg); --panel:var(--surface); --panel-2:var(--surface-2);
+  --paper:var(--text); --dim:var(--text-2); --faint:var(--text-3);
+  --signal:var(--amber); --verify:var(--mint); --address:var(--blue); --broadcast:var(--violet);
+  --enforced:var(--mint); --evidence:var(--blue); --recorded:var(--amber);
+  /* this site */
+  --accent:var(--mint); --accent-tint:var(--mint-tint); --accent-text:var(--mint);
+}
+
+/* The simulations set the old names on themselves, so they are mapped there
+   too. --f-line is --line under another name: a component cannot point its
+   own --line at the page's. */
+:root .acsim{
+  --ink:var(--bg); --panel:var(--surface); --line:var(--f-line);
+  --paper:var(--text); --dim:var(--text-2); --faint:var(--text-3);
+  --signal:var(--amber); --verify:var(--mint); --address:var(--blue); --broadcast:var(--violet);
+}
+
+/* The simulations faded what is pending, muted, gone or disabled with
+   opacity, which fades its words too. Here everything stays at full strength
+   and those states show in grey instead. */
+:root .acsim .ps-ph, :root .acsim .ps-runhead, :root .acsim .ps-lane{ opacity:1; }
+:root .acsim .acsim-btn:disabled{ opacity:1; color:var(--text-3); }
+:root .acsim .acn[data-s="muted"], :root .acsim .acn[data-s="out"]{ opacity:1; --c:var(--text-3); }
+
+/* ── The page ── */
+:root body{ background:var(--bg); background-image:none; color:var(--text); }
+:root body::before, :root body::after{ content:none; display:none; }
+:root body > .layout{ grid-template-columns:280px minmax(0,1fr); gap:0; padding:0; }
+:root a:focus-visible{ outline-color:var(--accent); }
+
+/* ── The left menu ── */
+.rail.sidenav, .sidenav{ background:var(--surface); border-right:1px solid var(--line); position:sticky; top:0;
+  align-self:start; height:100vh; overflow-y:auto; scrollbar-width:thin; padding:22px 18px 28px;
+  z-index:10; font-family:var(--body); margin:0; }
+.sn-head{ display:flex; align-items:center; gap:10px; margin:0 0 22px; }
+.sidenav .sn-brand{ display:flex; align-items:center; gap:9px; color:var(--text); text-decoration:none;
+  font-family:var(--disp); font-weight:700; font-size:1.06rem; letter-spacing:-.01em; line-height:1.2; min-width:0; }
+.sidenav .sn-brand .dot{ width:10px; height:10px; border-radius:2px; background:var(--accent); flex:none; box-shadow:none; }
+.sidenav .sn-btn{ margin-left:auto; display:inline-flex; align-items:center; gap:6px; font-family:var(--body);
+  font-size:.85rem; font-weight:600; line-height:1.2; color:var(--text); background:var(--bg);
+  border:1px solid var(--line); border-radius:8px; padding:6px 10px; cursor:pointer; flex:none; }
+.sidenav .sn-btn:hover{ border-color:var(--text-3); }
+.sidenav .sn-btn svg{ width:16px; height:16px; }
+.sn-to-light{ display:none; }
+:root[data-theme="dark"] .sn-to-dark{ display:none; }
+:root[data-theme="dark"] .sn-to-light{ display:inline; }
+.sidenav .sn-btn.sn-menu{ display:none; margin-left:0; }
+.sidenav .sn-nav{ display:block; margin:0; padding:0; }
+.sidenav .sn-sec{ margin:0 0 6px; }
+.sidenav .sn-sec > summary{ list-style:none; cursor:pointer; display:flex; align-items:center; gap:8px;
+  font-family:var(--body); font-size:.9rem; font-weight:700; letter-spacing:.01em; text-transform:none;
+  color:var(--text); padding:8px 10px; border-radius:8px; }
+.sidenav .sn-sec > summary::-webkit-details-marker{ display:none; }
+.sidenav .sn-sec > summary:hover{ background:var(--bg); }
+.sidenav .sn-chev{ margin-left:auto; width:14px; height:14px; color:var(--text-3); transition:transform .15s ease; flex:none; }
+.sidenav .sn-sec[open] > summary .sn-chev{ transform:rotate(90deg); }
+.sidenav .sn-items{ padding:2px 0 8px; }
+.sidenav .sn-items a{ display:block; font-family:var(--body); font-size:.9375rem; font-weight:400; line-height:1.35;
+  letter-spacing:normal; text-transform:none; color:var(--text-2); text-decoration:none;
+  padding:7px 10px 7px 20px; margin:1px 0; border-radius:8px; border:0; border-left:3px solid transparent; background:none; }
+.sidenav .sn-items a:hover{ color:var(--text); background:var(--bg); }
+.sidenav .sn-items a.on{ color:var(--text); font-weight:600; background:var(--accent-tint); border-left-color:var(--accent); }
+.sidenav .sn-ext{ font-size:.8em; margin-left:3px; }
+.sidenav .sn-foot{ margin-top:22px; padding:16px 10px 0; border-top:1px solid var(--line); font-family:var(--body);
+  font-size:.85rem; color:var(--text-3); line-height:1.5; }
+.sidenav .sn-foot a{ color:var(--accent-text); font-weight:600; }
+.sidenav a:focus-visible, .sidenav button:focus-visible, .sidenav summary:focus-visible{
+  outline:2px solid var(--accent); outline-offset:2px; }
+
+/* ── Shared page parts, made readable on both grounds ── */
+:root pre, :root pre.code{ background:var(--surface); color:var(--text); border-color:var(--line); }
+:root .btn-signal:not(:disabled), :root .btn-go:not(:disabled), :root .btn-lead:not(:disabled){ color:var(--on-accent); box-shadow:none; }
+:root .btn-ghost{ background:var(--bg); }
+:root table th{ background:var(--surface); }
+
+/* The analytics consent bar (ga.js) draws itself from the page's colours when
+   it opens; these keep it on the palette if the reader switches theme. */
+:root #analytics-consent{ background:var(--surface) !important; color:var(--text) !important;
+  border-color:var(--line) !important; }
+:root #analytics-consent button{ background:var(--bg) !important; color:var(--text) !important;
+  border-color:var(--text) !important; }
+:root #analytics-consent button:last-child{ background:var(--text) !important; color:var(--bg) !important; }
+
+/* ── Narrow screens: the menu folds behind a Menu button ── */
+@media (max-width:900px){
+  :root body > .layout{ grid-template-columns:minmax(0,1fr); }
+  .rail.sidenav, .sidenav{ position:sticky; top:0; height:auto; max-height:100vh; border-right:0;
+    border-bottom:1px solid var(--line); padding:12px 16px; }
+  .sn-head{ margin:0; }
+  .sidenav .sn-btn.sn-menu{ display:inline-flex; }
+  .sidenav .sn-nav, .sidenav .sn-foot{ display:none; }
+  .sidenav.open .sn-nav{ display:block; margin-top:14px; }
+  .sidenav.open .sn-foot{ display:block; }
+}
+@media (prefers-reduced-motion:reduce){ .sidenav .sn-chev{ transition:none; } }
