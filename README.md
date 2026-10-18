@@ -1,3 +1,5 @@
+> **Archived.** This site is now built from [github.com/CommonAgent/common-agent-standards](https://github.com/CommonAgent/common-agent-standards); this repository is no longer used.
+
 # agentsow.com
 
 The **Agent SoW** specification and site: a signed, machine-graded statement of
